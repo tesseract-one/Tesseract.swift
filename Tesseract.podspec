@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'Tesseract'
   s.version          = '0.1.0'
-  s.summary          = 'Tesseract DApp Platform SDK for iOS and OSX'
+  s.summary          = 'Tesseract DApp Platform for iOS and OSX'
 
   s.description      = <<-DESC
-Tesseract DApp Platform SDK for iOS and OSX
+Tesseract DApp Platform for iOS and OSX. Entry point for all APIs.
                        DESC
 
   s.homepage         = 'https://github.com/tesseract-one/Tesseract.swift'
