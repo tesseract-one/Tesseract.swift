@@ -1,0 +1,628 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		580D63CFB8D739CCE03AFDA8 /* Pods_Tesseract_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41F5AD02BAB42C9541FEA8F1 /* Pods_Tesseract_iOS.framework */; };
+		9234BF64227CA61500A43A2C /* Tesseract.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9234BF5A227CA61500A43A2C /* Tesseract.framework */; };
+		9234BF7C227CA6AD00A43A2C /* TesseractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9234BF7A227CA6AD00A43A2C /* TesseractTests.swift */; };
+		9234BF7F227CA7B900A43A2C /* Tesseract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9234BF7E227CA7B900A43A2C /* Tesseract.swift */; };
+		9234BF81227CA8E000A43A2C /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9234BF80227CA8E000A43A2C /* Extension.swift */; };
+		9234BF89227CACA300A43A2C /* OpenWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9234BF88227CACA300A43A2C /* OpenWallet.swift */; };
+		9234BF8D227CB35C00A43A2C /* EthereumExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9234BF8C227CB35C00A43A2C /* EthereumExtensions.swift */; };
+		C30B68FA8E9A3268507F5179 /* Pods_TesseractTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A8541886315247801372DB3 /* Pods_TesseractTests_iOS.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9234BF65227CA61500A43A2C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9234BF51227CA61500A43A2C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9234BF59227CA61500A43A2C;
+			remoteInfo = "Tesseract-iOS";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2450F56CC294F9080C542046 /* Pods-TesseractTests-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TesseractTests-iOS.debug.xcconfig"; path = "Target Support Files/Pods-TesseractTests-iOS/Pods-TesseractTests-iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		41F5AD02BAB42C9541FEA8F1 /* Pods_Tesseract_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tesseract_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7127EE0E02812E439F824715 /* Pods-Tesseract-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tesseract-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Tesseract-iOS/Pods-Tesseract-iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		7A8541886315247801372DB3 /* Pods_TesseractTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TesseractTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9234BF5A227CA61500A43A2C /* Tesseract.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Tesseract.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9234BF63227CA61500A43A2C /* TesseractTests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TesseractTests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9234BF77227CA69700A43A2C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9234BF7A227CA6AD00A43A2C /* TesseractTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TesseractTests.swift; sourceTree = "<group>"; };
+		9234BF7B227CA6AD00A43A2C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9234BF7E227CA7B900A43A2C /* Tesseract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tesseract.swift; sourceTree = "<group>"; };
+		9234BF80227CA8E000A43A2C /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+		9234BF88227CACA300A43A2C /* OpenWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenWallet.swift; sourceTree = "<group>"; };
+		9234BF8C227CB35C00A43A2C /* EthereumExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumExtensions.swift; sourceTree = "<group>"; };
+		9234BF8E227CCA3900A43A2C /* Tesseract.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = Tesseract.podspec; sourceTree = "<group>"; };
+		AE464A77B7BBB0121F1CC89D /* Pods-Tesseract-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tesseract-iOS.release.xcconfig"; path = "Target Support Files/Pods-Tesseract-iOS/Pods-Tesseract-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		AF3993293250E98CB9D6F7D9 /* Pods-TesseractTests-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TesseractTests-iOS.release.xcconfig"; path = "Target Support Files/Pods-TesseractTests-iOS/Pods-TesseractTests-iOS.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9234BF57227CA61500A43A2C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				580D63CFB8D739CCE03AFDA8 /* Pods_Tesseract_iOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9234BF60227CA61500A43A2C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9234BF64227CA61500A43A2C /* Tesseract.framework in Frameworks */,
+				C30B68FA8E9A3268507F5179 /* Pods_TesseractTests_iOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1A184CCB7C5882049DCAC864 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				7127EE0E02812E439F824715 /* Pods-Tesseract-iOS.debug.xcconfig */,
+				AE464A77B7BBB0121F1CC89D /* Pods-Tesseract-iOS.release.xcconfig */,
+				2450F56CC294F9080C542046 /* Pods-TesseractTests-iOS.debug.xcconfig */,
+				AF3993293250E98CB9D6F7D9 /* Pods-TesseractTests-iOS.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		9234BF50227CA61500A43A2C = {
+			isa = PBXGroup;
+			children = (
+				9234BF8E227CCA3900A43A2C /* Tesseract.podspec */,
+				9234BF74227CA66000A43A2C /* Sources */,
+				9234BF75227CA66A00A43A2C /* Tests */,
+				9234BF5B227CA61500A43A2C /* Products */,
+				1A184CCB7C5882049DCAC864 /* Pods */,
+				EE5C40B62F9559A0EA8BB543 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		9234BF5B227CA61500A43A2C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9234BF5A227CA61500A43A2C /* Tesseract.framework */,
+				9234BF63227CA61500A43A2C /* TesseractTests-iOS.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9234BF74227CA66000A43A2C /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				9234BF8F227CCB0E00A43A2C /* Tesseract */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		9234BF75227CA66A00A43A2C /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				9234BF79227CA6AD00A43A2C /* TesseractTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		9234BF76227CA69700A43A2C /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				9234BF77227CA69700A43A2C /* Info.plist */,
+				9234BF7E227CA7B900A43A2C /* Tesseract.swift */,
+				9234BF80227CA8E000A43A2C /* Extension.swift */,
+				9234BF88227CACA300A43A2C /* OpenWallet.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		9234BF79227CA6AD00A43A2C /* TesseractTests */ = {
+			isa = PBXGroup;
+			children = (
+				9234BF7A227CA6AD00A43A2C /* TesseractTests.swift */,
+				9234BF7B227CA6AD00A43A2C /* Info.plist */,
+			);
+			path = TesseractTests;
+			sourceTree = "<group>";
+		};
+		9234BF82227CAA4500A43A2C /* Ethereum */ = {
+			isa = PBXGroup;
+			children = (
+				9234BF8C227CB35C00A43A2C /* EthereumExtensions.swift */,
+			);
+			path = Ethereum;
+			sourceTree = "<group>";
+		};
+		9234BF8F227CCB0E00A43A2C /* Tesseract */ = {
+			isa = PBXGroup;
+			children = (
+				9234BF76227CA69700A43A2C /* Core */,
+				9234BF82227CAA4500A43A2C /* Ethereum */,
+			);
+			path = Tesseract;
+			sourceTree = "<group>";
+		};
+		EE5C40B62F9559A0EA8BB543 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				41F5AD02BAB42C9541FEA8F1 /* Pods_Tesseract_iOS.framework */,
+				7A8541886315247801372DB3 /* Pods_TesseractTests_iOS.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		9234BF55227CA61500A43A2C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		9234BF59227CA61500A43A2C /* Tesseract-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9234BF6E227CA61500A43A2C /* Build configuration list for PBXNativeTarget "Tesseract-iOS" */;
+			buildPhases = (
+				7B59CEC34664A371E0860FA0 /* [CP] Check Pods Manifest.lock */,
+				9234BF55227CA61500A43A2C /* Headers */,
+				9234BF56227CA61500A43A2C /* Sources */,
+				9234BF57227CA61500A43A2C /* Frameworks */,
+				9234BF58227CA61500A43A2C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Tesseract-iOS";
+			productName = "Tesseract-iOS";
+			productReference = 9234BF5A227CA61500A43A2C /* Tesseract.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		9234BF62227CA61500A43A2C /* TesseractTests-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9234BF71227CA61500A43A2C /* Build configuration list for PBXNativeTarget "TesseractTests-iOS" */;
+			buildPhases = (
+				669C62E73A6C6C4E959CDC9B /* [CP] Check Pods Manifest.lock */,
+				9234BF5F227CA61500A43A2C /* Sources */,
+				9234BF60227CA61500A43A2C /* Frameworks */,
+				9234BF61227CA61500A43A2C /* Resources */,
+				D0E5717E805F981C9662A02B /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9234BF66227CA61500A43A2C /* PBXTargetDependency */,
+			);
+			name = "TesseractTests-iOS";
+			productName = "Tesseract-iOSTests";
+			productReference = 9234BF63227CA61500A43A2C /* TesseractTests-iOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9234BF51227CA61500A43A2C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1020;
+				LastUpgradeCheck = 1020;
+				ORGANIZATIONNAME = "Tesseract Systems, Inc.";
+				TargetAttributes = {
+					9234BF59227CA61500A43A2C = {
+						CreatedOnToolsVersion = 10.2.1;
+						LastSwiftMigration = 1020;
+					};
+					9234BF62227CA61500A43A2C = {
+						CreatedOnToolsVersion = 10.2.1;
+					};
+				};
+			};
+			buildConfigurationList = 9234BF54227CA61500A43A2C /* Build configuration list for PBXProject "Tesseract" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 9234BF50227CA61500A43A2C;
+			productRefGroup = 9234BF5B227CA61500A43A2C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9234BF59227CA61500A43A2C /* Tesseract-iOS */,
+				9234BF62227CA61500A43A2C /* TesseractTests-iOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9234BF58227CA61500A43A2C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9234BF61227CA61500A43A2C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		669C62E73A6C6C4E959CDC9B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TesseractTests-iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7B59CEC34664A371E0860FA0 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Tesseract-iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D0E5717E805F981C9662A02B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TesseractTests-iOS/Pods-TesseractTests-iOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
+				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/Serializable.swift/Serializable.framework",
+				"${BUILT_PRODUCTS_DIR}/Tesseract.EthereumTypes/EthereumTypes.framework",
+				"${BUILT_PRODUCTS_DIR}/Tesseract.EthereumWeb3/EthereumWeb3.framework",
+				"${BUILT_PRODUCTS_DIR}/Tesseract.OpenWallet/OpenWallet.framework",
+				"${BUILT_PRODUCTS_DIR}/Web3/Web3.framework",
+				"${BUILT_PRODUCTS_DIR}/secp256k1.swift/secp256k1.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Serializable.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumTypes.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumWeb3.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenWallet.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Web3.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TesseractTests-iOS/Pods-TesseractTests-iOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9234BF56227CA61500A43A2C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9234BF89227CACA300A43A2C /* OpenWallet.swift in Sources */,
+				9234BF7F227CA7B900A43A2C /* Tesseract.swift in Sources */,
+				9234BF8D227CB35C00A43A2C /* EthereumExtensions.swift in Sources */,
+				9234BF81227CA8E000A43A2C /* Extension.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9234BF5F227CA61500A43A2C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9234BF7C227CA6AD00A43A2C /* TesseractTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9234BF66227CA61500A43A2C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9234BF59227CA61500A43A2C /* Tesseract-iOS */;
+			targetProxy = 9234BF65227CA61500A43A2C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		9234BF6C227CA61500A43A2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		9234BF6D227CA61500A43A2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 4.2;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		9234BF6F227CA61500A43A2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7127EE0E02812E439F824715 /* Pods-Tesseract-iOS.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Sources/Core/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Tesseract;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9234BF70227CA61500A43A2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AE464A77B7BBB0121F1CC89D /* Pods-Tesseract-iOS.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Sources/Core/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Tesseract;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9234BF72227CA61500A43A2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2450F56CC294F9080C542046 /* Pods-TesseractTests-iOS.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = Tests/TesseractTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "one.tesseract.Tesseract-iOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9234BF73227CA61500A43A2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AF3993293250E98CB9D6F7D9 /* Pods-TesseractTests-iOS.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = Tests/TesseractTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "one.tesseract.Tesseract-iOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9234BF54227CA61500A43A2C /* Build configuration list for PBXProject "Tesseract" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9234BF6C227CA61500A43A2C /* Debug */,
+				9234BF6D227CA61500A43A2C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9234BF6E227CA61500A43A2C /* Build configuration list for PBXNativeTarget "Tesseract-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9234BF6F227CA61500A43A2C /* Debug */,
+				9234BF70227CA61500A43A2C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9234BF71227CA61500A43A2C /* Build configuration list for PBXNativeTarget "TesseractTests-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9234BF72227CA61500A43A2C /* Debug */,
+				9234BF73227CA61500A43A2C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9234BF51227CA61500A43A2C /* Project object */;
+}

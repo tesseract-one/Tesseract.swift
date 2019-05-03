@@ -1,0 +1,80 @@
+PODS:
+  - BigInt (4.0.0)
+  - CryptoSwift (1.0.0)
+  - secp256k1.swift (0.1.4)
+  - Serializable.swift (0.1.1)
+  - Tesseract.EthereumTypes (0.1.4):
+    - BigInt (~> 4.0)
+    - CryptoSwift (~> 1.0)
+    - Serializable.swift (~> 0.1)
+  - Tesseract.EthereumWeb3 (0.1.0):
+    - Tesseract.EthereumWeb3/Core (= 0.1.0)
+  - Tesseract.EthereumWeb3/Core (0.1.0):
+    - Tesseract.EthereumTypes (~> 0.1)
+    - Web3 (~> 0.3.1)
+    - Web3/ContractABI (~> 0.3.1)
+  - Tesseract.OpenWallet/Client (0.1.1):
+    - Tesseract.OpenWallet/Core
+  - Tesseract.OpenWallet/Core (0.1.1)
+  - Tesseract.OpenWallet/Ethereum (0.1.1):
+    - Tesseract.OpenWallet/Client
+    - Tesseract.OpenWallet/Ethereum.Core
+  - Tesseract.OpenWallet/Ethereum.Core (0.1.1):
+    - Serializable.swift (~> 0.1)
+    - Tesseract.EthereumTypes (~> 0.1)
+    - Tesseract.OpenWallet/Core
+  - Web3 (0.3.1):
+    - Web3/Core (= 0.3.1)
+    - Web3/HTTPExtension (= 0.3.1)
+  - Web3/ContractABI (0.3.1):
+    - Web3/Core
+  - Web3/Core (0.3.1):
+    - BigInt (~> 4.0)
+    - CryptoSwift (~> 1.0)
+    - secp256k1.swift (~> 0.1)
+  - Web3/HTTPExtension (0.3.1):
+    - Web3/Core
+
+DEPENDENCIES:
+  - Tesseract.EthereumWeb3 (from `https://github.com/tesseract-one/EthereumWeb3.swift.git`, branch `master`)
+  - Tesseract.OpenWallet/Ethereum (~> 0.1)
+  - Web3 (from `https://github.com/tesseract-one/Web3.swift.git`, branch `master`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - BigInt
+    - CryptoSwift
+    - secp256k1.swift
+    - Serializable.swift
+    - Tesseract.EthereumTypes
+    - Tesseract.OpenWallet
+
+EXTERNAL SOURCES:
+  Tesseract.EthereumWeb3:
+    :branch: master
+    :git: https://github.com/tesseract-one/EthereumWeb3.swift.git
+  Web3:
+    :branch: master
+    :git: https://github.com/tesseract-one/Web3.swift.git
+
+CHECKOUT OPTIONS:
+  Tesseract.EthereumWeb3:
+    :commit: b82dc0ea2b153c0c64ffe52ebe9cafc9563c771c
+    :git: https://github.com/tesseract-one/EthereumWeb3.swift.git
+  Web3:
+    :commit: 82dde998de4a12ca19cc257cb3b7f860040db705
+    :git: https://github.com/tesseract-one/Web3.swift.git
+
+SPEC CHECKSUMS:
+  BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
+  CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
+  secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
+  Serializable.swift: 46a21fd252974669c1416edf741db56206fabd8b
+  Tesseract.EthereumTypes: b69c054254a99d318c3101eba5b6912e3aa2eb0a
+  Tesseract.EthereumWeb3: 6711224fd8880c561a26c8b04e077612bb67d39d
+  Tesseract.OpenWallet: 0270e027478bceb27e384b3bcf9e6d158ce7cd31
+  Web3: dbfb28278f2c87c8de8e7b87a2e24fd038db0926
+
+PODFILE CHECKSUM: ec59ae3f9d4add81fd3f41c0f5868eeaafe70369
+
+COCOAPODS: 1.6.1
