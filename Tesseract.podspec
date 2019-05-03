@@ -25,12 +25,15 @@ Tesseract DApp Platform SDK for iOS and OSX
   end
 
   s.subspec 'Ethereum.Core' do |ss|
-    ss.source_files = 'Sources/Tesseract/Ethereum/**/*.swift'
+    ss.source_files = 'Sources/Tesseract/Ethereum/Core/**/*.swift'
 
+    ss.dependency 'Tesseract/Core'
     ss.dependency 'Tesseract.EthereumTypes', '~> 0.1'
   end
 
   s.subspec 'Ethereum.Web3' do |ss|
+    ss.source_files = 'Sources/Tesseract/Ethereum/Web3.swift'
+
     ss.dependency 'Tesseract/Ethereum.Core'
     ss.dependency 'Tesseract.EthereumWeb3', '~> 0.1'
   end
