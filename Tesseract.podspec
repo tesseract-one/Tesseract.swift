@@ -28,6 +28,7 @@ Tesseract DApp Platform SDK for iOS and OSX
     ss.source_files = 'Sources/Tesseract/Ethereum/Core/**/*.swift'
 
     ss.dependency 'Tesseract/Core'
+    ss.dependency 'Tesseract.OpenWallet/Ethereum', '~> 0.1'
     ss.dependency 'Tesseract.EthereumTypes', '~> 0.1'
   end
 
