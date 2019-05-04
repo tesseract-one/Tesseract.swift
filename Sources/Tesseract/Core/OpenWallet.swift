@@ -23,7 +23,7 @@ import OpenWallet
 typealias OpenWalletClass = OpenWallet
 
 public extension Tesseract {
-    var OpenWallet: OpenWallet {
+    var openWallet: OpenWallet {
         get {
             if let openWallet = extensions[.openWallet] as? OpenWalletClass {
                 return openWallet
@@ -39,10 +39,10 @@ public extension Tesseract {
     
     static var OpenWallet: OpenWallet {
         get {
-            return Tesseract.default.OpenWallet
+            return Tesseract.default.openWallet
         }
         set(openWallet) {
-            return Tesseract.default.OpenWallet = openWallet
+            return Tesseract.default.openWallet = openWallet
         }
     }
 }
