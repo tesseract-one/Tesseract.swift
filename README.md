@@ -69,21 +69,13 @@ Let's check that we have Wallet with [Open Wallet](https://github.com/tesseract-
 ```swift
 import Tesseract
 
-print("Do we have wallet?:", Tesseract.OpenWallet.walletHasAPI(keychain: .Ethereum))
+print("Do we have wallet with KeychainAPI?:", Tesseract.Ethereum.isKeychainInstalled)
 
 ```
 
 Application should perform this check before using APIs.
 
-### Supported methods
-
-For the list of supported methods and API reference check [Boilertalk/Web3.swift](https://github.com/Boilertalk/Web3.swift) repository.
-
-### Examples
-
-#### [OpenWallet.swift](https://github.com/tesseract-one/OpenWallet.swift) (Client)
-
-##### New transaction
+Let's try to use Web3
 
 ```swift
 import Tesseract
@@ -91,9 +83,40 @@ import Tesseract
 // HTTP RPC URL
 let rpcUrl = "https://mainnet.infura.io/v3/{API-KEY}"
 
-// Initializing OpenWallet with Ethereum. Creating Web3 instance
-// Store your OpenWallet instance somewhere(AppDelegate, Context). It should be reused.
-// If you need only Web3, you can store it only(it will store OpenWallet inside itself).
+// Creating Web3 instance. Try to reuse existing instance of Web3.
+let web3 = Tesseract.Ethereum.Web3(rpcUrl: rpcUrl)
+
+// Sending it. Tesseract will handle signing automatically.
+web3.eth.accounts() { response in
+    switch response.status {
+    case .success(let accounts): print("Account:", accounts[0])
+    case .failure(let err): print("Error:", error)
+    }
+}
+
+// With PromiseKit enabled
+import PromiseKit
+
+firstly {
+    web3.eth.accounts()
+}.done { accounts in
+    print("Account:", accounts[0])
+}.catch { err in
+    print("Error:", error)
+}
+```
+
+### Examples
+
+#### New transaction
+
+```swift
+import Tesseract
+
+// HTTP RPC URL
+let rpcUrl = "https://mainnet.infura.io/v3/{API-KEY}"
+
+// Creating Web3 instance. Try to reuse existing instance of Web3.
 let web3 = Tesseract.Ethereum.Web3(rpcUrl: rpcUrl)
 
 // Creating Transaction
@@ -112,62 +135,63 @@ web3.eth.sendTransaction(transaction: tx) { response in
 }
 
 // With PromiseKit enabled
+import PromiseKit
 
+firstly {
+    web3.eth.sendTransaction(transaction: tx)
+}.done { hash in
+    print("TX Hash:", hash.hex())
+}.catch { err in
+    print("Error:", error)
+}
 ```
 
-#### [Wallet.swift](https://github.com/tesseract-one/Wallet.swift) (Wallet)
-
-##### New transaction
+#### ERC20 Smart Contract
 
 ```swift
-import Wallet
-import EthereumWeb3
-
-// Path to sqlite database with wallets
-let dbPath = "path/to/database.sqlite"
-
-// Wallet Storage
-let storage = try! DatabaseWalletStorage(path: dbPath)
-
-// Applying migrations
-try! storage.bootstrap()
-
-// Creating manager with Ethereum network support
-let manager = try! Manager(networks: [EthereumNetwork()], storage: storage)
-
-// Restoring wallet data from mnemonic
-let walletData = try! manager.restoreWalletData(mnemonic: "aba caba ...", password: "12345678")
-
-// Creating wallet from data
-let wallet = try! manager.create(from: walletData)
-
-// Unlocking wallet
-try! wallet.unlock(password: "12345678")
-
-// Adding first account 
-let account = wallet.addAccount()
+import Tesseract
+import PromiseKit
 
 // HTTP RPC URL
 let rpcUrl = "https://mainnet.infura.io/v3/{API-KEY}"
 
-// Creating Web3 for this Wallet
-let web3 = wallet.ethereum.web3(rpcUrl: rpcUrl)
+// Creating Web3 instance. Try to reuse existing instance of Web3.
+let web3 = Tesseract.Ethereum.Web3(rpcUrl: rpcUrl)
 
-// Creating Transaction
-let tx = EthereumTransaction(
-    from: try! account.eth_address().web3,
-    to: try! EthereumAddress(hex: "0x...", eip55: false),
-    value: 1.eth
-)
+let contractAddress = try EthereumAddress(hex: "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0", eip55: true)
+let contract = web3.eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
 
-// Wallet will sign this transaction automatically (with 'from' account)
-web3.eth.sendTransaction(transaction: tx) { response in
-    switch response.status {
-    case .success(let hash): print("TX Hash:", hash.hex())
-    case .failure(let err): print("Error:", error)
-    }
+// Get balance of some address
+firstly {
+    try contract.balanceOf(address: EthereumAddress(hex: "0x3edB3b95DDe29580FFC04b46A68a31dD46106a4a", eip55: true)).call()
+}.done { outputs in
+    print(outputs["_balance"] as? BigUInt)
+}.catch { error in
+    print(error)
+}
+
+// Send some tokens to another address
+let myAddress = try EthereumAddress(hex: "0x1f04ef7263804fafb839f0d04e2b5a6a1a57dc60", eip55: true)
+firstly {
+    web3.eth.getTransactionCount(address: myAddress, block: .latest)
+}.then { nonce in
+    try contract.transfer(to: EthereumAddress(hex: "0x3edB3b95DDe29580FFC04b46A68a31dD46106a4a", eip55: true), value: 100000).send(
+        nonce: nonce,
+        from: myAddress,
+        value: 0,
+        gas: 150000,
+        gasPrice: EthereumQuantity(quantity: 21.gwei)
+    )
+}.done { txHash in
+    print(txHash)
+}.catch { error in
+    print(error)
 }
 ```
+
+#### More Examples
+
+For more examples check [Web3.swift](https://github.com/Boilertalk/Web3.swift) library used inside.
 
 ## Author
 
@@ -176,4 +200,4 @@ web3.eth.sendTransaction(transaction: tx) { response in
 
 ## License
 
-`EthereumWeb3.swift` is available under the Apache 2.0 license. See [the LICENSE file](https://raw.githubusercontent.com/tesseract-one/EthereumWeb3.swift/master/LICENSE) for more information.
+`Tessearct.swift` is available under the Apache 2.0 license. See [the LICENSE file](https://raw.githubusercontent.com/tesseract-one/Tesseract.swift/master/LICENSE) for more information.
