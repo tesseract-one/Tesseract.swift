@@ -200,4 +200,4 @@ For more examples check [Web3.swift](https://github.com/Boilertalk/Web3.swift) l
 
 ## License
 
-`Tessearct.swift` is available under the Apache 2.0 license. See [the LICENSE file](https://raw.githubusercontent.com/tesseract-one/Tesseract.swift/master/LICENSE) for more information.
+`Tesseract.swift` is available under the Apache 2.0 license. See [the LICENSE file](https://raw.githubusercontent.com/tesseract-one/Tesseract.swift/master/LICENSE) for more information.
