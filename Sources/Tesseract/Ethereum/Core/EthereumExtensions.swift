@@ -34,7 +34,7 @@ public extension Tesseract {
         if let registry = extensions[.ethereum] as? APIRegistry {
             return registry
         }
-        let registry = APIRegistry(signProvider: self.OpenWallet)
+        let registry = APIRegistry(signProvider: openWallet)
         extensions[.ethereum] = registry
         return registry
     }
