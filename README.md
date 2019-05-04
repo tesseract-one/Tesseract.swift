@@ -34,7 +34,7 @@ Right now SDK has this modules:
 * Tesseract.Ethereum.PromiseKit - metapackage, which will install all Ethereum modules with PromiseKit support
   * Tesseract.Ethereum.Web3.PromiseKit - PromiseKit extensions for Web3.
 
-#### For Ethereum Network (with metapackage)
+#### For Ethereum Network
 
 ##### With Metapackage
 
