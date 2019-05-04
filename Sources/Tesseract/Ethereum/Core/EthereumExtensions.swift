@@ -22,17 +22,21 @@ import EthereumTypes
 import OpenWallet
 
 public extension Tesseract {
-    var Ethereum: APIRegistry {
+    var ethereum: InstanceAPIRegistry {
+        return registry
+    }
+    
+    static var Ethereum: ModuleAPIRegistry {
+        return Tesseract.default.registry
+    }
+    
+    private var registry: APIRegistry {
         if let registry = extensions[.ethereum] as? APIRegistry {
             return registry
         }
         let registry = APIRegistry(signProvider: self.OpenWallet)
         extensions[.ethereum] = registry
         return registry
-    }
-    
-    static var Ethereum: APIRegistry {
-        return Tesseract.default.Ethereum
     }
 }
 

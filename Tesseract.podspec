@@ -32,25 +32,25 @@ Tesseract DApp Platform for iOS and OSX. Entry point for all APIs.
     ss.dependency 'Tesseract.EthereumTypes', '~> 0.1'
   end
 
-  #s.subspec 'Ethereum.Web3' do |ss|
-  #  ss.source_files = 'Sources/Tesseract/Ethereum/Web3.swift'
+  s.subspec 'Ethereum.Web3' do |ss|
+    ss.source_files = 'Sources/Tesseract/Ethereum/Web3.swift'
 
-  #  ss.dependency 'Tesseract/Ethereum.Core'
-  #  ss.dependency 'Tesseract.EthereumWeb3', '~> 0.1'
-  #end
+    ss.dependency 'Tesseract/Ethereum.Core'
+    ss.dependency 'Tesseract.EthereumWeb3', '~> 0.1'
+  end
 
-  #s.subspec 'Ethereum.Web3.PromiseKit' do |ss|
-  #  ss.dependency 'Tesseract/Ethereum.Web3'
-  #  ss.dependency 'Tesseract.EthereumWeb3/PromiseKit', '~> 0.1'
-  #end
+  s.subspec 'Ethereum.Web3.PromiseKit' do |ss|
+    ss.dependency 'Tesseract/Ethereum.Web3'
+    ss.dependency 'Tesseract.EthereumWeb3/PromiseKit', '~> 0.1'
+  end
 
-  #s.subspec 'Ethereum' do |ss|
-  #  ss.dependency 'Tesseract/Ethereum.Web3'
-  #end
+  s.subspec 'Ethereum' do |ss|
+    ss.dependency 'Tesseract/Ethereum.Web3'
+  end
 
-  #s.subspec 'Ethereum.PromiseKit' do |ss|
-  #  ss.dependency 'Tesseract/Ethereum.Web3.PromiseKit'
-  #end
+  s.subspec 'Ethereum.PromiseKit' do |ss|
+    ss.dependency 'Tesseract/Ethereum.Web3.PromiseKit'
+  end
 
   s.default_subspecs = 'Core'
 end
