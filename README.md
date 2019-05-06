@@ -196,6 +196,16 @@ pod 'Tesseract/Ethereum.Web3'
 
 Then run `pod install`.
 
+## Ideology behind
+
+[Tesseract dApps Platform](https://tesseract.one) emerged from one simple vision - dApps should not store Private Keys inside.
+
+With this vision we created Mobile-first platform, which allows developers to write Native dApps without keychain inside.
+
+We started with open protocol, which describes Wallet <-> dApp communication. It's called [Open Wallet](https://github.com/tesseract-one/OpenWalletProtocol).
+
+This SDK can interact with any Wallet which implemented this protocol. Ask your preferred Wallet to implement it :)
+
 ## Author
 
  - [Tesseract Systems, Inc.](mailto:info@tesseract.one)
