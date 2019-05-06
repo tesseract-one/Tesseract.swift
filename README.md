@@ -4,7 +4,7 @@
 [![CocoaPods version](https://img.shields.io/cocoapods/v/Tesseract.svg)](https://cocoapods.org/pods/Tesseract)
 ![Platform iOS](https://img.shields.io/badge/platform-iOS-orange.svg)
 
-## Tesseract DApps Platform SDK for Swift
+## Tesseract dApps Platform SDK for Swift
 
 ## Getting started
 
