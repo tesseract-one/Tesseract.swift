@@ -8,11 +8,11 @@
 
 ## Getting started
 
-### Ethereum
-
 To use this library compatible wallet should be installed on the device.
 
 We released our own [Tesseract Wallet](https://itunes.apple.com/us/app/tesseract-wallet/id1459505103) as reference wallet implementation. Install it on your device to check provided examples.
+
+### Ethereum
 
 #### Installation
 
@@ -24,9 +24,9 @@ pod 'Tesseract/Ethereum'
 
 Then run `pod install`.
 
-#### Get account balance
+#### Hello Tesseract, hello Web3.
 
-Let's try to get account balance.
+Let's try to get Ethereum account balance.
 
 ```swift
 import Tesseract
@@ -72,7 +72,7 @@ pod 'Tesseract/Ethereum.PromiseKit'
 
 Then run `pod install`.
 
-##### Use them
+##### Now you can Web3 like this
 
 ```swift
 import PromiseKit
