@@ -174,11 +174,11 @@ This SDK has modular structure. All modules can be installed with CocoaPods.
 
 Right now SDK has this modules:
 
-* Tesseract.OpenWallet - reference OpenWallet client implementation. Main part of SDK
-* Tesseract.Ethereum - metapackage, which will install all Ethereum modules
-  * Tesseract.Ethereum.Web3 - Web3 implementation for Swift with OpenWallet support
-* Tesseract.Ethereum.PromiseKit - metapackage, which will install all Ethereum modules with PromiseKit support
-  * Tesseract.Ethereum.Web3.PromiseKit - PromiseKit extensions for Web3.
+* [Tesseract.OpenWallet](https://github.com/tesseract-one/OpenWallet.swift) - reference [OpenWallet](https://github.com/tesseract-one/OpenWalletProtocol) client implementation. Main part of SDK
+* __Tesseract.Ethereum__ - metapackage, which will install all Ethereum modules
+  * [Tesseract.Ethereum.Web3](https://github.com/tesseract-one/EthereumWeb3.swift) - Web3 implementation for Swift with OpenWallet support
+* __Tesseract.Ethereum.PromiseKit__ - metapackage, which will install all Ethereum modules with PromiseKit support
+  * [Tesseract.Ethereum.Web3.PromiseKit](https://github.com/tesseract-one/EthereumWeb3.swift) - PromiseKit extensions for Web3.
 
 ### Modules installation
 
