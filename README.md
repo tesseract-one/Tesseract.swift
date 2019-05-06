@@ -9,7 +9,8 @@
 
 To use this library compatible wallet should be installed on the device.
 
-We released our own [Tesseract Wallet](https://itunes.apple.com/us/app/tesseract-wallet/id1459505103) as reference wallet implementation. Install it on your device to check provided examples.
+We released our own [Tesseract Wallet](https://itunes.apple.com/us/app/tesseract-wallet/id1459505103) as reference wallet implementation.
+Install it on your device to check provided examples.
 
 ### Ethereum
 
