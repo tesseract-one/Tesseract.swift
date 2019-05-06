@@ -165,6 +165,55 @@ invocation
     }
 ```
 
+#### Custom Smart Contract
+
+Web3 can parse you JSON smart contract ABI.
+
+You can use methods of Smart Contract by subcripting them by name from the Contract object.
+
+##### Create Smart Contract instance
+
+```swift
+// EOS ERC20 token
+let contractAddress = try! EthereumAddress(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0", eip55: true)
+// JSON ABI. Can be loaded from json file
+let contractJsonABI = "<your contract ABI as a JSON string>".data(using: .utf8)!
+// You can optionally pass an abiKey param if the actual abi is nested and not the top level element of the json
+let contract = try web3.eth.Contract(json: contractJsonABI, abiKey: nil, address: contractAddress)
+```
+
+##### Get ERC20 balance
+
+```swift
+contract["balanceOf"]!(account) // Account from previous steps
+    .call()
+    .done { outputs in
+        print("Balance:", outputs["_balance"] as! BigUInt)
+    }.catch { error in
+        print("Error:", error)
+    }
+```
+
+##### Send ERC20 tokens
+
+```swift
+// Our recipient
+let recipient = try! EthereumAddress(hex: "0x....", eip55: true)
+
+// Creating ERC20 call object
+let invocation = contract["transfer"]!(recipient, BigUInt(100000))
+
+invocation
+    .estimateGas(from: account) // Estimating gas needed for this call
+    .then { gas in
+        invocation.send(from: account, gas: gas) // Executing it
+    }.done { hash in
+        print("TX Hash:", hash.hex())
+    }.catch { err in
+        print("Error:", err)
+    }
+```
+
 #### More Examples
 
 For more examples check [Web3.swift](https://github.com/Boilertalk/Web3.swift) library used inside.
