@@ -72,7 +72,7 @@ pod 'Tesseract/Ethereum.PromiseKit'
 
 Then run `pod install`.
 
-#### Use them
+##### Use them
 
 ```swift
 import PromiseKit
@@ -145,7 +145,7 @@ contract.balanceOf(address: account) // Account from previous steps
     }
 ```
 
-#### Send ERC20 tokens
+##### Send ERC20 tokens
 
 ```swift
 let recepient = try! EthereumAddress(hex: "0x....", eip55: true)
