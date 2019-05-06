@@ -72,6 +72,8 @@ pod 'Tesseract/Ethereum.PromiseKit'
 
 Then run `pod install`.
 
+#### Use them
+
 ```swift
 import PromiseKit
 
