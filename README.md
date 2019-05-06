@@ -147,10 +147,11 @@ contract.balanceOf(address: account) // Account from previous steps
 ##### Send ERC20 tokens
 
 ```swift
-let recepient = try! EthereumAddress(hex: "0x....", eip55: true)
+// Our recipient
+let recipient = try! EthereumAddress(hex: "0x....", eip55: true)
 
 // Creating ERC20 call object
-let invocation = contract.transfer(to: recepient, value: 100000)
+let invocation = contract.transfer(to: recipient, value: 100000)
 
 invocation
     .estimateGas(from: account) // Estimating gas needed for this call
