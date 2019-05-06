@@ -1,10 +1,9 @@
+# Tesseract dApps Platform SDK for Swift
 [![GitHub license](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)](https://raw.githubusercontent.com/tesseract-one/Tesseract.swift/master/LICENSE)
 [![Build Status](https://travis-ci.com/tesseract-one/Tesseract.swift.svg?branch=master)](https://travis-ci.com/tesseract-one/Tesseract.swift)
 [![GitHub release](https://img.shields.io/github/release/tesseract-one/Tesseract.swift.svg)](https://github.com/tesseract-one/Tesseract.swift/releases)
 [![CocoaPods version](https://img.shields.io/cocoapods/v/Tesseract.svg)](https://cocoapods.org/pods/Tesseract)
 ![Platform iOS](https://img.shields.io/badge/platform-iOS-orange.svg)
-
-## Tesseract dApps Platform SDK for Swift
 
 ## Getting started
 
