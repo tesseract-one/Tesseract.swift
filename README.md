@@ -249,7 +249,7 @@ Then run `pod install`.
 
 [Tesseract dApps Platform](https://tesseract.one) emerged from one simple vision - dApps should not store Private Keys inside.
 
-With this vision we created Mobile-first platform, which allows developers to write Native dApps without keychain inside.
+With this vision we created Mobile-first platform. It allows app developers to write Native dApps and leave all key storage security tasks to Wallet developers.
 
 We started with open protocol, which describes Wallet <-> dApp communication. It's called [Open Wallet](https://github.com/tesseract-one/OpenWalletProtocol).
 
