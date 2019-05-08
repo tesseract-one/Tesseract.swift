@@ -18,8 +18,8 @@
 //  limitations under the License.
 //
 
-import Ethereum
 import OpenWallet
+@_exported import Ethereum
 
 public extension Tesseract {
     var ethereum: InstanceAPIRegistry {
