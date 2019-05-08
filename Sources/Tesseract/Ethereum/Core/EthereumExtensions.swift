@@ -19,7 +19,7 @@
 //
 
 import OpenWallet
-@_exported import Ethereum
+import Ethereum
 
 public extension Tesseract {
     var ethereum: InstanceAPIRegistry {
