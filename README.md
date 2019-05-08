@@ -19,7 +19,7 @@ Install it on your device to check provided examples.
 Add the following to your [Podfile](http://guides.cocoapods.org/using/the-podfile.html):
 
 ```rb
-pod 'Tesseract/Ethereum'
+pod 'TesseractSDK/Ethereum'
 ```
 
 Then run `pod install`.
@@ -66,7 +66,7 @@ web3.eth.accounts() { response in
 Add the following to your [Podfile](http://guides.cocoapods.org/using/the-podfile.html):
 
 ```rb
-pod 'Tesseract/Ethereum.PromiseKit'
+pod 'TesseractSDK/Ethereum.PromiseKit'
 
 ```
 
@@ -95,9 +95,9 @@ web3.eth.accounts()
 
 ```swift
 // Creating Transaction
-let tx = EthereumTransaction(
+let tx = Ethereum.Transaction(
     from: account, // Account from previous examples
-    to: try! EthereumAddress(hex: "0x...", eip55: false),
+    to: try! Ethereum.Address(hex: "0x...", eip55: false),
     value: 1.eth
 )
 
@@ -128,7 +128,7 @@ web3.eth.sendTransaction(transaction: tx)
 
 ```swift
 // EOS ERC20 token
-let contractAddress = try! EthereumAddress(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0", eip55: true)
+let contractAddress = try! Ethereum.Address(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0", eip55: true)
 // ERC20 contract object
 let contract = web3.eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
 ```
@@ -137,7 +137,7 @@ let contract = web3.eth.Contract(type: GenericERC20Contract.self, address: contr
 
 ```swift
 contract.balanceOf(address: account) // Account from previous steps
-    .call()
+    .call() // Performing Ethereum Call
     .done { outputs in
         print("Balance:", outputs["_balance"] as! BigUInt)
     }.catch { error in
@@ -149,16 +149,12 @@ contract.balanceOf(address: account) // Account from previous steps
 
 ```swift
 // Our recipient
-let recipient = try! EthereumAddress(hex: "0x....", eip55: true)
+let recipient = try! Ethereum.Address(hex: "0x....", eip55: true)
 
-// Creating ERC20 call object
-let invocation = contract.transfer(to: recipient, value: 100000)
-
-invocation
-    .estimateGas(from: account) // Estimating gas needed for this call
-    .then { gas in
-        invocation.send(from: account, gas: gas) // Executing it
-    }.done { hash in
+contract
+    .transfer(to: recipient, value: 100000) // Creating SC invocaion
+    .send(from: account) // Sending it from our account
+    .done { hash in
         print("TX Hash:", hash.hex())
     }.catch { err in
         print("Error:", err)
@@ -175,7 +171,7 @@ You can use methods of Smart Contract by subcripting them by name from the Contr
 
 ```swift
 // EOS ERC20 token
-let contractAddress = try! EthereumAddress(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0", eip55: true)
+let contractAddress = try! Ethereum.Address(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0", eip55: true)
 // JSON ABI. Can be loaded from json file
 let contractJsonABI = "<your contract ABI as a JSON string>".data(using: .utf8)!
 // You can optionally pass an abiKey param if the actual abi is nested and not the top level element of the json
@@ -198,16 +194,14 @@ contract["balanceOf"]!(account) // Account from previous steps
 
 ```swift
 // Our recipient
-let recipient = try! EthereumAddress(hex: "0x....", eip55: true)
+let recipient = try! Ethereum.Address(hex: "0x....", eip55: true)
 
 // Creating ERC20 call object
 let invocation = contract["transfer"]!(recipient, BigUInt(100000))
 
 invocation
-    .estimateGas(from: account) // Estimating gas needed for this call
-    .then { gas in
-        invocation.send(from: account, gas: gas) // Executing it
-    }.done { hash in
+    .send(from: account) // Sending it from our account
+    .done { hash in
         print("TX Hash:", hash.hex())
     }.catch { err in
         print("Error:", err)
@@ -237,10 +231,10 @@ Modules can be installed one-by-one.
 As example, if you want to install Web3 only add the following to your [Podfile](http://guides.cocoapods.org/using/the-podfile.html):
 
 ```rb
-pod 'Tesseract/Ethereum.Web3'
+pod 'TesseractSDK/Ethereum.Web3'
 
 # Uncomment this line if you want to enable Web3 PromiseKit extensions
-# pod 'Tesseract/Ethereum.Web3.PromiseKit'
+# pod 'TesseractSDK/Ethereum.Web3.PromiseKit'
 ```
 
 Then run `pod install`.

@@ -42,7 +42,7 @@
 		9234BF80227CA8E000A43A2C /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		9234BF88227CACA300A43A2C /* OpenWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenWallet.swift; sourceTree = "<group>"; };
 		9234BF8C227CB35C00A43A2C /* EthereumExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumExtensions.swift; sourceTree = "<group>"; };
-		9234BF8E227CCA3900A43A2C /* Tesseract.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = Tesseract.podspec; sourceTree = "<group>"; };
+		9234BF8E227CCA3900A43A2C /* TesseractSDK.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = TesseractSDK.podspec; sourceTree = "<group>"; };
 		9234BF92227CD2CC00A43A2C /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web3.swift; sourceTree = "<group>"; };
 		AE464A77B7BBB0121F1CC89D /* Pods-Tesseract-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tesseract-iOS.release.xcconfig"; path = "Target Support Files/Pods-Tesseract-iOS/Pods-Tesseract-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		AF3993293250E98CB9D6F7D9 /* Pods-TesseractTests-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TesseractTests-iOS.release.xcconfig"; path = "Target Support Files/Pods-TesseractTests-iOS/Pods-TesseractTests-iOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -83,7 +83,7 @@
 		9234BF50227CA61500A43A2C = {
 			isa = PBXGroup;
 			children = (
-				9234BF8E227CCA3900A43A2C /* Tesseract.podspec */,
+				9234BF8E227CCA3900A43A2C /* TesseractSDK.podspec */,
 				9234BF74227CA66000A43A2C /* Sources */,
 				9234BF75227CA66A00A43A2C /* Tests */,
 				9234BF5B227CA61500A43A2C /* Products */,
