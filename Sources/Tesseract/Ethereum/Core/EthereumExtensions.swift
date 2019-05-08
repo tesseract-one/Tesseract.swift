@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-import EthereumTypes
+import Ethereum
 import OpenWallet
 
 public extension Tesseract {
