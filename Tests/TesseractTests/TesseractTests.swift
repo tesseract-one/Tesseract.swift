@@ -8,6 +8,9 @@
 
 import XCTest
 @testable import Tesseract
+#if !COCOAPODS
+    @testable import TesseractEthereum
+#endif
 
 class TesseractTests: XCTestCase {
 

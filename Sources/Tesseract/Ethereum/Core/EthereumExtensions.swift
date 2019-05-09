@@ -20,6 +20,10 @@
 
 import OpenWallet
 import Ethereum
+#if !COCOAPODS
+    import Tesseract
+    import OpenWalletEthereum
+#endif
 
 public extension Tesseract {
     var ethereum: InstanceAPIRegistry {

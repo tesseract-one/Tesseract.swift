@@ -17,12 +17,14 @@ matrix:
         - instruments -s devices
         - gem install cocoapods
         - pod repo update
-        - pod install
+        - brew update
+        - brew outdated carthage || brew upgrade carthage
+        - carthage bootstrap 
       script:
-        #- set -o pipefail && xcodebuild test -workspace $MODULE_NAME.xcworkspace -scheme $MODULE_NAME-macOS ONLY_ACTIVE_ARCH=YES | xcpretty
-        - set -o pipefail && xcodebuild test -workspace $MODULE_NAME.xcworkspace -scheme $MODULE_NAME-iOS -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone X' ONLY_ACTIVE_ARCH=YES | xcpretty
-        #- set -o pipefail && xcodebuild test -workspace $MODULE_NAME.xcworkspace -scheme $MODULE_NAME-tvOS -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' ONLY_ACTIVE_ARCH=YES | xcpretty
-        #- set -o pipefail && xcodebuild build -workspace $MODULE_NAME.xcworkspace -scheme $MODULE_NAME-watchOS -sdk watchsimulator -destination 'platform=watchOS Simulator,name=Apple Watch Series 4 - 44mm' ONLY_ACTIVE_ARCH=YES | xcpretty
+        #- set -o pipefail && xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-macOS ONLY_ACTIVE_ARCH=YES | xcpretty
+        - set -o pipefail && xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-iOS -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone X' ONLY_ACTIVE_ARCH=YES | xcpretty
+        #- set -o pipefail && xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-tvOS -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' ONLY_ACTIVE_ARCH=YES | xcpretty
+        #- set -o pipefail && xcodebuild build -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-watchOS -sdk watchsimulator -destination 'platform=watchOS Simulator,name=Apple Watch Series 4 - 44mm' ONLY_ACTIVE_ARCH=YES | xcpretty
         #- swift build
         #- swift build -c release
         #- swift test

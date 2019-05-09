@@ -1,0 +1,2 @@
+github "tesseract-one/OpenWallet.swift" ~> 0.1
+github "tesseract-one/EthereumWeb3.swift" ~> 0.1

@@ -18,5 +18,7 @@
 //  limitations under the License.
 //
 
+#if COCOAPODS
 // Web3 reexport
 @_exported import EthereumWeb3
+#endif
