@@ -12,9 +12,7 @@ To use this library compatible wallet should be installed on the device.
 We released our own [Tesseract Wallet](https://itunes.apple.com/us/app/tesseract-wallet/id1459505103) as reference wallet implementation.
 Install it on your device to check provided examples.
 
-### Ethereum
-
-#### Installation
+### Installation
 
 Add the following to your [Podfile](http://guides.cocoapods.org/using/the-podfile.html):
 
@@ -24,7 +22,7 @@ pod 'TesseractSDK/Ethereum'
 
 Then run `pod install`.
 
-#### Hello Tesseract, hello Web3.
+### Hello Tesseract, hello Web3.
 
 Let's try to get Ethereum account balance.
 
@@ -50,7 +48,7 @@ web3.eth.accounts() { response in
         return
     }
     // Asking network for balance
-    web3.eth.getBalance(address: accounts[0], block: .latest) { response in
+    web3.eth.getBalance(address: accounts[0]) { response in
         switch response.status {
         case .success(let balance): print("Balance:", balance)
         case .failure(let err): print("Error:", err)
@@ -59,9 +57,9 @@ web3.eth.accounts() { response in
 }
 ```
 
-#### With PromiseKit
+### With PromiseKit
 
-##### Install PromiseKit Extensions
+#### Install PromiseKit Extensions
 
 Add the following to your [Podfile](http://guides.cocoapods.org/using/the-podfile.html):
 
@@ -72,7 +70,7 @@ pod 'TesseractSDK/Ethereum.PromiseKit'
 
 Then run `pod install`.
 
-##### Now you can Web3 like this
+#### Now you can Web3 like this
 
 ```swift
 import PromiseKit
@@ -81,7 +79,7 @@ import PromiseKit
 web3.eth.accounts()
     .then { accounts in
         // Obtaining balance
-        web3.eth.getBalance(address: accounts[0], block: .latest)
+        web3.eth.getBalance(address: accounts[0])
     }.done { balance in
         print("Balance:", balance)
     }.catch { err in
@@ -89,15 +87,15 @@ web3.eth.accounts()
     }
 ```
 
-### Examples
+## Examples
 
-#### New transaction
+### New transaction
 
 ```swift
 // Creating Transaction
-let tx = Ethereum.Transaction(
+let tx = Transaction(
     from: account, // Account from previous examples
-    to: try! Ethereum.Address(hex: "0x...", eip55: false),
+    to: try! Address(hex: "0x..."),
     value: 1.eth
 )
 
@@ -110,7 +108,7 @@ web3.eth.sendTransaction(transaction: tx) { response in
 }
 ```
 
-##### PromiseKit
+#### PromiseKit
 
 ```swift
 // Sending it. Tesseract will handle signing automatically.
@@ -122,18 +120,18 @@ web3.eth.sendTransaction(transaction: tx)
     }
 ```
 
-#### ERC20 Smart Contract
+### ERC20 Smart Contract
 
-##### Create Smart Contract instance
+#### Create Smart Contract instance
 
 ```swift
 // EOS ERC20 token
-let contractAddress = try! Ethereum.Address(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0", eip55: true)
+let contractAddress = try! Address(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0")
 // ERC20 contract object
 let contract = web3.eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
 ```
 
-##### Get ERC20 balance
+#### Get ERC20 balance
 
 ```swift
 contract.balanceOf(address: account) // Account from previous steps
@@ -145,11 +143,11 @@ contract.balanceOf(address: account) // Account from previous steps
     }
 ```
 
-##### Send ERC20 tokens
+#### Send ERC20 tokens
 
 ```swift
 // Our recipient
-let recipient = try! Ethereum.Address(hex: "0x....", eip55: true)
+let recipient = try! Address(hex: "0x....")
 
 contract
     .transfer(to: recipient, value: 100000) // Creating SC invocaion
@@ -161,24 +159,24 @@ contract
     }
 ```
 
-#### Custom Smart Contract
+### Custom Smart Contract
 
 Web3 can parse you JSON smart contract ABI.
 
 You can use methods of Smart Contract by subcripting them by name from the Contract object.
 
-##### Create Smart Contract instance
+#### Create Smart Contract instance
 
 ```swift
 // EOS ERC20 token
-let contractAddress = try! Ethereum.Address(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0", eip55: true)
+let contractAddress = try! Address(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0")
 // JSON ABI. Can be loaded from json file
 let contractJsonABI = "<your contract ABI as a JSON string>".data(using: .utf8)!
 // You can optionally pass an abiKey param if the actual abi is nested and not the top level element of the json
 let contract = try web3.eth.Contract(json: contractJsonABI, abiKey: nil, address: contractAddress)
 ```
 
-##### Get ERC20 balance
+#### Get ERC20 balance
 
 ```swift
 contract["balanceOf"]!(account) // Account from previous steps
@@ -190,11 +188,11 @@ contract["balanceOf"]!(account) // Account from previous steps
     }
 ```
 
-##### Send ERC20 tokens
+#### Send ERC20 tokens
 
 ```swift
 // Our recipient
-let recipient = try! Ethereum.Address(hex: "0x....", eip55: true)
+let recipient = try! Address(hex: "0x....")
 
 // Creating ERC20 call object
 let invocation = contract["transfer"]!(recipient, BigUInt(100000))
@@ -208,9 +206,9 @@ invocation
     }
 ```
 
-#### More Examples
+### More Examples
 
-For more examples check [Web3.swift](https://github.com/Boilertalk/Web3.swift) library used inside.
+For more examples check [Web3.swift](https://github.com/tesseract-one/EthereumWeb3.swift) library used inside.
 
 ## SDK Structure
 
