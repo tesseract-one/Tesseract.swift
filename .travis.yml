@@ -19,7 +19,7 @@ matrix:
         - pod repo update
         - brew update
         - brew outdated carthage || brew upgrade carthage
-        - carthage bootstrap 
+        - carthage bootstrap --platform ios 
       script:
         #- set -o pipefail && xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-macOS ONLY_ACTIVE_ARCH=YES | xcpretty
         - set -o pipefail && xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-iOS -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone X' ONLY_ACTIVE_ARCH=YES | xcpretty
