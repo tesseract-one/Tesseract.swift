@@ -1,3 +1,4 @@
+![Tesseract.swift Logo](./.github/logo.svg)
 # Tesseract dApps Platform SDK for Swift
 [![GitHub license](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)](https://raw.githubusercontent.com/tesseract-one/Tesseract.swift/master/LICENSE)
 [![Build Status](https://travis-ci.com/tesseract-one/Tesseract.swift.svg?branch=master)](https://travis-ci.com/tesseract-one/Tesseract.swift)
