@@ -51,11 +51,11 @@ impl future::Executor for SExecutor {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn app_init(transport: ManuallyDrop<transport::NativeTransport>) -> ManuallyDrop<AppContextPtr> {
+pub unsafe extern "C" fn app_init(transport: transport::NativeTransport) -> ManuallyDrop<AppContextPtr> {
   let executor = Arc::new(SExecutor(futures::executor::ThreadPool::new().unwrap()));
 
   let service = Tesseract::new(SingleTransportDelegate::arc())
-    .transport(ManuallyDrop::into_inner(transport))
+    .transport(transport)
     .service(tesseract_protocol_test::Test::Protocol);
 
   let context = AppContext {
