@@ -27,3 +27,5 @@ Pods/
 
 # Carthage
 Carthage/
+
+Cargo.lock

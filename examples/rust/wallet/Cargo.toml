@@ -1,0 +1,24 @@
+[package]
+name = "wallet"
+version = "0.0.1"
+authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
+license = "Apache-2.0"
+description = "Cardano bindings for C."
+keywords = [ "Tesseract", "Cardano", "C" ]
+edition = "2021"
+
+[dependencies]
+tesseract_utils = { path = "../../../rust/tesseract_utils" }
+tesseract_service = { path = "../../../rust/tesseract_service" }
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
+tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
+async-trait = "0.1.57"
+futures = { version = "0.3", features=["executor", "thread-pool"] }
+
+[build-dependencies]
+cbindgen = "0.24"
+
+[lib]
+name = "wallet"
+path = "src/lib.rs"
+crate-type = ["staticlib"]

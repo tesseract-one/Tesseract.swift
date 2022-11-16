@@ -1,0 +1,10 @@
+[workspace]
+
+members = [
+    "app",
+    "wallet"
+]
+
+[profile.release]
+strip = true
+lto = true

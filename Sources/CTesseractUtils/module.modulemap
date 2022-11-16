@@ -1,0 +1,4 @@
+module CTesseractUtils {
+    umbrella header "tesseract_utils.h"
+    export *
+}
