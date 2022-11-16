@@ -9,7 +9,7 @@ import Foundation
 import TesseractUtils
 import CTesseractClient
 
-extension CFuture_Status: CFuturePtr {
+extension CFutureStatus: CFuturePtr {
     public typealias CVal = CTesseractClient.Status
     public typealias Val = Status
     
@@ -64,8 +64,8 @@ private func transport_id(self: UnsafePointer<NativeTransport>!) -> CString? {
 private func transport_status(
     self: UnsafePointer<NativeTransport>!,
     proto: CStringRef!
-) -> CFuture_Status {
-    CFuture_Status {
+) -> CFutureStatus {
+    CFutureStatus {
         await self.unowned().status(proto: proto!.copied())
     }
 }
