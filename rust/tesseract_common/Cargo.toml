@@ -7,6 +7,10 @@ description = "Cardano bindings for C."
 keywords = [ "Tesseract", "Cardano", "C" ]
 edition = "2021"
 
+[dependencies]
+tesseract_utils = { path = "../tesseract_utils" }
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master" }
+
 [build-dependencies]
 cbindgen = "0.24"
 

@@ -20,7 +20,7 @@ class ActionViewController: UIViewController, NativeUIDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let transport = ExtensionTransport(self)
+        let transport = IPCTransportIOS(self)
         let native = transport.asNative()
         
         self.context = "_signed".withRef { signature in

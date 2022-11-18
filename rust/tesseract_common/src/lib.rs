@@ -1,1 +1,4 @@
-pub mod error_codes;
+extern crate tesseract_utils;
+extern crate tesseract;
+
+pub mod error;

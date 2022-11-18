@@ -9,6 +9,7 @@ edition = "2021"
 
 [dependencies]
 tesseract_utils = { path = "../tesseract_utils" }
+tesseract_common = { path = "../tesseract_common" }
 async-trait = "0.1.57"
 tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["client"] }
 

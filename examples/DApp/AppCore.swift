@@ -13,7 +13,7 @@ class AppCore {
     private var rust: AppContextPtr!
     
     init() {
-        self.rust = app_init(ExtensionTransport().asNative())
+        self.rust = app_init(IPCTransportIOS().asNative())
     }
     
     func signTx(tx: String) async throws -> String {

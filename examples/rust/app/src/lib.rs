@@ -10,6 +10,7 @@ use tesseract_utils::string::CStringRef;
 use tesseract_protocol_test::TestService;
 pub use tesseract_utils::*;
 pub use tesseract_client::*;
+pub use tesseract_client::error::IntoCError;
 use tesseract_utils::traits::TryAsRef;
 
 use crate::tesseract_utils::ptr::{SyncPtrAsVoid, SyncPtr, SyncPtrAsType};
@@ -66,7 +67,7 @@ pub unsafe extern "C" fn app_sign_data(
   let tx = async move {
     service.sign_transaction(&data_str).await
       .map(|str| str.into())
-      .map_err(|err| error::CError::ErrorCode(-1, err.to_string().into()))
+      .map_err(|err| err.into_cerror())
   };
   
   tx.into()

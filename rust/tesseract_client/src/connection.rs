@@ -2,6 +2,7 @@ use tesseract_utils::future::CFuture;
 use tesseract_utils::ptr::SyncPtr;
 use tesseract_utils::data::CData;
 use tesseract_utils::{Nothing, Void};
+use tesseract_common::error::IntoTesseractError;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 
@@ -10,7 +11,6 @@ use async_trait::async_trait;
 use tesseract::Result;
 use tesseract::client::Connection;
 
-use crate::error::IntoTesseractError;
 
 #[repr(C)]
 pub struct NativeConnection {
