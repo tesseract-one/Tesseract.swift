@@ -1,5 +1,5 @@
 use super::error::CError;
-use super::result::CResult;
+use super::result::Result;
 use std::mem::ManuallyDrop;
 
 #[repr(u8)]
@@ -14,22 +14,7 @@ pub trait CResponse<T, R> {
     fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> R;
 }
 
-// impl<T: Copy> CResponse<T, bool> for CResult<T> {
-//   fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> bool {
-//     match self {
-//       Err(err) => {
-//         *error = ManuallyDrop::new(err);
-//         false
-//       }
-//       Ok(val) => {
-//         *value = val;
-//         true
-//       }
-//     }
-//   }
-// }
-
-impl<T> CResponse<ManuallyDrop<T>, bool> for CResult<T> {
+impl<T> CResponse<ManuallyDrop<T>, bool> for Result<T> {
     fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
@@ -44,7 +29,7 @@ impl<T> CResponse<ManuallyDrop<T>, bool> for CResult<T> {
     }
 }
 
-impl<T: Copy> CResponse<T, CResponseOption> for CResult<Option<T>> {
+impl<T: Copy> CResponse<T, CResponseOption> for Result<Option<T>> {
     fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> CResponseOption {
         match self {
             Err(err) => {
@@ -62,7 +47,7 @@ impl<T: Copy> CResponse<T, CResponseOption> for CResult<Option<T>> {
     }
 }
 
-impl<T> CResponse<ManuallyDrop<T>, CResponseOption> for CResult<Option<T>> {
+impl<T> CResponse<ManuallyDrop<T>, CResponseOption> for Result<Option<T>> {
     fn response(
         self,
         value: &mut ManuallyDrop<T>,

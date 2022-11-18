@@ -70,21 +70,61 @@ typedef struct CBigInt {
 
 typedef const Void *SyncPtr_Void;
 
-typedef void (*CFutureOnCompleteCallback_Void)(SyncPtr_Void context, Void *value, struct CError *error);
+typedef struct Nothing {
+  bool _0;
+} Nothing;
 
-typedef struct CFuture_Void {
+typedef enum CFutureValue_Nothing_Tag {
+  CFutureValue_Nothing_None_Nothing,
+  CFutureValue_Nothing_Value_Nothing,
+  CFutureValue_Nothing_Error_Nothing,
+} CFutureValue_Nothing_Tag;
+
+typedef struct CFutureValue_Nothing {
+  CFutureValue_Nothing_Tag tag;
+  union {
+    struct {
+      struct Nothing value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_Nothing;
+
+typedef void (*CFutureOnCompleteCallback_Nothing)(SyncPtr_Void context, struct Nothing *value, struct CError *error);
+
+typedef struct CFuture_Nothing {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_Void *future, SyncPtr_Void context, CFutureOnCompleteCallback_Void cb);
-  void (*release)(struct CFuture_Void *fut);
-} CFuture_Void;
+  struct CFutureValue_Nothing (*set_on_complete)(const struct CFuture_Nothing *future, SyncPtr_Void context, CFutureOnCompleteCallback_Nothing cb);
+  void (*release)(struct CFuture_Nothing *fut);
+} CFuture_Nothing;
 
-typedef struct CFuture_Void CFutureVoid;
+typedef struct CFuture_Nothing CFutureNothing;
+
+typedef enum CFutureValue_CString_Tag {
+  CFutureValue_CString_None_CString,
+  CFutureValue_CString_Value_CString,
+  CFutureValue_CString_Error_CString,
+} CFutureValue_CString_Tag;
+
+typedef struct CFutureValue_CString {
+  CFutureValue_CString_Tag tag;
+  union {
+    struct {
+      CString value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_CString;
 
 typedef void (*CFutureOnCompleteCallback_CString)(SyncPtr_Void context, CString *value, struct CError *error);
 
 typedef struct CFuture_CString {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_CString *future, SyncPtr_Void context, CFutureOnCompleteCallback_CString cb);
+  struct CFutureValue_CString (*set_on_complete)(const struct CFuture_CString *future, SyncPtr_Void context, CFutureOnCompleteCallback_CString cb);
   void (*release)(struct CFuture_CString *fut);
 } CFuture_CString;
 
@@ -95,11 +135,29 @@ typedef struct CInt128 {
   uint64_t w2;
 } CInt128;
 
+typedef enum CFutureValue_CInt128_Tag {
+  CFutureValue_CInt128_None_CInt128,
+  CFutureValue_CInt128_Value_CInt128,
+  CFutureValue_CInt128_Error_CInt128,
+} CFutureValue_CInt128_Tag;
+
+typedef struct CFutureValue_CInt128 {
+  CFutureValue_CInt128_Tag tag;
+  union {
+    struct {
+      struct CInt128 value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_CInt128;
+
 typedef void (*CFutureOnCompleteCallback_CInt128)(SyncPtr_Void context, struct CInt128 *value, struct CError *error);
 
 typedef struct CFuture_CInt128 {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_CInt128 *future, SyncPtr_Void context, CFutureOnCompleteCallback_CInt128 cb);
+  struct CFutureValue_CInt128 (*set_on_complete)(const struct CFuture_CInt128 *future, SyncPtr_Void context, CFutureOnCompleteCallback_CInt128 cb);
   void (*release)(struct CFuture_CInt128 *fut);
 } CFuture_CInt128;
 
@@ -110,51 +168,141 @@ typedef struct CUInt128 {
   uint64_t w2;
 } CUInt128;
 
+typedef enum CFutureValue_CUInt128_Tag {
+  CFutureValue_CUInt128_None_CUInt128,
+  CFutureValue_CUInt128_Value_CUInt128,
+  CFutureValue_CUInt128_Error_CUInt128,
+} CFutureValue_CUInt128_Tag;
+
+typedef struct CFutureValue_CUInt128 {
+  CFutureValue_CUInt128_Tag tag;
+  union {
+    struct {
+      struct CUInt128 value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_CUInt128;
+
 typedef void (*CFutureOnCompleteCallback_CUInt128)(SyncPtr_Void context, struct CUInt128 *value, struct CError *error);
 
 typedef struct CFuture_CUInt128 {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_CUInt128 *future, SyncPtr_Void context, CFutureOnCompleteCallback_CUInt128 cb);
+  struct CFutureValue_CUInt128 (*set_on_complete)(const struct CFuture_CUInt128 *future, SyncPtr_Void context, CFutureOnCompleteCallback_CUInt128 cb);
   void (*release)(struct CFuture_CUInt128 *fut);
 } CFuture_CUInt128;
 
 typedef struct CFuture_CUInt128 CFutureUInt128;
 
+typedef enum CFutureValue_CData_Tag {
+  CFutureValue_CData_None_CData,
+  CFutureValue_CData_Value_CData,
+  CFutureValue_CData_Error_CData,
+} CFutureValue_CData_Tag;
+
+typedef struct CFutureValue_CData {
+  CFutureValue_CData_Tag tag;
+  union {
+    struct {
+      struct CData value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_CData;
+
 typedef void (*CFutureOnCompleteCallback_CData)(SyncPtr_Void context, struct CData *value, struct CError *error);
 
 typedef struct CFuture_CData {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_CData *future, SyncPtr_Void context, CFutureOnCompleteCallback_CData cb);
+  struct CFutureValue_CData (*set_on_complete)(const struct CFuture_CData *future, SyncPtr_Void context, CFutureOnCompleteCallback_CData cb);
   void (*release)(struct CFuture_CData *fut);
 } CFuture_CData;
 
 typedef struct CFuture_CData CFutureData;
 
+typedef enum CFutureValue_CBigInt_Tag {
+  CFutureValue_CBigInt_None_CBigInt,
+  CFutureValue_CBigInt_Value_CBigInt,
+  CFutureValue_CBigInt_Error_CBigInt,
+} CFutureValue_CBigInt_Tag;
+
+typedef struct CFutureValue_CBigInt {
+  CFutureValue_CBigInt_Tag tag;
+  union {
+    struct {
+      struct CBigInt value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_CBigInt;
+
 typedef void (*CFutureOnCompleteCallback_CBigInt)(SyncPtr_Void context, struct CBigInt *value, struct CError *error);
 
 typedef struct CFuture_CBigInt {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_CBigInt *future, SyncPtr_Void context, CFutureOnCompleteCallback_CBigInt cb);
+  struct CFutureValue_CBigInt (*set_on_complete)(const struct CFuture_CBigInt *future, SyncPtr_Void context, CFutureOnCompleteCallback_CBigInt cb);
   void (*release)(struct CFuture_CBigInt *fut);
 } CFuture_CBigInt;
 
 typedef struct CFuture_CBigInt CFutureBigInt;
 
+typedef enum CFutureValue_CAnyPtr_Tag {
+  CFutureValue_CAnyPtr_None_CAnyPtr,
+  CFutureValue_CAnyPtr_Value_CAnyPtr,
+  CFutureValue_CAnyPtr_Error_CAnyPtr,
+} CFutureValue_CAnyPtr_Tag;
+
+typedef struct CFutureValue_CAnyPtr {
+  CFutureValue_CAnyPtr_Tag tag;
+  union {
+    struct {
+      CAnyPtr value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_CAnyPtr;
+
 typedef void (*CFutureOnCompleteCallback_CAnyPtr)(SyncPtr_Void context, CAnyPtr *value, struct CError *error);
 
 typedef struct CFuture_CAnyPtr {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_CAnyPtr *future, SyncPtr_Void context, CFutureOnCompleteCallback_CAnyPtr cb);
+  struct CFutureValue_CAnyPtr (*set_on_complete)(const struct CFuture_CAnyPtr *future, SyncPtr_Void context, CFutureOnCompleteCallback_CAnyPtr cb);
   void (*release)(struct CFuture_CAnyPtr *fut);
 } CFuture_CAnyPtr;
 
 typedef struct CFuture_CAnyPtr CFutureAnyPtr;
 
+typedef enum CFutureValue_bool_Tag {
+  CFutureValue_bool_None_bool,
+  CFutureValue_bool_Value_bool,
+  CFutureValue_bool_Error_bool,
+} CFutureValue_bool_Tag;
+
+typedef struct CFutureValue_bool {
+  CFutureValue_bool_Tag tag;
+  union {
+    struct {
+      bool value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_bool;
+
 typedef void (*CFutureOnCompleteCallback_bool)(SyncPtr_Void context, bool *value, struct CError *error);
 
 typedef struct CFuture_bool {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_bool *future, SyncPtr_Void context, CFutureOnCompleteCallback_bool cb);
+  struct CFutureValue_bool (*set_on_complete)(const struct CFuture_bool *future, SyncPtr_Void context, CFutureOnCompleteCallback_bool cb);
   void (*release)(struct CFuture_bool *fut);
 } CFuture_bool;
 

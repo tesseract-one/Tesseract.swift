@@ -11,8 +11,7 @@
 @import CTesseractUtils;
 
 typedef struct TransportProcessor {
-  SyncPtr_Void ptr;
-  SyncPtr_Void executor;
+  SyncPtr_Void _0;
 } TransportProcessor;
 
 typedef struct BoundTransport {

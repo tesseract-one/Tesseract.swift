@@ -8,3 +8,9 @@ pub trait TryAsRef<T: ?Sized> {
 pub trait QuickClone {
   fn quick_clone(&self) -> Self;
 }
+
+pub trait IntoC<T> {
+  type CVal;
+
+  fn into_c(self) -> Self::CVal;
+}

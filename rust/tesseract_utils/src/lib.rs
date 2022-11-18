@@ -17,6 +17,10 @@ extern crate num_bigint;
 #[cfg(feature = "bigint")]
 pub mod bigint;
 
+#[repr(C)]
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Nothing(bool);
+
 pub type Void = std::ffi::c_void;
 
 #[no_mangle]

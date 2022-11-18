@@ -1,5 +1,6 @@
 use super::error::CError;
-use super::result::{CResult, IntoCResult};
+use super::result::Result;
+use super::traits::IntoC;
 use std::any::Any;
 use std::panic;
 
@@ -13,36 +14,42 @@ fn string_from_panic_err(err: Box<dyn Any>) -> String {
     }
 }
 
-impl<T> IntoCResult<T> for std::result::Result<T, Box<dyn Any + Send + 'static>> {
-    fn into_cresult(self) -> CResult<T> {
+impl<T> IntoC<T> for std::result::Result<T, Box<dyn Any + Send + 'static>> {
+    type CVal = Result<T>;
+
+    fn into_c(self) -> Result<T> {
         self.map_err(|err| CError::Panic(string_from_panic_err(err).into()))
     }
 }
 
-impl<T> IntoCResult<T> for std::result::Result<T, Box<dyn Any + 'static>> {
-    fn into_cresult(self) -> CResult<T> {
+impl<T> IntoC<T> for std::result::Result<T, Box<dyn Any + 'static>> {
+    type CVal = Result<T>;
+
+    fn into_c(self) -> Result<T> {
         self.map_err(|err| CError::Panic(string_from_panic_err(err).into()))
     }
 }
 
-impl<T, E> IntoCResult<T> for std::result::Result<T, E>
+impl<T, E> IntoC<T> for std::result::Result<T, E>
 where
     E: Into<CError>,
 {
-    fn into_cresult(self) -> CResult<T> {
+    type CVal = Result<T>;
+
+    fn into_c(self) -> Result<T> {
         self.map_err(|err| err.into())
     }
 }
 
 #[allow(dead_code)]
-pub fn handle_exception<F: FnOnce() -> R + panic::UnwindSafe, R>(func: F) -> CResult<R> {
+pub fn handle_exception<F: FnOnce() -> R + panic::UnwindSafe, R>(func: F) -> Result<R> {
     handle_exception_result(|| Ok(func()))
 }
 
-pub fn handle_exception_result<F: FnOnce() -> CResult<R> + panic::UnwindSafe, R>(
+pub fn handle_exception_result<F: FnOnce() -> Result<R> + panic::UnwindSafe, R>(
     func: F,
-) -> CResult<R> {
-    panic::catch_unwind(func).into_cresult().and_then(|res| res)
+) -> Result<R> {
+    panic::catch_unwind(func).into_c().and_then(|res| res)
 }
 
 #[allow(dead_code)]

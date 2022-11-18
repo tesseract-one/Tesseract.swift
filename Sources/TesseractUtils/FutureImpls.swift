@@ -8,14 +8,30 @@
 import Foundation
 import CTesseractUtils
 
-extension CFutureVoid: CFuturePtr {
-    public typealias CVal = Void
+extension CFutureValue_Nothing: CFutureValueValue {
+    public typealias Val = Nothing
+    
+    public static var valueTag: CFutureValue_Nothing_Tag {
+        CFutureValue_Nothing_Value_Nothing
+    }
+    
+    public static var errorTag: CFutureValue_Nothing_Tag {
+        CFutureValue_Nothing_Error_Nothing
+    }
+    
+    public static var noneTag: CFutureValue_Nothing_Tag {
+        CFutureValue_Nothing_None_Nothing
+    }
+}
+
+extension CFutureNothing: CFuturePtr {
+    public typealias CVal = CFutureValue_Nothing
     public typealias Val = Void
     
-    public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) {
+    public mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
         _withOnCompleteContext(cb) { ctx in
             self.set_on_complete(&self, ctx) { ctx, val, err in
-                Self._onCompleteCallback(ctx, val?.assumingMemoryBound(to: Void.self), err)
+                Self._onCompleteCallback(ctx, val, err)
             }
         }
     }
@@ -36,17 +52,33 @@ extension CFutureVoid: CFuturePtr {
         self.release(&self)
     }
     
-    public static func convert(cvalue: inout Void) -> CResult<Void> {
+    public static func convert(cvalue: inout Nothing) -> CResult<Void> {
         .success(())
     }
     
-    public static func convert(value: inout Void) -> CResult<Void> {
-        .success(())
+    public static func convert(value: inout Void) -> CResult<Nothing> {
+        .success(.nothing)
+    }
+}
+
+extension CFutureValue_CAnyPtr: CFutureValuePtr {
+    public typealias PtrVal = CAnyPtr
+    
+    public static var valueTag: CFutureValue_CAnyPtr_Tag {
+        CFutureValue_CAnyPtr_Value_CAnyPtr
+    }
+
+    public static var errorTag: CFutureValue_CAnyPtr_Tag {
+        CFutureValue_CAnyPtr_Error_CAnyPtr
+    }
+
+    public static var noneTag: CFutureValue_CAnyPtr_Tag {
+        CFutureValue_CAnyPtr_None_CAnyPtr
     }
 }
 
 extension CFutureAnyPtr: CFuturePtr {
-    public typealias CVal = CAnyPtr?
+    public typealias CVal = CFutureValue_CAnyPtr
     public typealias Val = CAnyPtr
     
     public init<T: AsAnyPtrCopy>(copying cb: @escaping @Sendable () async throws -> T) {
@@ -83,15 +115,15 @@ extension CFutureAnyPtr: CFuturePtr {
         }
     }
     
-    public static func convert(cvalue: inout CVal) -> CResult<Val> {
+    public static func convert(cvalue: inout CVal.Val) -> CResult<Val> {
         cvalue == nil ? .failure(.nullPtr) : .success(cvalue!)
     }
     
-    public static func convert(value: inout Val) -> CResult<CVal> {
+    public static func convert(value: inout Val) -> CResult<CVal.Val> {
         .success(value)
     }
     
-    public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) {
+    public mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
         _withOnCompleteContext(cb) { ctx in
             self.set_on_complete(&self, ctx) { ctx, val, err in
                 Self._onCompleteCallback(ctx, val, err)
@@ -113,14 +145,30 @@ extension CFutureAnyPtr: CFuturePtr {
     
     public mutating func _release() {
         self.release(&self)
+    }
+}
+
+extension CFutureValue_CData: CFutureValueValue {
+    public typealias Val = CData
+    
+    public static var valueTag: CFutureValue_CData_Tag {
+        CFutureValue_CData_Value_CData
+    }
+    
+    public static var errorTag: CFutureValue_CData_Tag {
+        CFutureValue_CData_Error_CData
+    }
+    
+    public static var noneTag: CFutureValue_CData_Tag {
+        CFutureValue_CData_None_CData
     }
 }
 
 extension CFutureData: CFuturePtr {
-    public typealias CVal = CData
+    public typealias CVal = CFutureValue_CData
     public typealias Val = Data
     
-    public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) {
+    public mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
         _withOnCompleteContext(cb) { ctx in
             self.set_on_complete(&self, ctx) { ctx, val, err in
                 Self._onCompleteCallback(ctx, val, err)
@@ -145,12 +193,27 @@ extension CFutureData: CFuturePtr {
     }
 }
 
+extension CFutureValue_CString: CFutureValuePtr {
+    public typealias PtrVal = CString
+    
+    public static var valueTag: CFutureValue_CString_Tag {
+        CFutureValue_CString_Value_CString
+    }
+    
+    public static var errorTag: CFutureValue_CString_Tag {
+        CFutureValue_CString_Error_CString
+    }
+    
+    public static var noneTag: CFutureValue_CString_Tag {
+        CFutureValue_CString_None_CString
+    }
+}
 
 extension CFutureString: CFuturePtr {
-    public typealias CVal = Optional<CString>
+    public typealias CVal = CFutureValue_CString
     public typealias Val = String
     
-    public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) {
+    public mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
         _withOnCompleteContext(cb) { ctx in
             self.set_on_complete(&self, ctx) { ctx, val, err in
                 Self._onCompleteCallback(ctx, val, err)
@@ -172,14 +235,30 @@ extension CFutureString: CFuturePtr {
     
     public mutating func _release() {
         self.release(&self)
+    }
+}
+
+extension CFutureValue_bool: CFutureValueValue {
+    public typealias Val = Bool
+    
+    public static var valueTag: CFutureValue_bool_Tag {
+        CFutureValue_bool_Value_bool
+    }
+    
+    public static var errorTag: CFutureValue_bool_Tag {
+        CFutureValue_bool_Error_bool
+    }
+    
+    public static var noneTag: CFutureValue_bool_Tag {
+        CFutureValue_bool_None_bool
     }
 }
 
 extension CFutureBool: CFuturePtr {
-    public typealias CVal = Bool
+    public typealias CVal = CFutureValue_bool
     public typealias Val = Bool
     
-    public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) {
+    public mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
         _withOnCompleteContext(cb) { ctx in
             self.set_on_complete(&self, ctx) { ctx, val, err in
                 Self._onCompleteCallback(ctx, val, err)

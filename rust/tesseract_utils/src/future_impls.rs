@@ -1,11 +1,11 @@
+use crate::Nothing;
 use crate::future::CFuture;
 use crate::string::CString;
 use crate::int128::{CInt128, CUInt128};
 use crate::data::CData;
 use crate::ptr::CAnyPtr;
-use crate::Void;
 
-pub type CFutureVoid = CFuture<Void>;
+pub type CFutureNothing = CFuture<Nothing>;
 pub type CFutureString = CFuture<CString>;
 pub type CFutureData = CFuture<CData>;
 pub type CFutureAnyPtr = CFuture<CAnyPtr>;

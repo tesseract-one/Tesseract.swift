@@ -1,4 +1,4 @@
-use tesseract_utils::{ptr::SyncPtr, future::Executor};
+use tesseract_utils::ptr::SyncPtr;
 use tesseract_utils::Void;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
@@ -36,22 +36,11 @@ impl Drop for Transport {
     }
 }
 
-impl Transport {
-  pub fn executor(self, executor: &Arc<dyn Executor>) -> ExecutorTransport {
-    ExecutorTransport { transport: self, executor: Arc::clone(executor) }
-  }
-}
-
-pub struct ExecutorTransport {
-  transport: Transport,
-  executor: Arc<dyn Executor>
-}
-
-impl TTransport for ExecutorTransport {
+impl TTransport for Transport {
     fn bind(self, processor: Arc<dyn TTransportProcessor + Send + Sync>) -> Box<dyn TBoundTransport> {
-        let proc =  ManuallyDrop::new(TransportProcessor::new(processor, self.executor));
+        let proc =  ManuallyDrop::new(TransportProcessor::new(processor));
         unsafe {
-          let bound = (self.transport.bind)(self.transport, proc);
+          let bound = (self.bind)(self, proc);
           Box::new(ManuallyDrop::into_inner(bound))
         }
     }

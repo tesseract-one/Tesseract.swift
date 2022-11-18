@@ -1,6 +1,7 @@
 use crate::Void;
 use crate::error::CError;
-use crate::result::{CResult, IntoCResult};
+use crate::result::Result;
+use crate::traits::IntoC;
 use std::mem::ManuallyDrop;
 use std::any::Any;
 
@@ -12,11 +13,11 @@ pub trait AnyPtrRepresentable: Sized + 'static {
 }
 
 pub trait AnyPtr {
-    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> CResult<&mut T>;
+    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> Result<&mut T>;
 }
 
 pub trait AnyOwnedPtr {
-    unsafe fn try_into<T: AnyPtrRepresentable>(self) -> CResult<T>;
+    unsafe fn try_into<T: AnyPtrRepresentable>(self) -> Result<T>;
 }
 
 
@@ -47,7 +48,7 @@ unsafe impl Send for CAnyPtr {}
 unsafe impl Sync for CAnyPtr {}
 
 impl AnyPtr for CAnyPtrRef {
-    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> CResult<&mut T> {
+    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> Result<&mut T> {
         if self.is_null() {
             return Err(CError::NullPtr);
         }
@@ -65,19 +66,19 @@ impl CAnyPtr {
 }
 
 impl AnyPtr for CAnyPtr {
-    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> CResult<&mut T> {
+    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> Result<&mut T> {
         self.0.try_as_ref()
     }
 }
 
 impl AnyOwnedPtr for CAnyPtr {
-    unsafe fn try_into<T: AnyPtrRepresentable>(mut self) -> CResult<T> {
+    unsafe fn try_into<T: AnyPtrRepresentable>(mut self) -> Result<T> {
         if self.0.is_null() {
             return Err(CError::NullPtr);
         }
         let boxed = *Box::from_raw(self.0 as *mut Box<dyn Any>);
         self.0 = std::ptr::null_mut();
-        boxed.downcast::<T>().into_cresult().map(|boxed| *boxed)
+        boxed.downcast::<T>().into_c().map(|boxed| *boxed)
     }
 }
 

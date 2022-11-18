@@ -53,7 +53,6 @@ public class ExtensionTransport: Transport {
                        message: "Bad proto id: \(proto)")
             )
         }
-        print("URL", url)
         if await UIApplication.shared.canOpenURL(url) {
             return .ready
         } else {

@@ -2,15 +2,12 @@ extern crate tesseract_utils;
 extern crate tesseract_client;
 extern crate tesseract;
 extern crate tesseract_protocol_test;
-extern crate futures;
 
-use futures::FutureExt;
 use tesseract::client::Tesseract;
 use tesseract::client::delegate::SingleTransportDelegate;
 use tesseract_utils::future_impls::CFutureString;
 use tesseract_utils::string::CStringRef;
 use tesseract_protocol_test::TestService;
-use tesseract_utils::future::IntoCFuture;
 pub use tesseract_utils::*;
 pub use tesseract_client::*;
 use tesseract_utils::traits::TryAsRef;
@@ -18,7 +15,6 @@ use tesseract_utils::traits::TryAsRef;
 use crate::tesseract_utils::ptr::{SyncPtrAsVoid, SyncPtr, SyncPtrAsType};
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
-use std::pin::Pin;
 
 #[repr(C)]
 pub struct AppContextPtr(SyncPtr<Void>);
@@ -38,31 +34,22 @@ impl AppContextPtr {
 }
 
 struct AppContext {
-  executor: Arc<SExecutor>,
   service: Arc<dyn tesseract::client::Service<Protocol = tesseract_protocol_test::Test>>,
 }
 
-pub struct SExecutor(futures::executor::ThreadPool);
-
-impl future::Executor for SExecutor {
-  fn spawn(&self, future: Pin<Box<dyn std::future::Future<Output = ()> + Send>>) {
-      self.0.spawn_ok(future);
-  }
-}
+pub struct SExecutor();
 
 #[no_mangle]
 pub unsafe extern "C" fn app_init(transport: transport::NativeTransport) -> ManuallyDrop<AppContextPtr> {
-  let executor = Arc::new(SExecutor(futures::executor::ThreadPool::new().unwrap()));
+  tesseract_utils_init();
 
   let service = Tesseract::new(SingleTransportDelegate::arc())
     .transport(transport)
     .service(tesseract_protocol_test::Test::Protocol);
 
   let context = AppContext {
-    executor, service
+    service
   };
-
-  tesseract_utils_init();
 
   ManuallyDrop::new(AppContextPtr::new(context))
 }
@@ -78,13 +65,11 @@ pub unsafe extern "C" fn app_sign_data(
 
   let tx = async move {
     service.sign_transaction(&data_str).await
-  }.map(|x| {
-    x
       .map(|str| str.into())
       .map_err(|err| error::CError::ErrorCode(-1, err.to_string().into()))
-  });
+  };
   
-  tx.into_cfuture(context.executor.as_ref())
+  tx.into()
 }
 
 #[no_mangle]

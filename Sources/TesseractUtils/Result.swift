@@ -10,6 +10,21 @@ import CTesseractUtils
 
 public typealias CResult<T> = Result<T, CError>
 
+// Result is unfinished
+public protocol CResultPtr: CType, CPtr where Val == CResult<SResVal> {
+    associatedtype CResTag: Equatable
+    associatedtype CResVal: CType
+    associatedtype SResVal
+    
+    var tag: CResTag { get set }
+    var err: CTesseractUtils.CError { get set }
+    var ok: CResVal { get set }
+    
+    static var ok: CResTag { get }
+    static var err: CResTag { get }
+}
+
+
 public extension CResult {
     static func wrap<S: CType>(
         ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<CTesseractUtils.CError>) -> Bool

@@ -9,11 +9,27 @@ import Foundation
 import TesseractUtils
 import CTesseractClient
 
+extension CFutureValue_Status: CFutureValueValue {
+    public typealias Val = CTesseractClient.Status
+    
+    public static var valueTag: CFutureValue_Status_Tag {
+        CFutureValue_Status_Value_Status
+    }
+    
+    public static var errorTag: CFutureValue_Status_Tag {
+        CFutureValue_Status_Error_Status
+    }
+    
+    public static var noneTag: CFutureValue_Status_Tag {
+        CFutureValue_Status_None_Status
+    }
+}
+
 extension CFutureStatus: CFuturePtr {
-    public typealias CVal = CTesseractClient.Status
+    public typealias CVal = CFutureValue_Status
     public typealias Val = Status
     
-    mutating public func _onComplete(cb: @escaping (CResult<CVal>) -> Void) {
+    mutating public func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
         _withOnCompleteContext(cb) { ctx in
             self.set_on_complete(&self, ctx) { ctx, val, err in
                 Self._onCompleteCallback(ctx, val, err)
@@ -37,12 +53,12 @@ extension CFutureStatus: CFuturePtr {
         self.release(&self)
     }
     
-    public static func convert(cvalue: inout CVal) -> CResult<Val> {
+    public static func convert(cvalue: inout CVal.Val) -> CResult<Val> {
         CResult.failure(.panic(reason: "One way conversion only"))
     }
     
-    public static func convert(value: inout Val) -> CResult<CVal> {
-        var cvalue = CVal()
+    public static func convert(value: inout Val) -> CResult<CVal.Val> {
+        var cvalue = CVal.Val()
         switch value {
         case .ready:
             cvalue.tag = Status_Ready
@@ -81,9 +97,9 @@ private func transport_release(self: UnsafeMutablePointer<NativeTransport>!) {
     let _ = self.owned()
 }
 
-private func connection_send(self: UnsafePointer<NativeConnection>!, data: UnsafePointer<UInt8>!, len: UInt) -> CFutureVoid {
+private func connection_send(self: UnsafePointer<NativeConnection>!, data: UnsafePointer<UInt8>!, len: UInt) -> CFutureNothing {
     let data = Data(bytes: UnsafeRawPointer(data), count: Int(len))
-    return CFutureVoid {
+    return CFutureNothing {
         try await self.unowned().send(request: data)
     }
 }

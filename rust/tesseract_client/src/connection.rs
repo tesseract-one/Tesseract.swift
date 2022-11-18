@@ -1,7 +1,7 @@
 use tesseract_utils::future::CFuture;
 use tesseract_utils::ptr::SyncPtr;
 use tesseract_utils::data::CData;
-use tesseract_utils::Void;
+use tesseract_utils::{Nothing, Void};
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 
@@ -15,7 +15,7 @@ use crate::error::IntoTesseractError;
 #[repr(C)]
 pub struct NativeConnection {
   ptr: SyncPtr<Void>,
-  send: unsafe extern "C" fn(connection: &NativeConnection, data: *const u8, len: usize) -> ManuallyDrop<CFuture<Void>>,
+  send: unsafe extern "C" fn(connection: &NativeConnection, data: *const u8, len: usize) -> ManuallyDrop<CFuture<Nothing>>,
   receive: unsafe extern "C" fn(connection: &NativeConnection) -> ManuallyDrop<CFuture<CData>>,
   release: unsafe extern "C" fn(connection: &mut NativeConnection)
 }

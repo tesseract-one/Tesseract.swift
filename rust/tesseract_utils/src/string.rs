@@ -1,7 +1,7 @@
 use super::error::CError;
 use super::panic::handle_exception_result;
 use super::response::CResponse;
-use super::result::CResult;
+use super::result::Result;
 use super::traits::TryAsRef;
 use std::ffi::{CStr as FCStr, CString as FCString};
 use std::mem::ManuallyDrop;
@@ -38,7 +38,7 @@ impl Clone for CString {
 impl TryAsRef<str> for CStringRef {
     type Error = CError;
 
-    fn try_as_ref(&self) -> Result<&str, Self::Error> {
+    fn try_as_ref(&self) -> Result<&str> {
         unsafe { FCStr::from_ptr(*self).to_str().map_err(|err| err.into()) }
     }
 }
@@ -46,7 +46,7 @@ impl TryAsRef<str> for CStringRef {
 impl TryAsRef<str> for CString {
     type Error = CError;
 
-    fn try_as_ref(&self) -> Result<&str, Self::Error> {
+    fn try_as_ref(&self) -> Result<&str> {
         self.0.try_as_ref()
     }
 }
@@ -54,7 +54,7 @@ impl TryAsRef<str> for CString {
 impl<'a> TryFrom<&'a CString> for &'a str {
     type Error = CError;
 
-    fn try_from(value: &'a CString) -> Result<Self, Self::Error> {
+    fn try_from(value: &'a CString) -> Result<Self> {
         value.0.try_as_ref()
     }
 }
@@ -62,7 +62,7 @@ impl<'a> TryFrom<&'a CString> for &'a str {
 impl TryFrom<CString> for String {
     type Error = CError;
 
-    fn try_from(value: CString) -> Result<Self, Self::Error> {
+    fn try_from(value: CString) -> Result<Self> {
         if value.0.is_null() {
             Err(CError::NullPtr)
         } else {
@@ -94,7 +94,7 @@ impl From<&String> for CString {
     }
 }
 
-impl CResponse<ManuallyDrop<CString>, bool> for CResult<String> {
+impl CResponse<ManuallyDrop<CString>, bool> for Result<String> {
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
@@ -109,7 +109,7 @@ impl CResponse<ManuallyDrop<CString>, bool> for CResult<String> {
     }
 }
 
-impl CResponse<ManuallyDrop<CString>, bool> for CResult<&str> {
+impl CResponse<ManuallyDrop<CString>, bool> for Result<&str> {
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
@@ -124,7 +124,7 @@ impl CResponse<ManuallyDrop<CString>, bool> for CResult<&str> {
     }
 }
 
-impl CResponse<ManuallyDrop<CString>, bool> for CResult<Option<String>> {
+impl CResponse<ManuallyDrop<CString>, bool> for Result<Option<String>> {
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
@@ -142,7 +142,7 @@ impl CResponse<ManuallyDrop<CString>, bool> for CResult<Option<String>> {
     }
 }
 
-impl CResponse<ManuallyDrop<CString>, bool> for CResult<Option<&str>> {
+impl CResponse<ManuallyDrop<CString>, bool> for Result<Option<&str>> {
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {

@@ -11,7 +11,7 @@ prefix_with_name = true
 
 [export]
 include = [
-  "CPtrRef", "CStringRef", "CFutureVoid",
+  "CPtrRef", "CStringRef", "CFutureNothing",
   "CFutureString", "CFutureInt128", "CFutureUInt128",
   "CFutureData", "CFutureBigInt", "CFutureAnyPtr", "CFutureBool"
 ]

@@ -6,6 +6,11 @@
 //
 
 import Foundation
+import CTesseractUtils
+
+extension Nothing {
+    public static let nothing = Nothing(_0: false)
+}
 
 extension Int8: CType, CValue {}
 extension UInt8: CType, CValue {}

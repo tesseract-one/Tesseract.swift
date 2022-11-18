@@ -1,7 +1,8 @@
 mod cfuture;
-mod native;
-mod wrapper;
+mod from;
+mod into;
+mod value;
 
 pub use cfuture::*;
-pub use native::*;
-pub use wrapper::*;
+pub use into::*;
+pub use value::*;

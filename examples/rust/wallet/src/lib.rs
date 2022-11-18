@@ -2,11 +2,9 @@ extern crate tesseract_utils;
 extern crate tesseract_service;
 extern crate tesseract;
 extern crate tesseract_protocol_test;
-extern crate futures;
 extern crate async_trait;
 
 use tesseract::service::Tesseract;
-use tesseract_service::UseNativeTransport;
 use tesseract_utils::future_impls::CFutureBool;
 use tesseract_utils::Void;
 use tesseract_utils::string::{CStringRef, CString};
@@ -15,7 +13,6 @@ use tesseract_utils::ptr::{SyncPtrAsVoid, SyncPtr, SyncPtrAsType};
 use tesseract_utils::traits::TryAsRef;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
-use std::pin::Pin;
 use async_trait::async_trait;
 
 #[repr(C)]
@@ -90,16 +87,7 @@ impl tesseract_protocol_test::TestService for TestService {
 }
 
 struct AppContext {
-  _executor: Arc<dyn tesseract_utils::future::Executor>,
   _tesseract: Tesseract
-}
-
-pub struct SExecutor(futures::executor::ThreadPool);
-
-impl tesseract_utils::future::Executor for SExecutor {
-  fn spawn(&self, future: Pin<Box<dyn std::future::Future<Output = ()> + Send>>) {
-      self.0.spawn_ok(future);
-  }
 }
 
 #[no_mangle]
@@ -108,19 +96,17 @@ pub unsafe extern "C" fn wallet_extension_init(
   ui: UI,
   transport: tesseract_service::transport::Transport
 ) -> ManuallyDrop<AppContextPtr> {
-  let executor: Arc<dyn tesseract_utils::future::Executor> = Arc::new(SExecutor(futures::executor::ThreadPool::new().unwrap()));
+  tesseract_utils_init();
 
   let service = TestService::new(ui, signature.try_as_ref().unwrap().into());
 
   let ts = Tesseract::new()
-    .native_transport(transport, &executor)
+    .transport(transport)
     .service(service);
 
   let context = AppContext {
-    _executor: executor, _tesseract: ts
+    _tesseract: ts
   };
-
-  tesseract_utils_init();
 
   ManuallyDrop::new(AppContextPtr::new(context))
 }

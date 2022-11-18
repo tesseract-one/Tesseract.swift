@@ -1,6 +1,6 @@
 use super::array::CArray;
 use super::error::CError;
-use super::result::CResult;
+use super::result::Result;
 use super::traits::{QuickClone, TryAsRef};
 use num_bigint::{BigInt, Sign};
 use std::convert::TryFrom;
@@ -51,7 +51,7 @@ impl Clone for CBigInt {
 
 impl TryFrom<CBigInt> for BigInt {
     type Error = CError;
-    fn try_from(big_int: CBigInt) -> CResult<Self> {
+    fn try_from(big_int: CBigInt) -> Result<Self> {
         let digits = big_int.data.try_as_ref()?;
         Ok(Self::from_slice(big_int.sign.into(), digits))
     }

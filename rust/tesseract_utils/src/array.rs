@@ -1,6 +1,6 @@
 use super::error::CError;
 use super::ptr::SyncPtr;
-use super::result::CResult;
+use super::result::Result;
 use super::traits::{TryAsRef, QuickClone};
 use std::collections::{BTreeMap, HashMap};
 use std::mem::ManuallyDrop;
@@ -10,15 +10,6 @@ pub struct CArray<Value> {
     ptr: SyncPtr<Value>,
     len: usize,
 }
-
-// impl<Value> CArray<Value> {
-//     unsafe fn _owned(&mut self) -> Vec<Value> {
-//         let vec = Vec::from_raw_parts(self.ptr as *mut Value, self.len, self.len);
-//         self.ptr = std::ptr::null();
-//         self.len = 0;
-//         vec
-//     }
-// }
 
 impl<Value: Clone> Clone for CArray<Value> {
     fn clone(&self) -> Self {
@@ -44,7 +35,7 @@ impl<Value> Drop for CArray<Value> {
 impl<Value> TryAsRef<[Value]> for CArray<Value> {
     type Error = CError;
 
-    fn try_as_ref(&self) -> Result<&[Value], Self::Error> {
+    fn try_as_ref(&self) -> Result<&[Value]> {
         if self.ptr.is_null() {
             Err(CError::NullPtr)
         } else {
@@ -56,7 +47,7 @@ impl<Value> TryAsRef<[Value]> for CArray<Value> {
 impl<'a, Value> TryFrom<&'a CArray<Value>> for &'a [Value] {
     type Error = CError;
 
-    fn try_from(value: &'a CArray<Value>) -> Result<Self, Self::Error> {
+    fn try_from(value: &'a CArray<Value>) -> Result<Self> {
         value.try_as_ref()
     }
 }
@@ -64,7 +55,7 @@ impl<'a, Value> TryFrom<&'a CArray<Value>> for &'a [Value] {
 impl<Value> TryFrom<CArray<Value>> for Vec<Value> {
     type Error = CError;
 
-    fn try_from(value: CArray<Value>) -> Result<Self, Self::Error> {
+    fn try_from(value: CArray<Value>) -> Result<Self> {
         if value.ptr.is_null() {
             Err(CError::NullPtr)
         } else {
@@ -117,21 +108,21 @@ pub trait AsHashMap {
     type Key: std::hash::Hash + Eq + Clone;
     type Value: Clone;
 
-    unsafe fn as_hash_map(&self) -> CResult<HashMap<Self::Key, Self::Value>>;
+    unsafe fn as_hash_map(&self) -> Result<HashMap<Self::Key, Self::Value>>;
 }
 
 pub trait AsBTreeMap {
     type Key: Ord;
     type Value;
 
-    unsafe fn as_btree_map(&self) -> CResult<BTreeMap<Self::Key, Self::Value>>;
+    unsafe fn as_btree_map(&self) -> Result<BTreeMap<Self::Key, Self::Value>>;
 }
 
 impl<K: Ord + Clone, V: Clone> AsBTreeMap for CArray<CKeyValue<K, V>> {
     type Key = K;
     type Value = V;
 
-    unsafe fn as_btree_map(&self) -> CResult<BTreeMap<K, V>> {
+    unsafe fn as_btree_map(&self) -> Result<BTreeMap<K, V>> {
         self.try_as_ref()
             .map(|sl| sl.into_iter().cloned().map(|kv| kv.into()).collect())
     }
@@ -141,7 +132,7 @@ impl<K: std::hash::Hash + Eq + Clone, V: Clone> AsHashMap for CArray<CKeyValue<K
     type Key = K;
     type Value = V;
 
-    unsafe fn as_hash_map(&self) -> CResult<HashMap<K, V>> {
+    unsafe fn as_hash_map(&self) -> Result<HashMap<K, V>> {
         self.try_as_ref()
             .map(|sl| sl.into_iter().cloned().map(|kv| kv.into()).collect())
     }

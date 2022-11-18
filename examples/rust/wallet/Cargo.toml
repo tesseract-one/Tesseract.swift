@@ -13,7 +13,6 @@ tesseract_service = { path = "../../../rust/tesseract_service" }
 tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
 tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
 async-trait = "0.1.57"
-futures = { version = "0.3", features=["executor", "thread-pool"] }
 
 [build-dependencies]
 cbindgen = "0.24"

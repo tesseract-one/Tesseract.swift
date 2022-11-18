@@ -28,17 +28,35 @@ typedef struct Status {
   };
 } Status;
 
+typedef enum CFutureValue_Status_Tag {
+  CFutureValue_Status_None_Status,
+  CFutureValue_Status_Value_Status,
+  CFutureValue_Status_Error_Status,
+} CFutureValue_Status_Tag;
+
+typedef struct CFutureValue_Status {
+  CFutureValue_Status_Tag tag;
+  union {
+    struct {
+      struct Status value;
+    };
+    struct {
+      CError error;
+    };
+  };
+} CFutureValue_Status;
+
 typedef void (*CFutureOnCompleteCallback_Status)(SyncPtr_Void context, struct Status *value, CError *error);
 
 typedef struct CFuture_Status {
   SyncPtr_Void ptr;
-  void (*set_on_complete)(const struct CFuture_Status *future, SyncPtr_Void context, CFutureOnCompleteCallback_Status cb);
+  struct CFutureValue_Status (*set_on_complete)(const struct CFuture_Status *future, SyncPtr_Void context, CFutureOnCompleteCallback_Status cb);
   void (*release)(struct CFuture_Status *fut);
 } CFuture_Status;
 
 typedef struct NativeConnection {
   SyncPtr_Void ptr;
-  CFuture_Void (*send)(const struct NativeConnection *connection, const uint8_t *data, uintptr_t len);
+  CFuture_Nothing (*send)(const struct NativeConnection *connection, const uint8_t *data, uintptr_t len);
   CFuture_CData (*receive)(const struct NativeConnection *connection);
   void (*release)(struct NativeConnection *connection);
 } NativeConnection;
