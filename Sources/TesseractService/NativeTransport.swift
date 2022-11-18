@@ -1,6 +1,6 @@
 //
 //  NativeTransport.swift
-//  TestExtension
+//  TesseractService
 //
 //  Created by Yehor Popovych on 01.11.2022.
 //

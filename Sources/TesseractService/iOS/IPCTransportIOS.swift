@@ -1,14 +1,15 @@
 //
-//  Extension.swift
-//  TestExtension
+//  IPCTransportIOS.swift
+//  TesseractService
 //
 //  Created by Yehor Popovych on 06.10.2022.
 //
 
 import UIKit
 import TesseractUtils
+import TesseractCommon
 
-public class ExtensionTransport {
+public class IPCTransportIOS {
     private var context: NSExtensionContext
     
     public init(context: NSExtensionContext) {
@@ -21,19 +22,19 @@ public class ExtensionTransport {
             .compactMap{$0.attachments}
             .flatMap{$0}
             .first
-                
+        
         guard let item = item else {
-            throw CError.error(code: 0, message: "Empty Request")
+            throw CError.emptyRequest(message: "No attachment items")
         }
                 
         guard let requestUTI = item.registeredTypeIdentifiers.first else {
-            throw CError.error(code: 0, message: "Empty Request")
+            throw CError.emptyRequest(message: "No items UTI")
         }
         
         let request = try await item.loadItem(forTypeIdentifier: requestUTI, options: nil)
         
         guard let data = request as? Data else {
-            throw CError.error(code: 1, message: "Wrong Message Body Type")
+            throw CError.unsupportedDataType(message: "Wrong message type: \(request)")
         }
         
         return (data: data, uti: requestUTI)
@@ -47,7 +48,7 @@ public class ExtensionTransport {
         return try await withUnsafeThrowingContinuation { cont in
             context.completeRequest(returningItems: [reply]) { expired in
                 if expired {
-                    cont.resume(throwing: CError.error(code: 2, message: "Expired"))
+                    cont.resume(throwing: CError.requestExpired(message: "Expired"))
                 } else {
                     cont.resume(returning: ())
                 }
@@ -60,18 +61,18 @@ public class ExtensionTransport {
     }
 }
 
-public class BoundExtensionTransport: BoundTransport {
-    public let transport: ExtensionTransport
+public class BoundIPCTransportIOS: BoundTransport {
+    public let transport: IPCTransportIOS
     public let processor: TransportProcessor
     
-    public init(transport: ExtensionTransport, processor: TransportProcessor) {
+    public init(transport: IPCTransportIOS, processor: TransportProcessor) {
         self.transport = transport
         self.processor = processor
         self.process()
     }
     
     private func process() {
-        Task.detached {
+        Task {
             do {
                 let (data, uti) = try await self.transport.rawRequest()
                 let result = try await self.processor.process(data: data)
@@ -83,13 +84,13 @@ public class BoundExtensionTransport: BoundTransport {
     }
 }
 
-extension ExtensionTransport: Transport {
+extension IPCTransportIOS: Transport {
     public func bind(processor: TransportProcessor) -> BoundTransport {
-        BoundExtensionTransport(transport: self, processor: processor)
+        BoundIPCTransportIOS(transport: self, processor: processor)
     }
 }
 
-extension ExtensionTransport {
+extension IPCTransportIOS {
     public convenience init(_ vc: UIViewController) {
         self.init(context: vc.extensionContext!)
     }

@@ -3,5 +3,6 @@
 members = [
     "tesseract_client",
     "tesseract_service",
-    "tesseract_utils"
+    "tesseract_utils",
+    "tesseract_common"
 ]

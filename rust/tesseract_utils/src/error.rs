@@ -11,7 +11,7 @@ pub enum CError {
     Canceled,
     Panic(CString),
     Utf8Error(CString),
-    ErrorCode(i64, CString),
+    ErrorCode(u32, CString),
 }
 
 impl From<std::str::Utf8Error> for CError {

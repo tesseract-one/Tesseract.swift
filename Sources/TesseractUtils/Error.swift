@@ -13,7 +13,7 @@ public enum CError: Error {
     case canceled
     case panic(reason: String)
     case utf8(message: String)
-    case error(code: Int64, message: String)
+    case error(code: UInt32, message: String)
     
     public init(copying error: CTesseractUtils.CError) {
         switch error.tag {

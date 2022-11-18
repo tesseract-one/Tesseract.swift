@@ -1,12 +1,13 @@
 //
-//  ExtensionTransport.swift
-//  TestApp
+//  IPCTransportIOS.swift
+//  TesseractClient
 //
 //  Created by Yehor Popovych on 06.10.2022.
 //
 
 import UIKit
 import TesseractUtils
+import TesseractCommon
 
 public protocol ViewControllerPresenter {
     func present(vc: UIViewController) async throws
@@ -28,7 +29,7 @@ public struct RootViewControllerPresenter: ViewControllerPresenter {
     public func present(vc: UIViewController) async throws {
         return try await withUnsafeThrowingContinuation { cont in
             guard let rootView = self.rootViewController else {
-                cont.resume(throwing: CError.error(code: 2, message: "Empty root view"))
+                cont.resume(throwing: CError.wrongInternalState(message: "Empty root view"))
                 return
             }
             rootView.present(vc, animated: true) {
@@ -38,7 +39,7 @@ public struct RootViewControllerPresenter: ViewControllerPresenter {
     }
 }
 
-public class ExtensionTransport: Transport {
+public class IPCTransportIOS: Transport {
     public let presenter: ViewControllerPresenter
     public let id: String = "ipc"
     
@@ -48,10 +49,7 @@ public class ExtensionTransport: Transport {
     
     public func status(proto: String) async -> Status {
         guard let url = Self.url(proto: proto) else {
-            return .error(
-                .error(code: 111,
-                       message: "Bad proto id: \(proto)")
-            )
+            return .error(.wrongProtocolId(message: "Bad protocol: \(proto)"))
         }
         if await UIApplication.shared.canOpenURL(url) {
             return .ready
@@ -61,7 +59,7 @@ public class ExtensionTransport: Transport {
     }
     
     public func connect(proto: String) -> Connection {
-        ExtensionConnection(proto: proto, presenter: presenter)
+        IPCTransportIOSConnection(proto: proto, presenter: presenter)
     }
     
     public static func url(proto: String) -> URL? {
@@ -69,7 +67,7 @@ public class ExtensionTransport: Transport {
     }
 }
 
-public class ExtensionConnection: Connection {
+public class IPCTransportIOSConnection: Connection {
     private var requests: Array<(UIActivityViewController, UnsafeContinuation<Void, Error>)>
     private var continuations: Array<UnsafeContinuation<Data, Error>>
     
@@ -127,7 +125,7 @@ public class ExtensionConnection: Connection {
     @MainActor
     private func present() throws {
         guard let (vc, cont) = requests.first else {
-            throw CError.error(code: 3, message: "Nothing to present")
+            throw CError.panic(reason: "Nothing to present")
         }
         Task {
             do {
@@ -146,7 +144,7 @@ public class ExtensionConnection: Connection {
         }
         continuations.removeFirst()
         guard requests.first != nil else {
-            receiver.resume(throwing: CError.error(code: 4, message: "No request"))
+            receiver.resume(throwing: CError.wrongInternalState(message: "Empty requests"))
             return
         }
         requests.removeFirst()
@@ -161,7 +159,7 @@ public class ExtensionConnection: Connection {
                 let attachments = items.compactMap {$0 as? NSExtensionItem}.compactMap{$0.attachments}.flatMap{$0}
                 guard let item = attachments.first else {
                     receiver.resume(
-                        throwing: CError.error(code: 12, message: "empty response")
+                        throwing: CError.emptyResponse(message: "Attachment is not returned")
                     )
                     return
                 }
@@ -173,17 +171,11 @@ public class ExtensionConnection: Connection {
                     } else {
                         if let result = result {
                             receiver.resume(
-                                throwing: CError.error(
-                                    code: 11,
-                                    message: "bad response: \(result)"
-                                )
+                                throwing: CError.unsupportedDataType(message: "Bad response: \(result)")
                             )
                         } else {
                             receiver.resume(
-                                throwing: CError.error(
-                                    code: 11,
-                                    message: "bad response: null"
-                                )
+                                throwing: CError.emptyResponse(message: "Response doesn't contain any data")
                             )
                         }
                     }

@@ -21,14 +21,18 @@ var package = Package(
     targets: [
         .target(
             name: "TesseractClient",
-            dependencies: ["TesseractUtils", "CTesseractClient"]),
+            dependencies: ["TesseractUtils", "TesseractCommon", "CTesseractClient"]),
         .target(
             name: "TesseractService",
-            dependencies: ["TesseractUtils", "CTesseractService"]),
+            dependencies: ["TesseractUtils", "TesseractCommon", "CTesseractService"]),
+        .target(
+            name: "TesseractCommon",
+            dependencies: ["TesseractUtils", "CTesseractCommon"]),
         .target(
             name: "TesseractUtils",
             dependencies: ["CTesseractUtils"]),
         .systemLibrary(name: "CTesseractUtils"),
+        .systemLibrary(name: "CTesseractCommon"),
         .systemLibrary(name: "CTesseractClient"),
         .systemLibrary(name: "CTesseractService")
     ]

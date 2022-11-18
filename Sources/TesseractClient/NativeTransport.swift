@@ -1,6 +1,6 @@
 //
 //  NativeTransport.swift
-//  TestApp
+//  TesseractClient
 //
 //  Created by Yehor Popovych on 07.10.2022.
 //

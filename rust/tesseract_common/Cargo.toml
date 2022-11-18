@@ -1,0 +1,16 @@
+[package]
+name = "tesseract_common"
+version = "0.0.1"
+authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
+license = "Apache-2.0"
+description = "Cardano bindings for C."
+keywords = [ "Tesseract", "Cardano", "C" ]
+edition = "2021"
+
+[build-dependencies]
+cbindgen = "0.24"
+
+[lib]
+name = "tesseract_common"
+path = "src/lib.rs"
+crate-type = ["rlib"]

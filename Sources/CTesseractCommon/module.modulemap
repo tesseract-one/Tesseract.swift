@@ -1,0 +1,4 @@
+module CTesseractCommon {
+    umbrella header "tesseract_common.h"
+    export *
+}

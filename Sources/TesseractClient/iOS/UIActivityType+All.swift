@@ -1,6 +1,6 @@
 //
 //  UIActivityType+All.swift
-//  TestApp
+//  TesseractClient
 //
 //  Created by Yehor Popovych on 06.10.2022.
 //

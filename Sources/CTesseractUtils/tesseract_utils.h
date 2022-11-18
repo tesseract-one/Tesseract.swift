@@ -33,7 +33,7 @@ typedef enum CError_Tag {
 } CError_Tag;
 
 typedef struct CError_ErrorCode_Body {
-  int64_t _0;
+  uint32_t _0;
   CString _1;
 } CError_ErrorCode_Body;
 
