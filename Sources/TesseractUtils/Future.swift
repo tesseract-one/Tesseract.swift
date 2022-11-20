@@ -279,7 +279,7 @@ private struct CFutureContext<F> where F: CFuturePtr {
     }
 }
 
-private class CAsyncContext<V>: SAsVoidPtr {    
+private class CAsyncContext<V>: AsVoidSwiftPtr {
     enum State<V> {
         case empty
         case value(CResult<V>)

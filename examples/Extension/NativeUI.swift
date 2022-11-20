@@ -6,13 +6,26 @@
 //
 
 import Foundation
+import TesseractUtils
 import CWallet
 
 protocol NativeUIDelegate: AnyObject {
     func approveTx(tx: String) async throws -> Bool
 }
 
-class NativeUI {
+extension CWallet.UI: CSwiftPtr {
+    public typealias SObject = NativeUI
+}
+
+extension CWallet.UI {
+    public init(ui: NativeUI) {
+        self = CWallet.UI(owned: ui)
+        self.approve_tx = native_ui_approve_tx
+        self.release = native_ui_release
+    }
+}
+
+public class NativeUI: AsVoidSwiftPtr {
     weak var delegate: NativeUIDelegate!
     
     init(delegate: NativeUIDelegate) {
@@ -24,30 +37,9 @@ class NativeUI {
     }
     
     func asNative() -> CWallet.UI {
-        CWallet.UI(
-            ptr: Unmanaged.passRetained(self).toOpaque(),
-            approve_tx: native_ui_approve_tx,
-            release: native_ui_release
-        )
+        CWallet.UI(ui: self)
     }
 }
-
-extension UnsafePointer where Pointee == CWallet.UI {
-    func unowned() -> NativeUI {
-        Unmanaged<NativeUI>.fromOpaque(self.pointee.ptr).takeUnretainedValue()
-    }
-}
-
-extension UnsafeMutablePointer where Pointee == CWallet.UI {
-    func unowned() -> NativeUI {
-        Unmanaged<NativeUI>.fromOpaque(self.pointee.ptr).takeUnretainedValue()
-    }
-    
-    func owned() -> NativeUI {
-        Unmanaged<NativeUI>.fromOpaque(self.pointee.ptr).takeRetainedValue()
-    }
-}
-
 
 private func native_ui_approve_tx(this: UnsafePointer<UI>!, tx: CStringRef!) -> CFutureBool {
     CFutureBool {

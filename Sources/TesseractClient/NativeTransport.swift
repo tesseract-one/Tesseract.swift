@@ -73,8 +73,11 @@ extension CFutureStatus: CFuturePtr {
     }
 }
 
+extension NativeTransport: CSwiftAnyPtr {}
+extension NativeConnection: CSwiftAnyPtr {}
+
 private func transport_id(self: UnsafePointer<NativeTransport>!) -> CString? {
-    self.unowned().id.copiedPtr()
+    (self.unowned() as! Transport).id.copiedPtr()
 }
 
 private func transport_status(
@@ -82,7 +85,7 @@ private func transport_status(
     proto: CStringRef!
 ) -> CFutureStatus {
     CFutureStatus {
-        await self.unowned().status(proto: proto!.copied())
+        await (self.unowned() as! Transport).status(proto: proto!.copied())
     }
 }
 
@@ -90,7 +93,7 @@ private func transport_connect(
     self: UnsafePointer<NativeTransport>!,
     proto: CStringRef!
 ) -> NativeConnection {
-    self.unowned().connect(proto: proto!.copied()).asNative()
+    (self.unowned() as! Transport).connect(proto: proto!.copied()).asNative()
 }
 
 private func transport_release(self: UnsafeMutablePointer<NativeTransport>!) {
@@ -100,13 +103,13 @@ private func transport_release(self: UnsafeMutablePointer<NativeTransport>!) {
 private func connection_send(self: UnsafePointer<NativeConnection>!, data: UnsafePointer<UInt8>!, len: UInt) -> CFutureNothing {
     let data = Data(bytes: UnsafeRawPointer(data), count: Int(len))
     return CFutureNothing {
-        try await self.unowned().send(request: data)
+        try await (self.unowned() as! Connection).send(request: data)
     }
 }
 
 private func connection_receive(self: UnsafePointer<NativeConnection>!) -> CFutureData {
     return CFutureData {
-        try await self.unowned().receive()
+        try await (self.unowned() as! Connection).receive()
     }
 }
 
@@ -114,57 +117,33 @@ private func connection_release(self: UnsafeMutablePointer<NativeConnection>!) {
     let _ = self.owned()
 }
 
-extension UnsafePointer where Pointee == NativeTransport {
-    public func unowned() -> Transport {
-        self.pointee.ptr.anyUnowned() as! Transport
+extension NativeTransport {
+    public init(transport: Transport) {
+        self = Self(owned: transport)
+        self.id = transport_id
+        self.status = transport_status
+        self.connect = transport_connect
+        self.release = transport_release
     }
 }
 
-extension UnsafeMutablePointer where Pointee == NativeTransport {
-    public func unowned() -> Transport {
-        self.pointee.ptr.anyUnowned() as! Transport
-    }
-    
-    public func owned() -> Transport {
-        self.pointee.ptr.anyOwned() as! Transport
-    }
-}
-
-extension UnsafePointer where Pointee == NativeConnection {
-    public func unowned() -> Connection {
-        self.pointee.ptr.anyUnowned() as! Connection
-    }
-}
-
-extension UnsafeMutablePointer where Pointee == NativeConnection {
-    public func unowned() -> Connection {
-        self.pointee.ptr.anyUnowned() as! Connection
-    }
-    
-    public func owned() -> Connection {
-        self.pointee.ptr.anyOwned() as! Connection
+extension NativeConnection {
+    public init(connection: Connection) {
+        self = NativeConnection(owned: connection)
+        self.send = connection_send
+        self.receive = connection_receive
+        self.release = connection_release
     }
 }
 
 extension Transport {
     public func asNative() -> NativeTransport {
-        NativeTransport(
-            ptr: .anyOwned(self),
-            id: transport_id,
-            status: transport_status,
-            connect: transport_connect,
-            release: transport_release
-        )
+        NativeTransport(transport: self)
     }
 }
 
 extension Connection {
     public func asNative() -> NativeConnection {
-        NativeConnection(
-            ptr: .anyOwned(self),
-            send: connection_send,
-            receive: connection_receive,
-            release: connection_release
-        )
+        NativeConnection(connection: self)
     }
 }

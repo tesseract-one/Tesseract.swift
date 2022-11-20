@@ -28,22 +28,34 @@ public class NativeTransportProcessor: TransportProcessor {
     }
 }
 
+extension CTesseractService.Transport: CSwiftAnyPtr {}
+
+extension CTesseractService.Transport {
+    public init(transport: Transport) {
+        self = CTesseractService.Transport(owned: transport)
+        self.bind = transport_bind
+        self.release = transport_release
+    }
+}
+
 extension Transport {
     public func asNative() -> CTesseractService.Transport {
-        CTesseractService.Transport(
-            ptr: .anyOwned(self),
-            bind: transport_bind,
-            release: transport_release
-        )
+        CTesseractService.Transport(transport: self)
+    }
+}
+
+extension CTesseractService.BoundTransport: CSwiftAnyPtr {}
+
+extension CTesseractService.BoundTransport {
+    public init(transport: BoundTransport) {
+        self = CTesseractService.BoundTransport(owned: transport)
+        self.release = bound_transport_release
     }
 }
 
 extension BoundTransport {
     public func asNative() -> CTesseractService.BoundTransport {
-        CTesseractService.BoundTransport(
-            ptr: .anyOwned(self),
-            release: bound_transport_release
-        )
+        CTesseractService.BoundTransport(transport: self)
     }
 }
 
@@ -51,32 +63,15 @@ private func transport_bind(this: CTesseractService.Transport,
                             processor: CTesseractService.TransportProcessor) -> CTesseractService.BoundTransport
 {
     var this = this
-    let transport = this.ptr.anyOwned() as! Transport
-    return transport
+    return (this.owned() as! Transport)
         .bind(processor: NativeTransportProcessor(processor: processor))
         .asNative()
 }
 
 private func transport_release(self: UnsafeMutablePointer<CTesseractService.Transport>!) {
-    let _ = self.pointee.ptr.anyOwned()
+    let _ = self.owned()
 }
 
 private func bound_transport_release(self: UnsafeMutablePointer<CTesseractService.BoundTransport>!) {
     let _ = self.owned()
-}
-
-extension UnsafePointer where Pointee == CTesseractService.BoundTransport {
-    public func unowned() -> BoundTransport {
-        self.pointee.ptr.anyUnowned() as! BoundTransport
-    }
-}
-
-extension UnsafeMutablePointer where Pointee == CTesseractService.BoundTransport {
-    public func unowned() -> BoundTransport {
-        self.pointee.ptr.anyUnowned() as! BoundTransport
-    }
-    
-    public func owned() -> BoundTransport {
-        self.pointee.ptr.anyOwned() as! BoundTransport
-    }
 }

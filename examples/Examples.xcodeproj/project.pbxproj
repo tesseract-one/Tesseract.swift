@@ -19,7 +19,7 @@
 		929FF53D29246E0D00F79FD7 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 929FF53C29246E0D00F79FD7 /* Media.xcassets */; };
 		929FF53F29246E0D00F79FD7 /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 929FF53E29246E0D00F79FD7 /* ActionViewController.swift */; };
 		929FF54229246E0D00F79FD7 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 929FF54029246E0D00F79FD7 /* MainInterface.storyboard */; };
-		929FF54629246E0D00F79FD7 /* Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 929FF53729246E0D00F79FD7 /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		929FF54629246E0D00F79FD7 /* Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 929FF53729246E0D00F79FD7 /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		929FF54F29246F0C00F79FD7 /* AppCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 929FF54D29246F0C00F79FD7 /* AppCore.swift */; };
 		929FF55429246FA900F79FD7 /* TesseractClient in Frameworks */ = {isa = PBXBuildFile; productRef = 929FF55329246FA900F79FD7 /* TesseractClient */; };
 		929FF55629246FB200F79FD7 /* TesseractUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 929FF55529246FB200F79FD7 /* TesseractUtils */; };
@@ -39,15 +39,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		929FF54A29246E0D00F79FD7 /* Embed App Extensions */ = {
+		929FF54A29246E0D00F79FD7 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				929FF54629246E0D00F79FD7 /* Extension.appex in Embed App Extensions */,
+				929FF54629246E0D00F79FD7 /* Extension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -229,7 +229,7 @@
 				9244C7B629246CBF0055E6B6 /* Sources */,
 				9244C7B729246CBF0055E6B6 /* Frameworks */,
 				9244C7B829246CBF0055E6B6 /* Resources */,
-				929FF54A29246E0D00F79FD7 /* Embed App Extensions */,
+				929FF54A29246E0D00F79FD7 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -271,7 +271,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1340;
-				LastUpgradeCheck = 1340;
+				LastUpgradeCheck = 1410;
 				TargetAttributes = {
 					9244C7A429246C100055E6B6 = {
 						CreatedOnToolsVersion = 13.4.1;
@@ -337,6 +337,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		929FF558292470A600F79FD7 /* Build Rust */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -355,6 +356,7 @@
 		};
 		929FF5592924716900F79FD7 /* Build Rust */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
