@@ -31,7 +31,7 @@ public class NativeTransportProcessor: TransportProcessor {
 extension Transport {
     public func asNative() -> CTesseractService.Transport {
         CTesseractService.Transport(
-            ptr: Unmanaged.passRetained(self as AnyObject).toOpaque(),
+            ptr: .anyOwned(self),
             bind: transport_bind,
             release: transport_release
         )
@@ -41,23 +41,24 @@ extension Transport {
 extension BoundTransport {
     public func asNative() -> CTesseractService.BoundTransport {
         CTesseractService.BoundTransport(
-            ptr: Unmanaged.passRetained(self as AnyObject).toOpaque(),
+            ptr: .anyOwned(self),
             release: bound_transport_release
         )
     }
 }
 
-private func transport_bind(self: CTesseractService.Transport,
+private func transport_bind(this: CTesseractService.Transport,
                             processor: CTesseractService.TransportProcessor) -> CTesseractService.BoundTransport
 {
-    let transport = Unmanaged<AnyObject>.fromOpaque(self.ptr).takeRetainedValue() as! Transport
+    var this = this
+    let transport = this.ptr.anyOwned() as! Transport
     return transport
         .bind(processor: NativeTransportProcessor(processor: processor))
         .asNative()
 }
 
 private func transport_release(self: UnsafeMutablePointer<CTesseractService.Transport>!) {
-    let _ = Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeRetainedValue()
+    let _ = self.pointee.ptr.anyOwned()
 }
 
 private func bound_transport_release(self: UnsafeMutablePointer<CTesseractService.BoundTransport>!) {
@@ -66,16 +67,16 @@ private func bound_transport_release(self: UnsafeMutablePointer<CTesseractServic
 
 extension UnsafePointer where Pointee == CTesseractService.BoundTransport {
     public func unowned() -> BoundTransport {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeUnretainedValue() as! BoundTransport
+        self.pointee.ptr.anyUnowned() as! BoundTransport
     }
 }
 
 extension UnsafeMutablePointer where Pointee == CTesseractService.BoundTransport {
     public func unowned() -> BoundTransport {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeUnretainedValue() as! BoundTransport
+        self.pointee.ptr.anyUnowned() as! BoundTransport
     }
     
     public func owned() -> BoundTransport {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeRetainedValue() as! BoundTransport
+        self.pointee.ptr.anyOwned() as! BoundTransport
     }
 }

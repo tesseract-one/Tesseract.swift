@@ -116,40 +116,40 @@ private func connection_release(self: UnsafeMutablePointer<NativeConnection>!) {
 
 extension UnsafePointer where Pointee == NativeTransport {
     public func unowned() -> Transport {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeUnretainedValue() as! Transport
+        self.pointee.ptr.anyUnowned() as! Transport
     }
 }
 
 extension UnsafeMutablePointer where Pointee == NativeTransport {
     public func unowned() -> Transport {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeUnretainedValue() as! Transport
+        self.pointee.ptr.anyUnowned() as! Transport
     }
     
     public func owned() -> Transport {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeRetainedValue() as! Transport
+        self.pointee.ptr.anyOwned() as! Transport
     }
 }
 
 extension UnsafePointer where Pointee == NativeConnection {
     public func unowned() -> Connection {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeUnretainedValue() as! Connection
+        self.pointee.ptr.anyUnowned() as! Connection
     }
 }
 
 extension UnsafeMutablePointer where Pointee == NativeConnection {
     public func unowned() -> Connection {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeUnretainedValue() as! Connection
+        self.pointee.ptr.anyUnowned() as! Connection
     }
     
     public func owned() -> Connection {
-        Unmanaged<AnyObject>.fromOpaque(self.pointee.ptr).takeRetainedValue() as! Connection
+        self.pointee.ptr.anyOwned() as! Connection
     }
 }
 
 extension Transport {
     public func asNative() -> NativeTransport {
         NativeTransport(
-            ptr: Unmanaged.passRetained(self as AnyObject).toOpaque(),
+            ptr: .anyOwned(self),
             id: transport_id,
             status: transport_status,
             connect: transport_connect,
@@ -161,7 +161,7 @@ extension Transport {
 extension Connection {
     public func asNative() -> NativeConnection {
         NativeConnection(
-            ptr: Unmanaged.passRetained(self as AnyObject).toOpaque(),
+            ptr: .anyOwned(self),
             send: connection_send,
             receive: connection_receive,
             release: connection_release

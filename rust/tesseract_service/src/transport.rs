@@ -24,7 +24,7 @@ impl TBoundTransport for BoundTransport {}
 pub struct Transport {
   ptr: SyncPtr<Void>,
   bind: unsafe extern "C" fn(
-    transport: Transport,
+    transport: ManuallyDrop<Transport>,
     processor: ManuallyDrop<TransportProcessor>
   ) -> ManuallyDrop<BoundTransport>,
   release: unsafe extern "C" fn(transport: &mut Transport)
@@ -40,7 +40,7 @@ impl TTransport for Transport {
     fn bind(self, processor: Arc<dyn TTransportProcessor + Send + Sync>) -> Box<dyn TBoundTransport> {
         let proc =  ManuallyDrop::new(TransportProcessor::new(processor));
         unsafe {
-          let bound = (self.bind)(self, proc);
+          let bound = (self.bind)(ManuallyDrop::new(self), proc);
           Box::new(ManuallyDrop::into_inner(bound))
         }
     }

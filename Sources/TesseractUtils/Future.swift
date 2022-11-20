@@ -265,9 +265,21 @@ private struct CFutureContext<F> where F: CFuturePtr {
         self.future = future
         self.callback = callback
     }
+    
+    func ownedPtr() -> UnsafeRawPointer {
+        let pointer = UnsafeMutablePointer<Self>.allocate(capacity: 1)
+        pointer.initialize(to: self)
+        return UnsafeRawPointer(pointer)
+    }
+    
+    static func take(_ ptr: UnsafeRawPointer!) -> Self {
+        let ctx = ptr.assumingMemoryBound(to: Self.self)
+        defer { ctx.deallocate() }
+        return ctx.pointee
+    }
 }
 
-private class CAsyncContext<V> {
+private class CAsyncContext<V>: SAsVoidPtr {    
     enum State<V> {
         case empty
         case value(CResult<V>)
@@ -297,12 +309,11 @@ extension CFuturePtr {
         _ cb: @escaping (CResult<CVal.Val>) -> Void,
         _ fn: (UnsafeRawPointer) -> CVal
     ) -> CVal {
-        let pointer = UnsafeMutablePointer<CFutureContext<Self>>.allocate(capacity: 1)
-        pointer.initialize(to: CFutureContext(future: self, callback: cb))
-        let value = fn(UnsafeRawPointer(pointer))
+        let pointer = CFutureContext(future: self, callback: cb).ownedPtr()
+        let value = fn(pointer)
         if value.isSome { // We have value already. Context is non needed
             var this = self
-            pointer.deallocate()
+            let _ = CFutureContext<Self>.take(pointer)
             this._release()
         }
         return value
@@ -313,15 +324,12 @@ extension CFuturePtr {
         _ value: UnsafeMutablePointer<CVal.Val>?,
         _ error: UnsafeMutablePointer<CTesseractUtils.CError>?
     ) {
-        let ctx = ctx.assumingMemoryBound(to: CFutureContext<Self>.self)
-        let callback = ctx.pointee.callback
-        var future = ctx.pointee.future
-        ctx.deallocate()
-        defer { future._release() }
+        var ctx = CFutureContext<Self>.take(ctx)
+        defer { ctx.future._release() }
         if let error = error {
-            callback(.failure(error.pointee.owned()))
+            ctx.callback(.failure(error.pointee.owned()))
         } else {
-            callback(.success(value!.pointee))
+            ctx.callback(.success(value!.pointee))
         }
     }
     
@@ -329,7 +337,7 @@ extension CFuturePtr {
         let context = CAsyncContext<CVal.Val>()
         
         var future = Self()
-        future.ptr = UnsafeRawPointer(Unmanaged.passRetained(context).toOpaque())
+        future.ptr = context.ownedPtr()
         future._setupSetOnCompleteFunc()
         future._setupReleaseFunc()
         
@@ -366,9 +374,8 @@ extension CFuturePtr {
                          UnsafeMutablePointer<CVal.Val>?,
                          UnsafeMutablePointer<CTesseractUtils.CError>?) -> Void
     ) -> CVal {
-        let context = Unmanaged<CAsyncContext<CVal.Val>>
-            .fromOpaque(this.pointee.ptr)
-            .takeUnretainedValue()
+        let context = CAsyncContext<CVal.Val>.unowned(this.pointee.ptr)
+        
         let newCb = { (res: CResult<CVal.Val>) in
             switch res {
             case .failure(let err):
@@ -396,13 +403,8 @@ extension CFuturePtr {
         }
     }
     
-    public static func _release(_ this: UnsafeMutablePointer<Self>?) {
+    public static func _release(_ this: UnsafeMutablePointer<Self>!) {
         print("SWIFT FUTURE RELEASE!!!!")
-        if let ptr = this?.pointee.ptr {
-            let _ = Unmanaged<CAsyncContext<CVal>>
-                .fromOpaque(ptr)
-                .takeRetainedValue()
-            this!.pointee.ptr = nil
-        }
+        let _ = CAsyncContext<CVal.Val>.owned(this.pointee.ptr)
     }
 }
