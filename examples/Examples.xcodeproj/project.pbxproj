@@ -26,6 +26,8 @@
 		929FF55B29250F0100F79FD7 /* TesseractService in Frameworks */ = {isa = PBXBuildFile; productRef = 929FF55A29250F0100F79FD7 /* TesseractService */; };
 		929FF55D29250F0100F79FD7 /* TesseractUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 929FF55C29250F0100F79FD7 /* TesseractUtils */; };
 		929FF55F292510EB00F79FD7 /* NativeUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 929FF55E292510EB00F79FD7 /* NativeUI.swift */; };
+		BAED6AE8292C3AA000A9BA2D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED6AE7292C3AA000A9BA2D /* WalletData.swift */; };
+		BAED6AEA292C3AA600A9BA2D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED6AE7292C3AA000A9BA2D /* WalletData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +76,9 @@
 		929FF54E29246F0C00F79FD7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		929FF55E292510EB00F79FD7 /* NativeUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeUI.swift; sourceTree = "<group>"; };
 		929FF5602925112F00F79FD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		BAED6AE7292C3AA000A9BA2D /* WalletData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletData.swift; sourceTree = "<group>"; };
+		BAED6AEB292C3AC100A9BA2D /* Wallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Wallet.entitlements; sourceTree = "<group>"; };
+		BAED6AEC292C3AC900A9BA2D /* Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Extension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,7 +157,9 @@
 		9244C7BB29246CBF0055E6B6 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
+				BAED6AEB292C3AC100A9BA2D /* Wallet.entitlements */,
 				929FF5602925112F00F79FD7 /* Info.plist */,
+				BAED6AE7292C3AA000A9BA2D /* WalletData.swift */,
 				9244C7BC29246CBF0055E6B6 /* WalletApp.swift */,
 				9244C7BE29246CBF0055E6B6 /* ContentView.swift */,
 				9244C7C029246CC10055E6B6 /* Assets.xcassets */,
@@ -180,6 +187,7 @@
 		929FF53B29246E0D00F79FD7 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				BAED6AEC292C3AC900A9BA2D /* Extension.entitlements */,
 				929FF55E292510EB00F79FD7 /* NativeUI.swift */,
 				929FF53C29246E0D00F79FD7 /* Media.xcassets */,
 				929FF53E29246E0D00F79FD7 /* ActionViewController.swift */,
@@ -392,6 +400,7 @@
 			files = (
 				9244C7BF29246CBF0055E6B6 /* ContentView.swift in Sources */,
 				9244C7BD29246CBF0055E6B6 /* WalletApp.swift in Sources */,
+				BAED6AE8292C3AA000A9BA2D /* WalletData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -401,6 +410,7 @@
 			files = (
 				929FF55F292510EB00F79FD7 /* NativeUI.swift in Sources */,
 				929FF53F29246E0D00F79FD7 /* ActionViewController.swift in Sources */,
+				BAED6AEA292C3AA600A9BA2D /* WalletData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -606,6 +616,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Wallet/Wallet.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Wallet/Preview Content\"";
@@ -637,6 +648,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Wallet/Wallet.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Wallet/Preview Content\"";
@@ -665,6 +677,7 @@
 		929FF54829246E0D00F79FD7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Extension/Extension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8S89PJHTSK;
@@ -690,6 +703,7 @@
 		929FF54929246E0D00F79FD7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Extension/Extension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8S89PJHTSK;

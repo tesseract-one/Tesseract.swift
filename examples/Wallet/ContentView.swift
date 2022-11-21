@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var data: WalletData
+    
     var body: some View {
-        Text("Hello, world!")
+        TextField("Signature", text: $data.signature)
             .padding()
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(data: WalletData())
     }
 }
