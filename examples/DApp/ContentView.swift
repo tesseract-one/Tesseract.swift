@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State var transaction = "TEST"
+    @State var signed: String?
     let core: AppCore?
     @ObservedObject var alerts: AlertProvider
     
@@ -18,6 +19,7 @@ struct ContentView: View {
                 Text("Client Application")
                 TextEditor(text: $transaction)
                 Button("Run Test", action: runTest)
+                Text(signed ?? "Not Signed Yet")
             }
             .navigationTitle("Client App")
         }
@@ -28,7 +30,7 @@ struct ContentView: View {
     
     func runTest() {
         Task {
-            let signed = try? await self.core?.signTx(tx: transaction)
+            signed = try? await self.core?.signTx(tx: transaction)
             print("Signed!", signed)
         }
     }
