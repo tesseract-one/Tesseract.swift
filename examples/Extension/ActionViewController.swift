@@ -24,7 +24,7 @@ class ActionViewController: UIViewController, NativeUIDelegate {
         let native = transport.asNative()
         
         let data = WalletData()
-        let signature = "_signed_" + data.signature
+        let signature = data.signature
         self.context = signature.withRef { signature in
             wallet_extension_init(signature, NativeUI(delegate: self).asNative(), native)
         }
