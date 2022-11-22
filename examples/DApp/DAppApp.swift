@@ -9,11 +9,18 @@ import SwiftUI
 
 @main
 struct DAppApp: App {
-    var core = AppCore()
+    @StateObject var alerts: AlertProvider
+    var core: AppCore
+    
+    public init() {
+        let alerts = AlertProvider()
+        self._alerts = StateObject(wrappedValue: alerts)
+        self.core = AppCore(alerts: alerts)
+    }
     
     var body: some Scene {
         WindowGroup {
-            ContentView(core: core)
+            ContentView(core: core, alerts: alerts)
         }
     }
 }

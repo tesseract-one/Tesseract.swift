@@ -28,6 +28,7 @@
 		929FF55F292510EB00F79FD7 /* NativeUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 929FF55E292510EB00F79FD7 /* NativeUI.swift */; };
 		BAED6AE8292C3AA000A9BA2D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED6AE7292C3AA000A9BA2D /* WalletData.swift */; };
 		BAED6AEA292C3AA600A9BA2D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED6AE7292C3AA000A9BA2D /* WalletData.swift */; };
+		92B2FB59292D4BCD00260349 /* AlertProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92B2FB58292D4BCD00260349 /* AlertProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +80,7 @@
 		BAED6AE7292C3AA000A9BA2D /* WalletData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletData.swift; sourceTree = "<group>"; };
 		BAED6AEB292C3AC100A9BA2D /* Wallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Wallet.entitlements; sourceTree = "<group>"; };
 		BAED6AEC292C3AC900A9BA2D /* Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Extension.entitlements; sourceTree = "<group>"; };
+		92B2FB58292D4BCD00260349 /* AlertProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +144,7 @@
 				9244C7AA29246C100055E6B6 /* ContentView.swift */,
 				9244C7AC29246C120055E6B6 /* Assets.xcassets */,
 				9244C7AE29246C120055E6B6 /* Preview Content */,
+				92B2FB58292D4BCD00260349 /* AlertProvider.swift */,
 			);
 			path = DApp;
 			sourceTree = "<group>";
@@ -389,6 +392,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				929FF54F29246F0C00F79FD7 /* AppCore.swift in Sources */,
+				92B2FB59292D4BCD00260349 /* AlertProvider.swift in Sources */,
 				9244C7AB29246C100055E6B6 /* ContentView.swift in Sources */,
 				9244C7A929246C100055E6B6 /* DAppApp.swift in Sources */,
 			);
