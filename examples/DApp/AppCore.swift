@@ -12,8 +12,8 @@ import CApp
 class AppCore {
     private var rust: AppContextPtr!
     
-    init() {
-        self.rust = app_init(IPCTransportIOS().asNative())
+    init(alerts: AlertProvider) {
+        self.rust = app_init(alerts.asNative(), IPCTransportIOS().asNative())
     }
     
     func signTx(tx: String) async throws -> String {

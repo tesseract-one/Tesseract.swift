@@ -2,9 +2,12 @@ extern crate tesseract_utils;
 extern crate tesseract_client;
 extern crate tesseract;
 extern crate tesseract_protocol_test;
+extern crate async_trait;
 
+pub mod delegate;
+
+use delegate::{AlertProvider, TransportDelegate};
 use tesseract::client::Tesseract;
-use tesseract::client::delegate::SingleTransportDelegate;
 use tesseract_utils::future_impls::CFutureString;
 use tesseract_utils::string::CStringRef;
 use tesseract_protocol_test::TestService;
@@ -41,10 +44,10 @@ struct AppContext {
 pub struct SExecutor();
 
 #[no_mangle]
-pub unsafe extern "C" fn app_init(transport: transport::NativeTransport) -> ManuallyDrop<AppContextPtr> {
+pub unsafe extern "C" fn app_init(alerts: AlertProvider, transport: transport::NativeTransport) -> ManuallyDrop<AppContextPtr> {
   tesseract_utils_init();
 
-  let service = Tesseract::new(SingleTransportDelegate::arc())
+  let service = Tesseract::new(TransportDelegate::arc(alerts))
     .transport(transport)
     .service(tesseract_protocol_test::Test::Protocol);
 

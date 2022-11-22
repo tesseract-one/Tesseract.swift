@@ -9,10 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     let core: AppCore?
-    
-    init(core: AppCore?) {
-        self.core = core
-    }
+    @ObservedObject var alerts: AlertProvider
     
     var body: some View {
         NavigationView {
@@ -22,18 +19,21 @@ struct ContentView: View {
             }
             .navigationTitle("Client App")
         }
+        .alert(item: $alerts.alert) { alert in
+            Alert(title: Text("Error"), message: Text(alert.message))
+        }
     }
     
     func runTest() {
         Task {
-            let signed = try! await self.core?.signTx(tx: "TEST")
-            print("Signed!", signed!)
+            let signed = try? await self.core?.signTx(tx: "TEST")
+            print("Signed!", signed)
         }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(core: nil)
+        ContentView(core: nil, alerts: AlertProvider())
     }
 }
