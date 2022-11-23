@@ -42,8 +42,9 @@ public class NativeUI: AsVoidSwiftPtr {
 }
 
 private func native_ui_approve_tx(this: UnsafePointer<UI>!, tx: CStringRef!) -> CFutureBool {
-    CFutureBool {
-        try await this.unowned().approveTx(tx: tx.copied())
+    let tx = tx.copied()!
+    return CFutureBool {
+        try await this.unowned().approveTx(tx: tx)
     }
 }
 
