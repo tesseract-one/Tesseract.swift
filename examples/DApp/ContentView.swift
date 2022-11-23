@@ -44,8 +44,12 @@ struct ContentView: View {
     
     func runTest() {
         Task {
-            signed = try? await self.core?.signTx(tx: transaction)
-            print("Signed!", signed as Any)
+            do {
+                signed = try await self.core?.signTx(tx: transaction)
+                print("Signed!", signed as Any)
+            } catch {
+                signed = "Error: \(error)"
+            }
         }
     }
 }
