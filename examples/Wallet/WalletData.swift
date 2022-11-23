@@ -17,6 +17,6 @@ class WalletData: ObservableObject {
     }
     
     init() {
-        signature = defaults.string(forKey: "signature") ?? ""
+        signature = defaults.string(forKey: "signature") ?? "_signed"
     }
 }
