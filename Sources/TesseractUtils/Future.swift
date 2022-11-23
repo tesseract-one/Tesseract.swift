@@ -341,7 +341,8 @@ extension CFuturePtr {
         future._setupSetOnCompleteFunc()
         future._setupReleaseFunc()
         
-        Task {
+        // Will be detached anyway because there is no Task context.
+        Task.detached {
             let result = (await fn()).flatMap { (val) -> CResult<CVal.Val> in
                 var val = val
                 return Self.convert(value: &val)

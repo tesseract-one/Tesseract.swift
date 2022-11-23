@@ -32,7 +32,8 @@ public struct RootViewControllerPresenter: ViewControllerPresenter {
                 cont.resume(throwing: CError.wrongInternalState(message: "Empty root view"))
                 return
             }
-            rootView.present(vc, animated: true) {
+            let controller = rootView.presentedViewController ?? rootView
+            controller.present(vc, animated: true) {
                 cont.resume(returning: ())
             }
         }
@@ -89,15 +90,15 @@ public class IPCTransportIOSConnection: Connection {
             activityItems: [ActivityItemSource(data: request, uti: uti)],
             applicationActivities: nil
         )
-                
+        
         vc.excludedActivityTypes = UIActivity.ActivityType.all
         
         vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
             Task {
                 if let error = error {
-                    self.response(cancelled: !completed, result: .failure(error))
+                    await self.response(cancelled: !completed, result: .failure(error))
                 } else {
-                    self.response(cancelled: !completed, result: .success(returnedItems ?? []))
+                    await self.response(cancelled: !completed, result: .success(returnedItems ?? []))
                 }
             }
         }
@@ -117,27 +118,26 @@ public class IPCTransportIOSConnection: Connection {
         return try await withUnsafeThrowingContinuation { cont in
             self.requests.append((vc, cont))
             if self.requests.count == 1 {
-                try! self.present()
+                Task { try! await self.present() }
             }
         }
     }
     
     @MainActor
-    private func present() throws {
+    private func present() async throws {
         guard let (vc, cont) = requests.first else {
             throw CError.panic(reason: "Nothing to present")
         }
-        Task {
-            do {
-                cont.resume(returning: try await self.presenter.present(vc: vc))
-            } catch {
-                cont.resume(throwing: error)
-            }
+        do {
+            try await self.presenter.present(vc: vc)
+            cont.resume(returning: ())
+        } catch {
+            cont.resume(throwing: error)
         }
     }
     
     @MainActor
-    private func response(cancelled: Bool, result: Result<[Any], Error>) {
+    private func response(cancelled: Bool, result: Result<[Any], Error>) async {
         guard let receiver = continuations.first else {
             print("Error: empty receivers")
             return
@@ -163,28 +163,23 @@ public class IPCTransportIOSConnection: Connection {
                     )
                     return
                 }
-                item.loadItem(forTypeIdentifier: uti, options: nil) { result, error in
-                    if let error = error {
-                        receiver.resume(throwing: error)
-                    } else if let data = result as? Data {
+                do {
+                    let result = try await item.loadItem(forTypeIdentifier: uti)
+                    if let data = result as? Data {
                         receiver.resume(returning: data)
                     } else {
-                        if let result = result {
-                            receiver.resume(
-                                throwing: CError.unsupportedDataType(message: "Bad response: \(result)")
-                            )
-                        } else {
-                            receiver.resume(
-                                throwing: CError.emptyResponse(message: "Response doesn't contain any data")
-                            )
-                        }
+                        receiver.resume(
+                            throwing: CError.unsupportedDataType(message: "Bad response: \(result)")
+                        )
                     }
+                } catch {
+                    receiver.resume(throwing: error)
                 }
             }
         }
         
         if !requests.isEmpty {
-            try! self.present()
+            try! await self.present()
         }
     }
 }
