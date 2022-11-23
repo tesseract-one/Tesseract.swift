@@ -8,26 +8,48 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var transaction = "transaction"
+    @State var signed: String?
     let core: AppCore?
     @ObservedObject var alerts: AlertProvider
     
     var body: some View {
-        NavigationView {
-            List {
-                Text("Client Application")
-                Button("Run Test", action: runTest)
+        ZStack {
+            Color(red: 0x4A/0xFF,
+                  green: 0x93/0xFF,
+                  blue: 0xE2/0xFF)
+                .edgesIgnoringSafeArea(.top)
+            Color.white
+            VStack {
+                HStack {
+                    Text("Tesseract\nDemo dApp")
+                        .font(.system(size: 48))
+                    Spacer()
+                }
+                .padding()
+                TextField("Transaction", text: $transaction)
+                    .padding()
+                Button("Sign", action: runTest)
+                    .buttonStyle(.borderedProminent)
+                    .padding()
+                Text(signed ?? "Not Signed Yet")
+                    .padding()
+                Spacer()
             }
-            .navigationTitle("Client App")
-        }
-        .alert(item: $alerts.alert) { alert in
-            Alert(title: Text("Error"), message: Text(alert.message))
+            .alert(item: $alerts.alert) { alert in
+                Alert(title: Text("Error"), message: Text(alert.message))
+            }
         }
     }
     
     func runTest() {
         Task {
-            let signed = try? await self.core?.signTx(tx: "TEST")
-            print("Signed!", signed)
+            do {
+                signed = try await self.core?.signTx(tx: transaction)
+                print("Signed!", signed as Any)
+            } catch {
+                signed = "Error: \(error)"
+            }
         }
     }
 }

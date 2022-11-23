@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ObA-dk-sSI">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ObA-dk-sSI">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <navigationBar contentMode="scaleToFill" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="NOA-Dm-cuz">
-                                <rect key="frame" x="0.0" y="44" width="320" height="44"/>
+                                <rect key="frame" x="0.0" y="48" width="320" height="44"/>
                                 <items>
                                     <navigationItem id="3HJ-uW-3hn">
                                         <barButtonItem key="leftBarButtonItem" title="Cancel" style="done" id="WYi-yp-eM6">
@@ -28,8 +29,26 @@
                                     </navigationItem>
                                 </items>
                             </navigationBar>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tesseract" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bdz-cp-OML">
+                                <rect key="frame" x="16" y="108" width="288" height="58"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="48"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Demo Wallet" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ib9-BF-s4K">
+                                <rect key="frame" x="16" y="166" width="288" height="58"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="48"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="String to be signed:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ibm-jN-eoz">
+                                <rect key="frame" x="16" y="240" width="288" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TX" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QZy-qh-8zT">
-                                <rect key="frame" x="0.0" y="88" width="320" height="76"/>
+                                <rect key="frame" x="0.0" y="277" width="320" height="76"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="76" id="X3j-BR-I7t"/>
                                 </constraints>
@@ -38,20 +57,21 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jdd-At-KE6">
-                                <rect key="frame" x="16" y="180" width="288" height="31"/>
+                                <rect key="frame" x="16" y="369" width="288" height="35"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="Accept"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Sign">
+                                    <color key="baseBackgroundColor" red="1" green="0.49019607840000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </buttonConfiguration>
                                 <connections>
                                     <action selector="allow" destination="ObA-dk-sSI" eventType="touchUpInside" id="iTk-wR-qX2"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dIu-p5-7HD">
-                                <rect key="frame" x="16" y="227" width="288" height="31"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="31" id="Hlf-lC-iih"/>
-                                </constraints>
+                                <rect key="frame" x="16" y="420" width="288" height="35"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Reject"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Cancel">
+                                    <color key="baseForegroundColor" red="1" green="0.49019607840000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </buttonConfiguration>
                                 <connections>
                                     <action selector="reject" destination="ObA-dk-sSI" eventType="touchUpInside" id="7S7-eC-D0M"/>
                                 </connections>
@@ -60,18 +80,28 @@
                         <viewLayoutGuide key="safeArea" id="VVe-Uw-JpX"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="VVe-Uw-JpX" firstAttribute="trailing" secondItem="Ibm-jN-eoz" secondAttribute="trailing" constant="16" id="1pU-1J-DLh"/>
+                            <constraint firstItem="VVe-Uw-JpX" firstAttribute="trailing" secondItem="jdd-At-KE6" secondAttribute="trailing" constant="16" id="2W9-mM-tKu"/>
+                            <constraint firstItem="Ibm-jN-eoz" firstAttribute="top" secondItem="ib9-BF-s4K" secondAttribute="bottom" constant="16" id="6SV-ih-gy6"/>
                             <constraint firstItem="VVe-Uw-JpX" firstAttribute="trailing" secondItem="NOA-Dm-cuz" secondAttribute="trailing" id="A05-Pj-hrr"/>
-                            <constraint firstItem="QZy-qh-8zT" firstAttribute="top" secondItem="NOA-Dm-cuz" secondAttribute="bottom" id="AWg-TB-1s6"/>
+                            <constraint firstItem="QZy-qh-8zT" firstAttribute="top" secondItem="Ibm-jN-eoz" secondAttribute="bottom" constant="16" id="CtB-hb-biI"/>
                             <constraint firstItem="jdd-At-KE6" firstAttribute="top" secondItem="QZy-qh-8zT" secondAttribute="bottom" constant="16" id="F5V-Lt-RcW"/>
                             <constraint firstItem="NOA-Dm-cuz" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" id="HxO-8t-aoh"/>
+                            <constraint firstItem="VVe-Uw-JpX" firstAttribute="trailing" secondItem="ib9-BF-s4K" secondAttribute="trailing" constant="16" id="Kyu-yq-j1r"/>
+                            <constraint firstItem="VVe-Uw-JpX" firstAttribute="trailing" secondItem="dIu-p5-7HD" secondAttribute="trailing" constant="16" id="PKG-of-4nq"/>
                             <constraint firstItem="QZy-qh-8zT" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" id="TDT-sk-EXr"/>
-                            <constraint firstItem="VVe-Uw-JpX" firstAttribute="trailing" secondItem="dIu-p5-7HD" secondAttribute="trailing" constant="16" id="WEX-hQ-0LK"/>
                             <constraint firstItem="QZy-qh-8zT" firstAttribute="trailing" secondItem="VVe-Uw-JpX" secondAttribute="trailing" id="Y2M-46-deW"/>
-                            <constraint firstItem="dIu-p5-7HD" firstAttribute="top" secondItem="jdd-At-KE6" secondAttribute="bottom" constant="16" id="fbb-e6-OGn"/>
-                            <constraint firstItem="VVe-Uw-JpX" firstAttribute="trailing" secondItem="jdd-At-KE6" secondAttribute="trailing" constant="16" id="q5z-jM-qBV"/>
-                            <constraint firstItem="dIu-p5-7HD" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" constant="16" id="qeL-E4-Xfu"/>
-                            <constraint firstItem="jdd-At-KE6" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" constant="16" id="r6G-Nv-CAe"/>
+                            <constraint firstItem="VVe-Uw-JpX" firstAttribute="trailing" secondItem="bdz-cp-OML" secondAttribute="trailing" constant="16" id="di2-ui-nFm"/>
+                            <constraint firstItem="Ibm-jN-eoz" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" constant="16" id="eB1-EI-eY0"/>
+                            <constraint firstItem="bdz-cp-OML" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" constant="16" id="hHl-fF-Iz5"/>
+                            <constraint firstItem="dIu-p5-7HD" firstAttribute="height" secondItem="jdd-At-KE6" secondAttribute="height" id="lIa-ed-dry"/>
+                            <constraint firstItem="dIu-p5-7HD" firstAttribute="top" secondItem="jdd-At-KE6" secondAttribute="bottom" constant="16" id="nQG-BW-Xes"/>
+                            <constraint firstItem="bdz-cp-OML" firstAttribute="top" secondItem="NOA-Dm-cuz" secondAttribute="bottom" constant="16" id="r7d-nT-CS3"/>
+                            <constraint firstItem="dIu-p5-7HD" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" constant="16" id="uOQ-Ow-Roo"/>
                             <constraint firstItem="NOA-Dm-cuz" firstAttribute="top" secondItem="VVe-Uw-JpX" secondAttribute="top" id="we0-1t-bgp"/>
+                            <constraint firstItem="ib9-BF-s4K" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" constant="16" id="xYL-Af-CVB"/>
+                            <constraint firstItem="ib9-BF-s4K" firstAttribute="top" secondItem="bdz-cp-OML" secondAttribute="bottom" id="y7O-z3-Ixu"/>
+                            <constraint firstItem="jdd-At-KE6" firstAttribute="leading" secondItem="VVe-Uw-JpX" secondAttribute="leading" constant="16" id="zkb-XG-THt"/>
                         </constraints>
                     </view>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
