@@ -57,7 +57,7 @@ The rest stays exactly the same as it is described in the main repo of Tesseract
 ### Add supported network protocols
 
 * Edit Action Extension attributes in its `Info.plist` and add supported ptorocols (in this example `test` protocol. UTI is `one.tesseract.test`)
-```plist
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -90,7 +90,7 @@ The rest stays exactly the same as it is described in the main repo of Tesseract
 </plist>
 ```
 * Add URL scheme to your `Info.plist` of the Wallet target
-```plist
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
