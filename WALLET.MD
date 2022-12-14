@@ -58,39 +58,58 @@ The rest stays exactly the same as it is described in the main repo of Tesseract
 
 * Edit Action Extension attributes in its `Info.plist` and add supported ptorocols (in this example `test` protocol. UTI is `one.tesseract.test`)
 ```plist
-<key>NSExtensionAttributes</key>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
 <dict>
-		<key>NSExtensionServiceRoleType</key>
-		<string>NSExtensionServiceRoleTypeEditor</string>
-		<key>NSExtensionActivationRule</key>
-		<string>SUBQUERY(extensionItems, $item, SUBQUERY($item.attachments, $att, ANY $att.registeredTypeIdentifiers UTI-CONFORMS-TO "one.tesseract.test").@count == $item.attachments.@count).@count == 1</string>
-		<key>NSExtensionServiceAllowsFinderPreviewItem</key>
-		<true/>
-		<key>NSExtensionServiceAllowsTouchBarItem</key>
-		<true/>
-		<key>NSExtensionServiceFinderPreviewIconName</key>
-		<string>NSActionTemplate</string>
-		<key>NSExtensionServiceTouchBarBezelColorName</key>
-		<string>TouchBarBezel</string>
-		<key>NSExtensionServiceTouchBarIconName</key>
-		<string>NSActionTemplate</string>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<key>NSExtensionServiceRoleType</key>
+			<string>NSExtensionServiceRoleTypeEditor</string>
+			<key>NSExtensionActivationRule</key>
+			<string>SUBQUERY(extensionItems, $item, SUBQUERY($item.attachments, $att, ANY $att.registeredTypeIdentifiers UTI-CONFORMS-TO "one.tesseract.test").@count == $item.attachments.@count).@count == 1</string>
+			<key>NSExtensionServiceAllowsFinderPreviewItem</key>
+			<true/>
+			<key>NSExtensionServiceAllowsTouchBarItem</key>
+			<true/>
+			<key>NSExtensionServiceFinderPreviewIconName</key>
+			<string>NSActionTemplate</string>
+			<key>NSExtensionServiceTouchBarBezelColorName</key>
+			<string>TouchBarBezel</string>
+			<key>NSExtensionServiceTouchBarIconName</key>
+			<string>NSActionTemplate</string>
+		</dict>
+		<key>NSExtensionMainStoryboard</key>
+		<string>MainInterface</string>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.ui-services</string>
+	</dict>
 </dict>
+</plist>
 ```
 * Add URL scheme to your `Info.plist` of the Wallet target
 ```plist
-<key>CFBundleURLTypes</key>
-<array>
-	<dict>
-		<key>CFBundleTypeRole</key>
-		<string>Editor</string>
-		<key>CFBundleURLName</key>
-		<string>one.tesseract.test</string>
-		<key>CFBundleURLSchemes</key>
-		<array>
-			<string>tesseract+test</string>
-		</array>
-	</dict>
-</array>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>one.tesseract.test</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>tesseract+test</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
 ```
 
 ## Usage

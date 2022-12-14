@@ -114,6 +114,21 @@ Target(
 
 Please, consider the guide [HERE](./RUST.MD).
 
+### Add needed protocols queries
+You have to add needed network protocols to the URL queries of your iOS application. Add them to the `Info.plist`. In the example below `test` network is added
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tesseract+test</string>
+	</array>
+</dict>
+</plist>
+```
+
 ## Roadmap
 
 - [x] v0.1 - IPC transport for iOS - connect dApp/Wallet on the same device
