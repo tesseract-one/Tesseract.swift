@@ -1,3 +1,9 @@
+<p align="left">
+	<a href="http://tesseract.one/">
+		<img alt="Tesseract" src ="./.github/logo-horiz.svg" height=128/>
+	</a>
+</p>
+
 # Tesseract on iOS for Wallet developers
 
 Integration of Tesseract into your wallet allows any dApp to request your wallet to sign a transaction. Currently Tesseract enables native dApps to integrate with wallets through IPC, which from the user perspective is just a modal screen from the wallet.

@@ -1,4 +1,9 @@
-![Tesseract.swift Logo](./.github/logo.svg)
+<p align="center">
+	<a href="http://tesseract.one/">
+		<img alt="Tesseract" src ="./.github/logo.svg" height=256/>
+	</a>
+</p>
+
 ### **Tesseract.swift** is an implementation of [Tesseract](https://github.com/tesseract-one/) protocol for iOS. [Tesseract](https://github.com/tesseract-one/) seamlessly integrates dApps and wallets, regardless of the blockchain protocol.
 
 #### **Tesseract** aims to improve the usability of the dApps without compromising security or decentralization.
