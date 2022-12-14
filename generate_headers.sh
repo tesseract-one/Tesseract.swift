@@ -22,6 +22,6 @@ for crate in ${PREFIX}* ; do
   cargo build -p "${crate}" --release
   module_name="C${${(C)crate}//_}"
   out_dir="${OUTPUT_DIR}/${module_name}"
-  cp -f "target/release/include/${crate}.h" "${out_dir}"/
+  cp -f "../target/release/include/${crate}.h" "${out_dir}"/
   generate_modulemap "${out_dir}" "${module_name}" "${crate}"
 done

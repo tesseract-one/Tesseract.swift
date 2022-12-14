@@ -20,6 +20,8 @@ enum CErrorCodes
   CErrorCodes_RequestExpired,
   CErrorCodes_WrongProtocolId,
   CErrorCodes_WrongInternalState,
+  CErrorCodes_Serialization,
+  CErrorCodes_Nested,
 };
 #ifndef __cplusplus
 typedef uint32_t CErrorCodes;

@@ -1,0 +1,8 @@
+[workspace]
+
+members = [
+    "rust/tesseract_client",
+    "rust/tesseract_service",
+    "rust/tesseract_utils",
+    "rust/tesseract_common"
+]

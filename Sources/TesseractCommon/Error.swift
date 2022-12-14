@@ -28,4 +28,10 @@ extension CError {
     public static func wrongInternalState(message: String) -> CError {
         CError.error(code: CErrorCodes_WrongInternalState.rawValue, message: message)
     }
+    public static func serialization(message: String) -> CError {
+        CError.error(code: CErrorCodes_Serialization.rawValue, message: message)
+    }
+    public static func nested(error: Error) -> CError {
+        CError.error(code: CErrorCodes_Nested.rawValue, message: error.localizedDescription)
+    }
 }

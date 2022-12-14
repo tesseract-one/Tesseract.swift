@@ -9,6 +9,7 @@ fn main() {
     let name = env::var("CARGO_PKG_NAME").unwrap();
     let header_path = Path::new(&crate_dir)
         .join("..")
+        .join("..")
         .join("target")
         .join(&profile)
         .join("include")

@@ -25,7 +25,7 @@ import CWallet
 import TesseractService
 
 class ActionViewController: UIViewController {
-    var context: AppContextPtr!
+    var context: ExtensionContextPtr!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,8 +41,12 @@ where `wallet_extension_init` is exported from Rust as
 use tesseract_utils::*;
 use tesseract_service::*;
 
+// Pointer to our Rust Context (will be saved in the Swift for calls). Returns it as a struct with void* inside.
+#[repr(C)]
+pub struct ExtensionContextPtr(SyncPtr<Void>);
+
 #[no_mangle]
-pub unsafe extern "C" fn wallet_extension_init(transport: transport::Transport) -> ManuallyDrop<AppContextPtr> {
+pub unsafe extern "C" fn wallet_extension_init(transport: transport::Transport) -> ManuallyDrop<ExtensionContextPtr> {
   tesseract_utils_init();
   // your initialization code
 }

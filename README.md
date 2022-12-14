@@ -38,9 +38,9 @@ The initialization of Tesseract is essentially the same as it is described in th
 
 where `ipc_transport` is `transport::NativeTransport` passed to us from Swift.
 
-#### Passing references from Swift:
+#### Passing data from Swift:
 
-The easiest way to call Rust from Swift is to create a C function and use `cbindgen` for export.
+The easiest way to call Rust from Swift is to create a C function and use `cbindgen` for the export.
 
 #### On the Swift side:
 
@@ -90,9 +90,9 @@ You can find the examples (**Demo Wallet** and a **Demo dApp**) in this repo [HE
 ### On the Rust side you might need:
 
 ```toml
-tesseract_utils = { git = "https://github.com/tesseract-one/Tesseract.swift", branch="master" } // utils for interop with Swift
-tesseract_client = { git = "https://github.com/tesseract-one/Tesseract.swift", branch="master" } // iOS client integrations
-tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch="master", features=["client"] } // Tesseract Core
+tesseract_utils = { git = "https://github.com/tesseract-one/Tesseract.swift", branch="master" } # utils for interop with Swift
+tesseract_client = { git = "https://github.com/tesseract-one/Tesseract.swift", branch="master" } # iOS client integrations
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch="master", features=["client"] } # Tesseract Core
 ```
 
 ### On the Swift side:
