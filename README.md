@@ -1,258 +1,130 @@
 ![Tesseract.swift Logo](./.github/logo.svg)
-# Tesseract dApps Platform SDK for Swift
-[![GitHub license](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)](https://raw.githubusercontent.com/tesseract-one/Tesseract.swift/master/LICENSE)
-[![Build Status](https://travis-ci.com/tesseract-one/Tesseract.swift.svg?branch=master)](https://travis-ci.com/tesseract-one/Tesseract.swift)
-[![GitHub release](https://img.shields.io/github/release/tesseract-one/Tesseract.swift.svg)](https://github.com/tesseract-one/Tesseract.swift/releases)
-[![CocoaPods version](https://img.shields.io/cocoapods/v/Tesseract.svg)](https://cocoapods.org/pods/Tesseract)
-![Platform iOS](https://img.shields.io/badge/platform-iOS-orange.svg)
+### **Tesseract.swift** is an implementation of [Tesseract](https://github.com/tesseract-one/) protocol for iOS. [Tesseract](https://github.com/tesseract-one/) seamlessly integrates dApps and wallets, regardless of the blockchain protocol.
+
+#### **Tesseract** aims to improve the usability of the dApps without compromising security or decentralization.
+
+This page is about specifics of running Tesseract on Android. If you need general info or Tesseract for another platform, please consider one of the following:
+* [General info](https://github.com/tesseract-one/)
+* [Tesseract for Android](https://github.com/tesseract-one/Tesseract.android)
+* [Tesseract shared Core (Rust)](https://github.com/tesseract-one/Tesseract.rs)
+
 
 ## Getting started
 
-To use this library compatible wallet should be installed on the device.
+**Tesseract** is implemented in Rust and currently doesn't provide the Swift wrappers, thus requiring some Rust coding. In the future, we aim to change it by offering wrappers, eliminating the need for any Rust code.
 
-We released our own [Tesseract Wallet](https://itunes.apple.com/us/app/tesseract-wallet/id1459505103) as reference wallet implementation.
-Install it on your device to check provided examples.
+### Set up Rust
 
-### Installation
+To add Rust, to your dApp or Wallet, please consider going through our guide [Setting up Rust](./RUST.MD). It contains the steps required to add Rust support to an iOS app + some useful interop utils description we've built.
 
-Add the following to your [Podfile](http://guides.cocoapods.org/using/the-podfile.html):
+### Initialize Tesseract Client
 
-```rb
-pod 'TesseractSDK/Ethereum'
+Once the Rust part is set up, you can proceed to setting up Tesseract:
+
+```rust
+use tesseract_utils::*;
+use tesseract_client;
+
+let tesseract = tesseract_client::Tesseract::new(
+	tesseract_client::delegate::SingleTransportDelegate::arc(),
+).transport(ipc_transport);
 ```
 
-Then run `pod install`.
+The initialization of Tesseract is essentially the same as it is described in the [Tesseract shared Core](tesseract-one/Tesseract.rs) except that to connect to a wallet via Tesseract, we need to specify the IPCTransport:
 
-### Hello Tesseract, hello Web3.
+```rust
+.transport(ipc_transport)
+```
 
-Let's try to get Ethereum account balance.
+where `ipc_transport` is `transport::NativeTransport` passed to us from Swift.
+
+#### Passing references from Swift:
+
+The easiest way to call Rust from Swift is to create a C function and use `cbindgen` for export.
+
+#### On the Swift side:
 
 ```swift
-import Tesseract
+import TesseractClient
+import CApp
 
-// Check that we have wallet installed. You should handle this situation in your app.
-guard Tesseract.Ethereum.isKeychainInstalled else {
-    fatalError("Wallet is not installed!")
-}
+let rustAppContext: AppContextPtr! = app_init(IPCTransportIOS().asNative())
+```
 
-// Our HTTP RPC URL. Can be Infura
-let rpcUrl = "https://mainnet.infura.io/v3/{API-KEY}"
+#### On the Rust side:
 
-// Creating Web3 instance. Try to reuse existing instance of Web3 in your app.
-let web3 = Tesseract.Ethereum.Web3(rpcUrl: rpcUrl)
+```rust
+use tesseract_utils::*;
 
-// Asking wallet for the Account
-web3.eth.accounts() { response in
-    // Check that we have response
-    guard let accounts = response.result else {
-        print("Error:", response.error!)
-        return
-    }
-    // Asking network for balance
-    web3.eth.getBalance(address: accounts[0]) { response in
-        switch response.status {
-        case .success(let balance): print("Balance:", balance)
-        case .failure(let err): print("Error:", err)
-        }
-    }
+// Pointer to our App Context (will be saved in the Swift for calls). Returns it as a struct with void* inside.
+#[repr(C)]
+pub struct AppContextPtr(SyncPtr<Void>);
+
+#[no_mangle]
+pub unsafe extern "C" fn app_init(transport: transport::NativeTransport) -> ManuallyDrop<AppContextPtr> {
+	tesseract_utils_init();
+	//your initialization here
 }
 ```
 
-### With PromiseKit
+The rest of Tesseract APIs stay exacly the same everywhere. Please, consider to go through the docs in our [Tesseract shared Core](https://github.com/tesseract-one/Tesseract.rs) repo.
 
-#### Install PromiseKit Extensions
+## Usage
 
-Add the following to your [Podfile](http://guides.cocoapods.org/using/the-podfile.html):
+* [Main Rust API documentation](https://github.com/tesseract-one/Tesseract.rs)
+* [Wallet developers documentation](./WALLET.MD)
 
-```rb
-pod 'TesseractSDK/Ethereum.PromiseKit'
-
-```
-
-Then run `pod install`.
-
-#### Now you can Web3 like this
-
-```swift
-import PromiseKit
-
-// Asking wallet for Account
-web3.eth.accounts()
-    .then { accounts in
-        // Obtaining balance
-        web3.eth.getBalance(address: accounts[0])
-    }.done { balance in
-        print("Balance:", balance)
-    }.catch { err in
-        print("Error:", err)
-    }
-```
+Once we publish the Swift wrappers, the doc will appear here.
 
 ## Examples
 
-### New transaction
+You can find the examples (**Demo Wallet** and a **Demo dApp**) in this repo [HERE](./examples).
+
+## Installation
+
+### Prerequisites
+* Install your Rust environment: https://www.rust-lang.org/tools/install
+* Install Xcode from the App Store
+* For Rust we suggest VS Code: https://code.visualstudio.com/
+
+### On the Rust side you might need:
+
+```toml
+tesseract_utils = { git = "https://github.com/tesseract-one/Tesseract.swift", branch="master" } // utils for interop with Swift
+tesseract_client = { git = "https://github.com/tesseract-one/Tesseract.swift", branch="master" } // iOS client integrations
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch="master", features=["client"] } // Tesseract Core
+```
+
+### On the Swift side:
 
 ```swift
-// Creating Transaction
-let tx = Transaction(
-    from: account, // Account from previous examples
-    to: try! Address(hex: "0x..."),
-    value: 1.eth
+// Dependency
+Package (
+	dependencies: [
+	 	.package(url: "https://github.com/tesseract-one/Tesseract.swift.git", .branch("master")),
+	]
 )
 
-// Sending it. Tesseract will handle signing automatically.
-web3.eth.sendTransaction(transaction: tx) { response in
-    switch response.status {
-    case .success(let hash): print("TX Hash:", hash.hex())
-    case .failure(let err): print("Error:", err)
-    }
-}
+Target(
+	dependencies: [ "TesseractClient" ]
+)
 ```
 
-#### PromiseKit
+### Setting up Rust interop:
 
-```swift
-// Sending it. Tesseract will handle signing automatically.
-web3.eth.sendTransaction(transaction: tx)
-    .done { hash in
-        print("TX Hash:", hash.hex())
-    }.catch { err in
-        print("Error:", err)
-    }
-```
+Please, consider the guide [HERE](./RUST.MD).
 
-### ERC20 Smart Contract
+## Roadmap
 
-#### Create Smart Contract instance
+- [x] v0.1 - IPC transport for iOS - connect dApp/Wallet on the same device
+- [x] v0.2 - demo dApp and Wallet
+- [ ] v1.0 - iOS wrapper for Rust
 
-```swift
-// EOS ERC20 token
-let contractAddress = try! Address(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0")
-// ERC20 contract object
-let contract = web3.eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
-```
+## Changelog
 
-#### Get ERC20 balance
-
-```swift
-contract.balanceOf(address: account) // Account from previous steps
-    .call() // Performing Ethereum Call
-    .done { outputs in
-        print("Balance:", outputs["_balance"] as! BigUInt)
-    }.catch { error in
-        print("Error:", error)
-    }
-```
-
-#### Send ERC20 tokens
-
-```swift
-// Our recipient
-let recipient = try! Address(hex: "0x....")
-
-contract
-    .transfer(to: recipient, value: 100000) // Creating SC invocaion
-    .send(from: account) // Sending it from our account
-    .done { hash in
-        print("TX Hash:", hash.hex())
-    }.catch { err in
-        print("Error:", err)
-    }
-```
-
-### Custom Smart Contract
-
-Web3 can parse you JSON smart contract ABI.
-
-You can use methods of Smart Contract by subcripting them by name from the Contract object.
-
-#### Create Smart Contract instance
-
-```swift
-// EOS ERC20 token
-let contractAddress = try! Address(hex: "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0")
-// JSON ABI. Can be loaded from json file
-let contractJsonABI = "<your contract ABI as a JSON string>".data(using: .utf8)!
-// You can optionally pass an abiKey param if the actual abi is nested and not the top level element of the json
-let contract = try web3.eth.Contract(json: contractJsonABI, abiKey: nil, address: contractAddress)
-```
-
-#### Get ERC20 balance
-
-```swift
-contract["balanceOf"]!(account) // Account from previous steps
-    .call()
-    .done { outputs in
-        print("Balance:", outputs["_balance"] as! BigUInt)
-    }.catch { error in
-        print("Error:", error)
-    }
-```
-
-#### Send ERC20 tokens
-
-```swift
-// Our recipient
-let recipient = try! Address(hex: "0x....")
-
-// Creating ERC20 call object
-let invocation = contract["transfer"]!(recipient, BigUInt(100000))
-
-invocation
-    .send(from: account) // Sending it from our account
-    .done { hash in
-        print("TX Hash:", hash.hex())
-    }.catch { err in
-        print("Error:", err)
-    }
-```
-
-### More Examples
-
-For more examples check [Web3.swift](https://github.com/tesseract-one/EthereumWeb3.swift) library used inside.
-
-## SDK Structure
-
-This SDK has modular structure. All modules can be installed with CocoaPods.
-
-Right now SDK has this modules:
-
-* [Tesseract.OpenWallet](https://github.com/tesseract-one/OpenWallet.swift) - reference [OpenWallet](https://github.com/tesseract-one/OpenWalletProtocol) client implementation. Main part of SDK
-* __Tesseract.Ethereum__ - metapackage, which will install all Ethereum modules
-  * [Tesseract.Ethereum.Web3](https://github.com/tesseract-one/EthereumWeb3.swift) - Web3 implementation for Swift with OpenWallet support
-* __Tesseract.Ethereum.PromiseKit__ - metapackage, which will install all Ethereum modules with PromiseKit support
-  * [Tesseract.Ethereum.Web3.PromiseKit](https://github.com/tesseract-one/EthereumWeb3.swift) - PromiseKit extensions for Web3.
-
-### Modules installation
-
-Modules can be installed one-by-one.
-
-As example, if you want to install Web3 only add the following to your [Podfile](http://guides.cocoapods.org/using/the-podfile.html):
-
-```rb
-pod 'TesseractSDK/Ethereum.Web3'
-
-# Uncomment this line if you want to enable Web3 PromiseKit extensions
-# pod 'TesseractSDK/Ethereum.Web3.PromiseKit'
-```
-
-Then run `pod install`.
-
-## Ideology behind
-
-[Tesseract dApps Platform](https://tesseract.one) emerged from one simple vision - dApps should not store Private Keys inside.
-
-With this vision we created Mobile-first platform. It allows app developers to write Native dApps and leave all key storage security tasks to Wallet developers.
-
-We started with open protocol, which describes Wallet <-> dApp communication. It's called [Open Wallet](https://github.com/tesseract-one/OpenWalletProtocol).
-
-This SDK can interact with any Wallet which implemented this protocol. Ask your preferred Wallet to implement it :)
-
-## Author
-
- - [Tesseract Systems, Inc.](mailto:info@tesseract.one)
-   ([@tesseract_one](https://twitter.com/tesseract_one))
+* v0.2 - Created demo dApp and Wallet
+* v0.1 - Created transport to connect dApp and Wallet
 
 ## License
 
-`Tesseract.swift` is available under the Apache 2.0 license. See [the LICENSE file](https://raw.githubusercontent.com/tesseract-one/Tesseract.swift/master/LICENSE) for more information.
+Tesseract.android can be used, distributed and modified under [the Apache 2.0 license](LICENSE).
