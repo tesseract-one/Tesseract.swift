@@ -35,6 +35,14 @@ pub struct UI {
     release: unsafe extern "C" fn(transport: &mut UI),
 }
 
+impl Drop for UI {
+    fn drop(&mut self) {
+        unsafe {
+            (self.release)(self);
+        }
+    }
+}
+
 struct TestService {
     ui: UI,
     signature: String,
@@ -102,9 +110,11 @@ pub unsafe extern "C" fn wallet_extension_init(
 
     let service = TestService::new(ui, signature.try_as_ref().unwrap().into());
 
-    let ts = Tesseract::new().transport(transport).service(service);
+    let tesseract = Tesseract::new().transport(transport).service(service);
 
-    let context = AppContext { _tesseract: ts };
+    let context = AppContext {
+        _tesseract: tesseract,
+    };
 
     ManuallyDrop::new(AppContextPtr::new(context))
 }

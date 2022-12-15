@@ -1,16 +1,16 @@
-use crate::ptr::*;
-use crate::Void;
-use crate::result::Result;
-use crate::error::CError;
-use super::value::CFutureValue;
 use super::from::CFutureWrapper;
+use super::value::CFutureValue;
+use crate::error::CError;
+use crate::ptr::*;
+use crate::result::Result;
+use crate::Void;
 use std::future::Future;
 use std::mem::ManuallyDrop;
 
 pub type CFutureOnCompleteCallback<V> = unsafe extern "C" fn(
-    context: SyncPtr<Void>, 
+    context: SyncPtr<Void>,
     value: *mut ManuallyDrop<V>,
-    error: *mut ManuallyDrop<CError>
+    error: *mut ManuallyDrop<CError>,
 );
 
 #[repr(C)]
@@ -21,18 +21,25 @@ pub struct CFuture<V: 'static> {
         context: SyncPtr<Void>,
         cb: CFutureOnCompleteCallback<V>,
     ) -> ManuallyDrop<CFutureValue<V>>,
-    release: unsafe extern "C" fn(fut: &mut CFuture<V>)
+    release: unsafe extern "C" fn(fut: &mut CFuture<V>),
+}
+
+impl<V> Drop for CFuture<V> {
+    fn drop(&mut self) {
+        println!("CFUTURE DROP CALLED!");
+        unsafe { (self.release)(self) };
+    }
 }
 
 struct CFutureContext<V: 'static> {
-    future: CFuture<V>,
+    _future: CFuture<V>,
     closure: Option<Box<dyn FnOnce(Result<V>)>>,
 }
 
 impl<V: 'static> CFutureContext<V> {
     fn new<F: 'static + FnOnce(Result<V>)>(future: CFuture<V>, closure: F) -> Self {
         Self {
-            future: future,
+            _future: future,
             closure: Some(Box::new(closure)),
         }
     }
@@ -50,14 +57,6 @@ impl<V: 'static> CFutureContext<V> {
     }
 }
 
-impl<V> Drop for CFutureContext<V> {
-    fn drop(&mut self) {
-        println!("CFUTURE CONTEXT DROP CALLED!");
-        let release = self.future.release;
-        unsafe { release(&mut self.future) };
-    }
-}
-
 impl<V: 'static> CFuture<V> {
     pub fn new(
         ptr: SyncPtr<Void>,
@@ -66,9 +65,13 @@ impl<V: 'static> CFuture<V> {
             context: SyncPtr<Void>,
             cb: CFutureOnCompleteCallback<V>,
         ) -> ManuallyDrop<CFutureValue<V>>,
-        release: unsafe extern "C" fn(fut: &mut CFuture<V>)
+        release: unsafe extern "C" fn(fut: &mut CFuture<V>),
     ) -> Self {
-        Self { ptr, set_on_complete, release }
+        Self {
+            ptr,
+            set_on_complete,
+            release,
+        }
     }
 
     pub fn on_complete<F: 'static + FnOnce(Result<V>)>(self, cb: F) -> Option<Result<V>> {
@@ -100,13 +103,17 @@ impl<V: 'static> CFuture<V> {
 
     pub fn take_ptr(&mut self) -> Option<SyncPtr<Void>> {
         let ptr = std::mem::replace(&mut self.ptr, std::ptr::null::<Void>().into());
-        if ptr.is_null() { None } else { Some(ptr) }
+        if ptr.is_null() {
+            None
+        } else {
+            Some(ptr)
+        }
     }
 
     unsafe extern "C" fn on_complete_handler(
         context: SyncPtr<Void>,
         value: *mut ManuallyDrop<V>,
-        error: *mut ManuallyDrop<CError>
+        error: *mut ManuallyDrop<CError>,
     ) {
         let mut context = CFutureContext::from_raw(context);
         if error.is_null() {

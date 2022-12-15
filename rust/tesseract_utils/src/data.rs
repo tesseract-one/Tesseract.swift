@@ -1,8 +1,8 @@
 use super::error::CError;
 use super::panic::handle_exception_result;
 use super::ptr::SyncPtr;
-use super::traits::{TryAsRef, QuickClone};
 use super::response::CResponse;
+use super::traits::{QuickClone, TryAsRef};
 use std::mem::ManuallyDrop;
 
 #[repr(C)]
@@ -58,7 +58,13 @@ impl TryFrom<CData> for Vec<u8> {
             Err(CError::NullPtr)
         } else {
             let value = ManuallyDrop::new(value); // This is safe. Memory will be owned by Vec.
-            unsafe { Ok(Vec::from_raw_parts(value.ptr.ptr() as *mut u8, value.len, value.len)) }
+            unsafe {
+                Ok(Vec::from_raw_parts(
+                    value.ptr.ptr() as *mut u8,
+                    value.len,
+                    value.len,
+                ))
+            }
         }
     }
 }
@@ -86,7 +92,14 @@ pub unsafe extern "C" fn tesseract_utils_data_new(
     res: &mut ManuallyDrop<CData>,
     err: &mut ManuallyDrop<CError>,
 ) -> bool {
-    tesseract_utils_data_clone(&CData { ptr: SyncPtr::new(ptr), len }, res, err)
+    tesseract_utils_data_clone(
+        &CData {
+            ptr: SyncPtr::new(ptr),
+            len,
+        },
+        res,
+        err,
+    )
 }
 
 #[no_mangle]

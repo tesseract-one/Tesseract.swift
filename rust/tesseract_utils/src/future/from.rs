@@ -1,6 +1,6 @@
 use super::CFuture;
-use crate::result::Result;
 use crate::error::CError;
+use crate::result::Result;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
@@ -10,7 +10,7 @@ enum State<V: 'static> {
     Value(Result<V>),
     Future(CFuture<V>),
     Pending,
-    Resolved
+    Resolved,
 }
 
 pub(crate) struct CFutureWrapper<V: 'static> {
@@ -25,7 +25,7 @@ impl<V> TryFrom<CFuture<V>> for CFutureWrapper<V> {
             return Err(CError::NullPtr);
         } else {
             Ok(Self {
-                state: Arc::new(Mutex::new(Some(State::Future(future))))
+                state: Arc::new(Mutex::new(Some(State::Future(future)))),
             })
         }
     }
@@ -44,15 +44,15 @@ impl<V> Future for CFutureWrapper<V> {
                     State::Value(value) => {
                         *state = Some(State::Resolved);
                         Poll::Ready(value)
-                    },
+                    }
                     State::Pending => {
                         *state = Some(State::Pending);
                         Poll::Pending
-                    },
+                    }
                     State::Resolved => {
                         *state = Some(State::Resolved);
                         panic!("CFutureWrapper polled after Poll::Ready!");
-                    },
+                    }
                     State::Future(future) => {
                         let waker = cx.waker().clone();
                         let state2 = Arc::clone(&self.state);
@@ -67,7 +67,7 @@ impl<V> Future for CFutureWrapper<V> {
                             None => {
                                 *state = Some(State::Pending);
                                 Poll::Pending
-                            },
+                            }
                             Some(result) => {
                                 *state = Some(State::Resolved);
                                 Poll::Ready(result)

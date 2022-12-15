@@ -14,7 +14,7 @@ impl<T> SyncPtr<T> {
 
     pub fn ptr(&self) -> *const T {
         self.0
-    } 
+    }
 
     pub fn is_null(&self) -> bool {
         self.0.is_null()

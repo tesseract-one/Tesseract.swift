@@ -1,5 +1,5 @@
-use crate::Nothing;
 use super::error::CError;
+use crate::Nothing;
 
 pub type Result<T> = std::result::Result<T, CError>;
 
@@ -7,7 +7,7 @@ pub type Result<T> = std::result::Result<T, CError>;
 #[derive(Debug, Clone)]
 pub enum CResult<V> {
     Ok(V),
-    Err(CError)
+    Err(CError),
 }
 
 impl<T> From<Result<T>> for CResult<T> {

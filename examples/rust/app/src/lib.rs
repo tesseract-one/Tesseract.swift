@@ -48,9 +48,9 @@ pub unsafe extern "C" fn app_init(
 ) -> ManuallyDrop<AppContextPtr> {
     tesseract_utils_init();
 
-    let service = Tesseract::new(TransportDelegate::arc(alerts))
-        .transport(transport)
-        .service(tesseract_protocol_test::Test::Protocol);
+    let tesseract = Tesseract::new(TransportDelegate::arc(alerts)).transport(transport);
+
+    let service = tesseract.service(tesseract_protocol_test::Test::Protocol);
 
     let context = AppContext { service };
 
@@ -58,7 +58,10 @@ pub unsafe extern "C" fn app_init(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn app_sign_data(app: AppContextPtr, data: CStringRef) -> CFutureString {
+pub unsafe extern "C" fn app_sign_data(
+    app: AppContextPtr,
+    data: CStringRef,
+) -> ManuallyDrop<CFutureString> {
     let context = app.unowned();
     let data_str: String = data.try_as_ref().unwrap().into();
 
@@ -72,7 +75,7 @@ pub unsafe extern "C" fn app_sign_data(app: AppContextPtr, data: CStringRef) -> 
             .map_err(|err| err.into_cerror())
     };
 
-    tx.into()
+    ManuallyDrop::new(tx.into())
 }
 
 #[no_mangle]

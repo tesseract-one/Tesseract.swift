@@ -1,8 +1,8 @@
 use super::string::*;
 use super::traits::TryAsRef;
-use std::mem::ManuallyDrop;
 use std::error::Error;
 use std::fmt::Display;
+use std::mem::ManuallyDrop;
 
 #[repr(C)]
 #[derive(Debug, Clone)]
@@ -45,8 +45,12 @@ impl Display for CError {
             CError::NullPtr => write!(f, "C error: Null Pointer"),
             CError::Utf8Error(str) => write!(f, "C error: utf8: {}", str.try_as_ref().unwrap()),
             CError::Panic(reason) => write!(f, "C error: panic: {}", reason.try_as_ref().unwrap()),
-            CError::ErrorCode(code, reason) => 
-                write!(f, "C error: code: {}, reason: {}", code, reason.try_as_ref().unwrap()),
+            CError::ErrorCode(code, reason) => write!(
+                f,
+                "C error: code: {}, reason: {}",
+                code,
+                reason.try_as_ref().unwrap()
+            ),
         }
     }
 }

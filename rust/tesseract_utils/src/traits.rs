@@ -1,16 +1,15 @@
-
 pub trait TryAsRef<T: ?Sized> {
-  type Error;
+    type Error;
 
-  fn try_as_ref(&self) -> Result<&T, Self::Error>;
+    fn try_as_ref(&self) -> Result<&T, Self::Error>;
 }
 
 pub trait QuickClone {
-  fn quick_clone(&self) -> Self;
+    fn quick_clone(&self) -> Self;
 }
 
 pub trait IntoC<T> {
-  type CVal;
+    type CVal;
 
-  fn into_c(self) -> Self::CVal;
+    fn into_c(self) -> Self::CVal;
 }

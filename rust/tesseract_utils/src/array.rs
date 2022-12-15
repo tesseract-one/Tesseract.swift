@@ -1,7 +1,7 @@
 use super::error::CError;
 use super::ptr::SyncPtr;
 use super::result::Result;
-use super::traits::{TryAsRef, QuickClone};
+use super::traits::{QuickClone, TryAsRef};
 use std::collections::{BTreeMap, HashMap};
 use std::mem::ManuallyDrop;
 
@@ -13,11 +13,15 @@ pub struct CArray<Value> {
 
 impl<Value: Clone> Clone for CArray<Value> {
     fn clone(&self) -> Self {
-        let vec: Vec<Value> = self.try_as_ref().unwrap().iter().map(|v| v.clone()).collect();
+        let vec: Vec<Value> = self
+            .try_as_ref()
+            .unwrap()
+            .iter()
+            .map(|v| v.clone())
+            .collect();
         vec.into()
     }
 }
-
 
 impl<Value: Copy> QuickClone for CArray<Value> {
     fn quick_clone(&self) -> Self {
@@ -60,7 +64,13 @@ impl<Value> TryFrom<CArray<Value>> for Vec<Value> {
             Err(CError::NullPtr)
         } else {
             let value = ManuallyDrop::new(value); // This is safe. Memory will be owned by Vec
-            unsafe { Ok(Vec::from_raw_parts(value.ptr.ptr() as *mut Value, value.len, value.len)) }
+            unsafe {
+                Ok(Vec::from_raw_parts(
+                    value.ptr.ptr() as *mut Value,
+                    value.len,
+                    value.len,
+                ))
+            }
         }
     }
 }

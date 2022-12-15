@@ -1,9 +1,9 @@
-use crate::Void;
 use crate::error::CError;
 use crate::result::Result;
 use crate::traits::IntoC;
-use std::mem::ManuallyDrop;
+use crate::Void;
 use std::any::Any;
+use std::mem::ManuallyDrop;
 
 pub trait AnyPtrRepresentable: Sized + 'static {
     fn any_ptr(self) -> CAnyPtr {
@@ -19,7 +19,6 @@ pub trait AnyPtr {
 pub trait AnyOwnedPtr {
     unsafe fn try_into<T: AnyPtrRepresentable>(self) -> Result<T>;
 }
-
 
 pub type CAnyPtrRef = *const Void;
 

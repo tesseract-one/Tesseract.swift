@@ -1,9 +1,9 @@
-use crate::Nothing;
-use crate::future::CFuture;
-use crate::string::CString;
-use crate::int128::{CInt128, CUInt128};
 use crate::data::CData;
+use crate::future::CFuture;
+use crate::int128::{CInt128, CUInt128};
 use crate::ptr::CAnyPtr;
+use crate::string::CString;
+use crate::Nothing;
 
 pub type CFutureNothing = CFuture<Nothing>;
 pub type CFutureString = CFuture<CString>;
@@ -21,7 +21,6 @@ pub type CFutureUInt64 = CFuture<u64>;
 pub type CFutureBool = CFuture<bool>;
 pub type CFutureInt128 = CFuture<CInt128>;
 pub type CFutureUInt128 = CFuture<CUInt128>;
-
 
 #[cfg(feature = "bigint")]
 use crate::bigint::CBigInt;
