@@ -15,20 +15,12 @@ pub type CFutureOnCompleteCallback<V> = unsafe extern "C" fn(
 
 #[repr(C)]
 pub struct CFuture<V: 'static> {
-    ptr: SyncPtr<Void>,
+    ptr: CAnyDropPtr,
     set_on_complete: unsafe extern "C" fn(
         future: &CFuture<V>,
         context: SyncPtr<Void>,
         cb: CFutureOnCompleteCallback<V>,
     ) -> ManuallyDrop<CFutureValue<V>>,
-    release: unsafe extern "C" fn(fut: &mut CFuture<V>),
-}
-
-impl<V> Drop for CFuture<V> {
-    fn drop(&mut self) {
-        println!("CFUTURE DROP CALLED!");
-        unsafe { (self.release)(self) };
-    }
 }
 
 struct CFutureContext<V: 'static> {
@@ -48,29 +40,27 @@ impl<V: 'static> CFutureContext<V> {
         (self.closure.take().unwrap())(result);
     }
 
-    unsafe fn from_raw(ptr: SyncPtr<Void>) -> Self {
-        *ptr.as_type().into_box()
+    unsafe fn from_raw(mut ptr: SyncPtr<Void>) -> Self {
+        ptr.take_typed()
     }
 
     fn into_raw(self) -> SyncPtr<Void> {
-        SyncPtr::from(Box::new(self)).as_void()
+        SyncPtr::new(self).as_void()
     }
 }
 
 impl<V: 'static> CFuture<V> {
     pub fn new(
-        ptr: SyncPtr<Void>,
+        ptr: CAnyDropPtr,
         set_on_complete: unsafe extern "C" fn(
             future: &CFuture<V>,
             context: SyncPtr<Void>,
             cb: CFutureOnCompleteCallback<V>,
         ) -> ManuallyDrop<CFutureValue<V>>,
-        release: unsafe extern "C" fn(fut: &mut CFuture<V>),
     ) -> Self {
         Self {
             ptr,
             set_on_complete,
-            release,
         }
     }
 
@@ -81,33 +71,24 @@ impl<V: 'static> CFuture<V> {
         let value = unsafe {
             set_on_complete(
                 reference.as_ref().unwrap(),
-                SyncPtr::new(context),
+                SyncPtr::raw(context),
                 Self::on_complete_handler,
             )
         };
         let value: Option<Result<V>> = ManuallyDrop::into_inner(value).into();
         if value.is_some() {
             // Context is non-needed. Callback never will be called
-            let _ = unsafe { CFutureContext::<V>::from_raw(SyncPtr::new(context)) };
+            let _ = unsafe { CFutureContext::<V>::from_raw(SyncPtr::raw(context)) };
         }
         value
     }
 
-    pub fn get_ptr(&self) -> &SyncPtr<Void> {
+    pub fn ptr(&self) -> &CAnyDropPtr {
         &self.ptr
     }
 
     pub fn try_into_future(self) -> Result<impl Future<Output = Result<V>>> {
         CFutureWrapper::try_from(self)
-    }
-
-    pub fn take_ptr(&mut self) -> Option<SyncPtr<Void>> {
-        let ptr = std::mem::replace(&mut self.ptr, std::ptr::null::<Void>().into());
-        if ptr.is_null() {
-            None
-        } else {
-            Some(ptr)
-        }
     }
 
     unsafe extern "C" fn on_complete_handler(

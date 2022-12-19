@@ -1,42 +1,69 @@
 //
-//  RPtr.swift
+//  AnyPtr.swift
+//  
 //
-//
-//  Created by Yehor Popovych on 21.07.2022.
+//  Created by Yehor Popovych on 16.12.2022.
 //
 
 import Foundation
 import CTesseractUtils
 
-public protocol FromAnyPtr {
-    init(anyptr: inout CAnyPtr)
-}
-
-public protocol AsAnyPtrCopy {
-    func copiedAnyPtr() -> CAnyPtr
-}
-
-public protocol AsAnyPtrOwn {
-    mutating func ownedAnyPtr() -> CAnyPtr
-}
-
-extension CAnyPtr {
-    public init<T: AsAnyPtrCopy>(copying val: T) {
-        self = val.copiedAnyPtr()
+extension CAnyDropPtr {
+    public init(value: AnyObject) {
+        self = Self(
+            ptr: .owned(value),
+            drop: any_ptr_swift_drop
+        )
     }
     
-    public init<T: AsAnyPtrOwn>(owning val: inout T) {
-        self = val.ownedAnyPtr()
+    public var isNull: Bool {
+        self.ptr == nil
     }
     
-    public mutating func owned<T: FromAnyPtr>(_ type: T.Type) -> T {
-        type.init(anyptr: &self)
+    public static func wrapped(_ val: AnyObject) -> Self {
+        Self(value: val)
     }
     
+    public func unowned() -> AnyObject? {
+        return self.ptr.unowned()
+    }
+    
+    public func unowned<T: AnyObject>(_ type: T.Type) throws -> T {
+        guard let any = self.unowned() else {
+            throw CError.nullPtr
+        }
+        guard let typed = any as? T else {
+            throw CError.panic(reason: "Bad type \(T.self)")
+        }
+        return typed
+    }
+    
+    public mutating func owned() throws -> AnyObject {
+        guard let any = self.ptr.owned() else {
+            throw CError.nullPtr
+        }
+        return any
+    }
+    
+    public mutating func owned<T: AnyObject>(_ type: T.Type) throws -> T {
+        guard let typed = try self.owned() as? T else {
+            throw CError.panic(reason: "Bad type \(T.self)")
+        }
+        return typed
+    }
+    
+    public mutating func free() throws {
+        guard !self.isNull else { throw CError.nullPtr }
+        (self.drop)(&self)
+    }
+}
+
+private func any_ptr_swift_drop(ptr: UnsafeMutablePointer<CAnyDropPtr>!) {
+    let _ = ptr.pointee.ptr.owned()!
+}
+
+extension CAnyRustPtr {
     public mutating func free() {
-        tesseract_utils_anyptr_free(self);
+        tesseract_utils_any_rust_ptr_free(&self);
     }
 }
-
-// Container Extensions
-

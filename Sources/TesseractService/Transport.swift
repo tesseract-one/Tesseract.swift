@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol TransportProcessor {
+public protocol TransportProcessor: AnyObject {
     func process(data: Data) async throws -> Data
 }
 

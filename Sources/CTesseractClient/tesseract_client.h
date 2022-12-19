@@ -49,24 +49,21 @@ typedef struct CFutureValue_Status {
 typedef void (*CFutureOnCompleteCallback_Status)(SyncPtr_Void context, struct Status *value, CError *error);
 
 typedef struct CFuture_Status {
-  SyncPtr_Void ptr;
+  CAnyDropPtr ptr;
   struct CFutureValue_Status (*set_on_complete)(const struct CFuture_Status *future, SyncPtr_Void context, CFutureOnCompleteCallback_Status cb);
-  void (*release)(struct CFuture_Status *fut);
 } CFuture_Status;
 
 typedef struct NativeConnection {
-  SyncPtr_Void ptr;
+  CAnyDropPtr ptr;
   CFuture_Nothing (*send)(const struct NativeConnection *connection, const uint8_t *data, uintptr_t len);
   CFuture_CData (*receive)(const struct NativeConnection *connection);
-  void (*release)(struct NativeConnection *connection);
 } NativeConnection;
 
 typedef struct NativeTransport {
-  SyncPtr_Void ptr;
+  CAnyDropPtr ptr;
   CString (*id)(const struct NativeTransport *transport);
   struct CFuture_Status (*status)(const struct NativeTransport *transport, CStringRef protocol);
   struct NativeConnection (*connect)(const struct NativeTransport *transport, CStringRef protocol);
-  void (*release)(struct NativeTransport *transport);
 } NativeTransport;
 
 typedef struct CFuture_Status CFutureStatus;

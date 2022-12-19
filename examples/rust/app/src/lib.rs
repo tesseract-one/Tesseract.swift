@@ -16,7 +16,7 @@ use tesseract_utils::string::CStringRef;
 use tesseract_utils::traits::TryAsRef;
 pub use tesseract_utils::*;
 
-use crate::tesseract_utils::ptr::{SyncPtr, SyncPtrAsType, SyncPtrAsVoid};
+use crate::tesseract_utils::ptr::SyncPtr;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 
@@ -25,15 +25,15 @@ pub struct AppContextPtr(SyncPtr<Void>);
 
 impl AppContextPtr {
     fn new(ctx: AppContext) -> Self {
-        Self(SyncPtr::from(Box::new(ctx)).as_void())
+        Self(SyncPtr::new(ctx).as_void())
     }
 
-    fn unowned(&self) -> &AppContext {
-        self.0.as_ptr_ref::<AppContext>().as_ref()
+    unsafe fn unowned(&self) -> &AppContext {
+        self.0.as_typed_ref().unwrap()
     }
 
-    fn owned(self) -> Box<AppContext> {
-        unsafe { self.0.as_type::<AppContext>().into_box() }
+    unsafe fn owned(&mut self) -> AppContext {
+        self.0.take_typed()
     }
 }
 
@@ -79,6 +79,6 @@ pub unsafe extern "C" fn app_sign_data(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn app_deinit(app: AppContextPtr) {
+pub unsafe extern "C" fn app_deinit(app: &mut AppContextPtr) {
     let _ = app.owned();
 }

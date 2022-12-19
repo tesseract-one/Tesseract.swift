@@ -52,7 +52,11 @@ typedef struct CError {
 
 typedef void Void;
 
-typedef const Void *CAnyPtr;
+typedef const Void *SyncPtr_Void;
+
+typedef struct CAnyRustPtr {
+  SyncPtr_Void _0;
+} CAnyRustPtr;
 
 typedef const char *CStringRef;
 
@@ -68,7 +72,10 @@ typedef struct CBigInt {
   struct CArray_u32 data;
 } CBigInt;
 
-typedef const Void *SyncPtr_Void;
+typedef struct CAnyDropPtr {
+  SyncPtr_Void ptr;
+  void (*drop)(struct CAnyDropPtr*);
+} CAnyDropPtr;
 
 typedef struct Nothing {
   bool _0;
@@ -95,9 +102,8 @@ typedef struct CFutureValue_Nothing {
 typedef void (*CFutureOnCompleteCallback_Nothing)(SyncPtr_Void context, struct Nothing *value, struct CError *error);
 
 typedef struct CFuture_Nothing {
-  SyncPtr_Void ptr;
+  struct CAnyDropPtr ptr;
   struct CFutureValue_Nothing (*set_on_complete)(const struct CFuture_Nothing *future, SyncPtr_Void context, CFutureOnCompleteCallback_Nothing cb);
-  void (*release)(struct CFuture_Nothing *fut);
 } CFuture_Nothing;
 
 typedef struct CFuture_Nothing CFutureNothing;
@@ -123,9 +129,8 @@ typedef struct CFutureValue_CString {
 typedef void (*CFutureOnCompleteCallback_CString)(SyncPtr_Void context, CString *value, struct CError *error);
 
 typedef struct CFuture_CString {
-  SyncPtr_Void ptr;
+  struct CAnyDropPtr ptr;
   struct CFutureValue_CString (*set_on_complete)(const struct CFuture_CString *future, SyncPtr_Void context, CFutureOnCompleteCallback_CString cb);
-  void (*release)(struct CFuture_CString *fut);
 } CFuture_CString;
 
 typedef struct CFuture_CString CFutureString;
@@ -156,9 +161,8 @@ typedef struct CFutureValue_CInt128 {
 typedef void (*CFutureOnCompleteCallback_CInt128)(SyncPtr_Void context, struct CInt128 *value, struct CError *error);
 
 typedef struct CFuture_CInt128 {
-  SyncPtr_Void ptr;
+  struct CAnyDropPtr ptr;
   struct CFutureValue_CInt128 (*set_on_complete)(const struct CFuture_CInt128 *future, SyncPtr_Void context, CFutureOnCompleteCallback_CInt128 cb);
-  void (*release)(struct CFuture_CInt128 *fut);
 } CFuture_CInt128;
 
 typedef struct CFuture_CInt128 CFutureInt128;
@@ -189,9 +193,8 @@ typedef struct CFutureValue_CUInt128 {
 typedef void (*CFutureOnCompleteCallback_CUInt128)(SyncPtr_Void context, struct CUInt128 *value, struct CError *error);
 
 typedef struct CFuture_CUInt128 {
-  SyncPtr_Void ptr;
+  struct CAnyDropPtr ptr;
   struct CFutureValue_CUInt128 (*set_on_complete)(const struct CFuture_CUInt128 *future, SyncPtr_Void context, CFutureOnCompleteCallback_CUInt128 cb);
-  void (*release)(struct CFuture_CUInt128 *fut);
 } CFuture_CUInt128;
 
 typedef struct CFuture_CUInt128 CFutureUInt128;
@@ -217,9 +220,8 @@ typedef struct CFutureValue_CData {
 typedef void (*CFutureOnCompleteCallback_CData)(SyncPtr_Void context, struct CData *value, struct CError *error);
 
 typedef struct CFuture_CData {
-  SyncPtr_Void ptr;
+  struct CAnyDropPtr ptr;
   struct CFutureValue_CData (*set_on_complete)(const struct CFuture_CData *future, SyncPtr_Void context, CFutureOnCompleteCallback_CData cb);
-  void (*release)(struct CFuture_CData *fut);
 } CFuture_CData;
 
 typedef struct CFuture_CData CFutureData;
@@ -245,40 +247,65 @@ typedef struct CFutureValue_CBigInt {
 typedef void (*CFutureOnCompleteCallback_CBigInt)(SyncPtr_Void context, struct CBigInt *value, struct CError *error);
 
 typedef struct CFuture_CBigInt {
-  SyncPtr_Void ptr;
+  struct CAnyDropPtr ptr;
   struct CFutureValue_CBigInt (*set_on_complete)(const struct CFuture_CBigInt *future, SyncPtr_Void context, CFutureOnCompleteCallback_CBigInt cb);
-  void (*release)(struct CFuture_CBigInt *fut);
 } CFuture_CBigInt;
 
 typedef struct CFuture_CBigInt CFutureBigInt;
 
-typedef enum CFutureValue_CAnyPtr_Tag {
-  CFutureValue_CAnyPtr_None_CAnyPtr,
-  CFutureValue_CAnyPtr_Value_CAnyPtr,
-  CFutureValue_CAnyPtr_Error_CAnyPtr,
-} CFutureValue_CAnyPtr_Tag;
+typedef enum CFutureValue_CAnyRustPtr_Tag {
+  CFutureValue_CAnyRustPtr_None_CAnyRustPtr,
+  CFutureValue_CAnyRustPtr_Value_CAnyRustPtr,
+  CFutureValue_CAnyRustPtr_Error_CAnyRustPtr,
+} CFutureValue_CAnyRustPtr_Tag;
 
-typedef struct CFutureValue_CAnyPtr {
-  CFutureValue_CAnyPtr_Tag tag;
+typedef struct CFutureValue_CAnyRustPtr {
+  CFutureValue_CAnyRustPtr_Tag tag;
   union {
     struct {
-      CAnyPtr value;
+      struct CAnyRustPtr value;
     };
     struct {
       struct CError error;
     };
   };
-} CFutureValue_CAnyPtr;
+} CFutureValue_CAnyRustPtr;
 
-typedef void (*CFutureOnCompleteCallback_CAnyPtr)(SyncPtr_Void context, CAnyPtr *value, struct CError *error);
+typedef void (*CFutureOnCompleteCallback_CAnyRustPtr)(SyncPtr_Void context, struct CAnyRustPtr *value, struct CError *error);
 
-typedef struct CFuture_CAnyPtr {
-  SyncPtr_Void ptr;
-  struct CFutureValue_CAnyPtr (*set_on_complete)(const struct CFuture_CAnyPtr *future, SyncPtr_Void context, CFutureOnCompleteCallback_CAnyPtr cb);
-  void (*release)(struct CFuture_CAnyPtr *fut);
-} CFuture_CAnyPtr;
+typedef struct CFuture_CAnyRustPtr {
+  struct CAnyDropPtr ptr;
+  struct CFutureValue_CAnyRustPtr (*set_on_complete)(const struct CFuture_CAnyRustPtr *future, SyncPtr_Void context, CFutureOnCompleteCallback_CAnyRustPtr cb);
+} CFuture_CAnyRustPtr;
 
-typedef struct CFuture_CAnyPtr CFutureAnyPtr;
+typedef struct CFuture_CAnyRustPtr CFutureAnyRustPtr;
+
+typedef enum CFutureValue_CAnyDropPtr_Tag {
+  CFutureValue_CAnyDropPtr_None_CAnyDropPtr,
+  CFutureValue_CAnyDropPtr_Value_CAnyDropPtr,
+  CFutureValue_CAnyDropPtr_Error_CAnyDropPtr,
+} CFutureValue_CAnyDropPtr_Tag;
+
+typedef struct CFutureValue_CAnyDropPtr {
+  CFutureValue_CAnyDropPtr_Tag tag;
+  union {
+    struct {
+      struct CAnyDropPtr value;
+    };
+    struct {
+      struct CError error;
+    };
+  };
+} CFutureValue_CAnyDropPtr;
+
+typedef void (*CFutureOnCompleteCallback_CAnyDropPtr)(SyncPtr_Void context, struct CAnyDropPtr *value, struct CError *error);
+
+typedef struct CFuture_CAnyDropPtr {
+  struct CAnyDropPtr ptr;
+  struct CFutureValue_CAnyDropPtr (*set_on_complete)(const struct CFuture_CAnyDropPtr *future, SyncPtr_Void context, CFutureOnCompleteCallback_CAnyDropPtr cb);
+} CFuture_CAnyDropPtr;
+
+typedef struct CFuture_CAnyDropPtr CFutureAnyDropPtr;
 
 typedef enum CFutureValue_bool_Tag {
   CFutureValue_bool_None_bool,
@@ -301,9 +328,8 @@ typedef struct CFutureValue_bool {
 typedef void (*CFutureOnCompleteCallback_bool)(SyncPtr_Void context, bool *value, struct CError *error);
 
 typedef struct CFuture_bool {
-  SyncPtr_Void ptr;
+  struct CAnyDropPtr ptr;
   struct CFutureValue_bool (*set_on_complete)(const struct CFuture_bool *future, SyncPtr_Void context, CFutureOnCompleteCallback_bool cb);
-  void (*release)(struct CFuture_bool *fut);
 } CFuture_bool;
 
 typedef struct CFuture_bool CFutureBool;
@@ -325,7 +351,7 @@ void tesseract_utils_data_free(struct CData *data);
 
 void tesseract_utils_error_free(struct CError *err);
 
-void tesseract_utils_anyptr_free(CAnyPtr ptr);
+void tesseract_utils_any_rust_ptr_free(struct CAnyRustPtr *ptr);
 
 bool tesseract_utils_cstring_new(CStringRef cstr, CString *res, struct CError *err);
 

@@ -3,8 +3,8 @@ use std::sync::Arc;
 use tesseract_common::error::IntoTesseractError;
 use tesseract_utils::data::CData;
 use tesseract_utils::future::CFuture;
-use tesseract_utils::ptr::SyncPtr;
-use tesseract_utils::{Nothing, Void};
+use tesseract_utils::ptr::CAnyDropPtr;
+use tesseract_utils::Nothing;
 
 use async_trait::async_trait;
 
@@ -13,20 +13,13 @@ use tesseract::Result;
 
 #[repr(C)]
 pub struct NativeConnection {
-    ptr: SyncPtr<Void>,
+    ptr: CAnyDropPtr,
     send: unsafe extern "C" fn(
         connection: &NativeConnection,
         data: *const u8,
         len: usize,
     ) -> ManuallyDrop<CFuture<Nothing>>,
     receive: unsafe extern "C" fn(connection: &NativeConnection) -> ManuallyDrop<CFuture<CData>>,
-    release: unsafe extern "C" fn(connection: &mut NativeConnection),
-}
-
-impl Drop for NativeConnection {
-    fn drop(&mut self) {
-        unsafe { (self.release)(self) }
-    }
 }
 
 #[async_trait]

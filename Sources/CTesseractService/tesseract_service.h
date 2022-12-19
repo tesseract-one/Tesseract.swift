@@ -14,22 +14,18 @@ typedef struct TransportProcessor {
   SyncPtr_Void _0;
 } TransportProcessor;
 
-typedef struct BoundTransport {
-  SyncPtr_Void ptr;
-  void (*release)(struct BoundTransport *transport);
-} BoundTransport;
+typedef CAnyDropPtr BoundTransport;
 
 typedef struct Transport {
-  SyncPtr_Void ptr;
-  struct BoundTransport (*bind)(struct Transport transport, struct TransportProcessor processor);
-  void (*release)(struct Transport *transport);
+  CAnyDropPtr ptr;
+  BoundTransport (*bind)(struct Transport transport, struct TransportProcessor processor);
 } Transport;
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
-CFuture_CData transport_processor_process(const struct TransportProcessor *processor,
+CFuture_CData transport_processor_process(struct TransportProcessor processor,
                                           const uint8_t *data,
                                           uintptr_t len);
 

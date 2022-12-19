@@ -1,4 +1,4 @@
-use crate::ptr::{SyncPtr, SyncPtrAsType, SyncPtrAsVoid, SyncPtrRefAsType};
+use crate::ptr::{CAnyDropPtr, SyncPtr};
 use crate::result::Result;
 use crate::Void;
 use std::future::Future;
@@ -86,11 +86,7 @@ impl<V: Send + 'static, F: Future<Output = Result<V>> + Send + 'static> FutureWr
 
         let _ = wrapped.poll_future().unwrap();
 
-        CFuture::new(
-            SyncPtr::from(Box::new(state)).as_void(),
-            Self::_set_on_complete,
-            Self::_release,
-        )
+        CFuture::new(CAnyDropPtr::new(state), Self::_set_on_complete)
     }
 
     unsafe extern "C" fn _set_on_complete(
@@ -98,7 +94,7 @@ impl<V: Send + 'static, F: Future<Output = Result<V>> + Send + 'static> FutureWr
         context: SyncPtr<Void>,
         cb: CFutureOnCompleteCallback<V>,
     ) -> ManuallyDrop<CFutureValue<V>> {
-        let arc = Arc::clone(future.get_ptr().as_type::<StateArc<V>>().as_ref());
+        let arc = Arc::clone(future.ptr().as_ref::<StateArc<V>>().unwrap());
         let mut state = arc.lock().unwrap();
 
         match state.take() {
@@ -121,11 +117,6 @@ impl<V: Send + 'static, F: Future<Output = Result<V>> + Send + 'static> FutureWr
                 }
             },
         }
-    }
-
-    unsafe extern "C" fn _release(fut: &mut CFuture<V>) {
-        println!("WRAPPER RELEASE CALLED!");
-        let _ = fut.take_ptr().unwrap().as_type::<StateArc<V>>().into_box();
     }
 }
 

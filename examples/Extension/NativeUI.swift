@@ -13,19 +13,18 @@ protocol NativeUIDelegate: AnyObject {
     func approveTx(tx: String) async throws -> Bool
 }
 
-extension CWallet.UI: CSwiftPtr {
+extension CWallet.UI: CSwiftDropPtr {
     public typealias SObject = NativeUI
 }
 
 extension CWallet.UI {
     public init(ui: NativeUI) {
-        self = CWallet.UI(owned: ui)
+        self = CWallet.UI(value: ui)
         self.approve_tx = native_ui_approve_tx
-        self.release = native_ui_release
     }
 }
 
-public class NativeUI: AsVoidSwiftPtr {
+public class NativeUI {
     weak var delegate: NativeUIDelegate!
     
     init(delegate: NativeUIDelegate) {
@@ -46,8 +45,4 @@ private func native_ui_approve_tx(this: UnsafePointer<UI>!, tx: CStringRef!) -> 
     return CFutureBool {
         try await this.unowned().approveTx(tx: tx)
     }
-}
-
-private func native_ui_release(this: UnsafeMutablePointer<CWallet.UI>!) {
-    let _ = this.owned()
 }

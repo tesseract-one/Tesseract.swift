@@ -4,7 +4,11 @@ use crate::Void;
 pub struct SyncPtr<T>(*const T);
 
 impl<T> SyncPtr<T> {
-    pub fn new(ptr: *const T) -> Self {
+    pub fn new(val: T) -> Self {
+        Box::new(val).into()
+    }
+
+    pub fn raw(ptr: *const T) -> Self {
         Self(ptr)
     }
 
@@ -20,58 +24,42 @@ impl<T> SyncPtr<T> {
         self.0.is_null()
     }
 
-    pub fn as_ptr_ref<N>(&self) -> &SyncPtr<N> {
-        unsafe { &*(self as *const SyncPtr<T> as *const SyncPtr<N>) }
-    }
-
-    pub unsafe fn into_box(self) -> Box<T> {
-        Box::from_raw(self.0 as *mut T)
-    }
-}
-
-impl<T> AsRef<T> for SyncPtr<T> {
-    fn as_ref(&self) -> &T {
-        unsafe { self.0.as_ref().unwrap() }
-    }
-}
-
-pub trait SyncPtrAsVoid: Sized {
-    fn as_void(self) -> SyncPtr<Void>;
-}
-
-pub trait SyncPtrRefAsVoid {
-    fn as_void(&self) -> &SyncPtr<Void>;
-}
-
-pub trait SyncPtrAsType: Sized {
-    fn as_type<T>(self) -> SyncPtr<T>;
-}
-
-pub trait SyncPtrRefAsType {
-    fn as_type<T>(&self) -> &SyncPtr<T>;
-}
-
-impl<T> SyncPtrAsVoid for SyncPtr<T> {
-    fn as_void(self) -> SyncPtr<Void> {
+    pub fn as_void(self) -> SyncPtr<Void> {
         SyncPtr(self.0 as *const Void)
     }
-}
 
-impl<T> SyncPtrRefAsVoid for &SyncPtr<T> {
-    fn as_void(&self) -> &SyncPtr<Void> {
-        unsafe { &*(*self as *const SyncPtr<T> as *const SyncPtr<Void>) }
+    pub unsafe fn as_ref(&self) -> Option<&T> {
+        self.0.as_ref()
+    }
+
+    pub unsafe fn as_mut(&mut self) -> Option<&mut T> {
+        (self.0 as *mut T).as_mut()
+    }
+
+    pub unsafe fn take(&mut self) -> T {
+        let bx = Box::from_raw(self.0 as *mut T);
+        self.0 = std::ptr::null();
+        *bx
     }
 }
 
-impl SyncPtrAsType for SyncPtr<Void> {
-    fn as_type<T>(self) -> SyncPtr<T> {
-        SyncPtr(self.0 as *const T)
+impl SyncPtr<Void> {
+    pub fn as_type<N>(self) -> SyncPtr<N> {
+        SyncPtr(self.0 as *const N)
     }
-}
 
-impl SyncPtrRefAsType for &SyncPtr<Void> {
-    fn as_type<T>(&self) -> &SyncPtr<T> {
-        unsafe { &*(*self as *const SyncPtr<Void> as *const SyncPtr<T>) }
+    pub unsafe fn as_typed_ref<N>(&self) -> Option<&N> {
+        (self.0 as *const N).as_ref()
+    }
+
+    pub unsafe fn as_typed_mut<N>(&mut self) -> Option<&mut N> {
+        (self.0 as *mut N).as_mut()
+    }
+
+    pub unsafe fn take_typed<N>(&mut self) -> N {
+        let bx = Box::from_raw(self.0 as *mut N);
+        self.0 = std::ptr::null();
+        *bx
     }
 }
 
@@ -102,8 +90,8 @@ impl<T> From<*mut T> for SyncPtr<T> {
     }
 }
 
-impl<T> From<&SyncPtr<T>> for *mut T {
-    fn from(ptr: &SyncPtr<T>) -> Self {
+impl<T> From<&mut SyncPtr<T>> for *mut T {
+    fn from(ptr: &mut SyncPtr<T>) -> Self {
         ptr.0 as *mut T
     }
 }

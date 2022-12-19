@@ -8,163 +8,133 @@
 import Foundation
 import CTesseractUtils
 
-public protocol AsVoidSwiftPtr: AnyObject {
-    func ownedPtr() -> UnsafeRawPointer
-    func unownedPtr() -> UnsafeRawPointer
+public protocol CSwiftDropPtr: CType {
+    associatedtype SObject: AnyObject
     
-    static func owned(_ ptr: UnsafeRawPointer!) -> Self
-    static func unowned(_ ptr: UnsafeRawPointer!) -> Self
+    var ptr: CAnyDropPtr { get set }
+    
+    init(value object: SObject)
+    
+    func unowned() throws -> SObject
+    mutating func owned() throws -> SObject
+    
+    mutating func free() throws
 }
 
-public protocol CSwiftPtr: CType {
-    associatedtype SObject: AsVoidSwiftPtr
-    
-    var ptr: SyncPtr_Void! { get set }
-    
-    init(owned object: SObject)
-    init(unowned object: SObject)
-    
-    func unowned() -> SObject
-    mutating func owned() -> SObject
-}
-
-extension CSwiftPtr {
-    public init(owned object: SObject) {
+extension CSwiftDropPtr {
+    public init(value object: SObject) {
         self = Self()
-        self.ptr = object.ownedPtr()
+        self.ptr = .wrapped(object)
     }
     
-    public init(unowned object: SObject) {
+    public func unowned() throws -> SObject {
+        try self.ptr.unowned(SObject.self)
+    }
+    
+    public mutating func owned() throws -> SObject {
+        try self.ptr.owned(SObject.self)
+    }
+    
+    public mutating func free() throws {
+        try self.ptr.free()
+    }
+}
+
+public protocol CSwiftAnyDropPtr: CType {
+    var ptr: CAnyDropPtr { get set }
+    
+    init(value object: AnyObject)
+    
+    func unowned() throws -> AnyObject
+    mutating func owned() throws -> AnyObject
+    
+    mutating func free() throws
+}
+
+extension CSwiftAnyDropPtr {
+    public init(value object: AnyObject) {
         self = Self()
-        self.ptr = object.unownedPtr()
+        self.ptr = .wrapped(object)
     }
     
-    public func unowned() -> SObject {
-        SObject.unowned(self.ptr)
+    public func unowned() throws -> AnyObject {
+        guard let obj = self.ptr.unowned() else {
+            throw CError.nullPtr
+        }
+        return obj
     }
     
-    public mutating func owned() -> SObject {
-        SObject.owned(self.ptr)
+    public mutating func owned() throws -> AnyObject {
+        try self.ptr.owned()
+    }
+    
+    public mutating func free() throws {
+        try self.ptr.free()
     }
 }
 
-public protocol CSwiftAnyPtr: CType {
-    var ptr: SyncPtr_Void! { get set }
-    
-    init(owned object: AnyObject)
-    init(unowned object: AnyObject)
-    
-    func unowned() -> AnyObject
-    mutating func owned() -> AnyObject
-    
-    func unowned<T: AnyObject>(_ type: T.Type) -> T?
-    mutating func owned<T: AnyObject>(_ type: T.Type) -> T?
-}
-
-extension CSwiftAnyPtr {
-    public init(owned object: AnyObject) {
-        self = Self()
-        self.ptr = .anyOwned(object)
-    }
-    
-    public init(unowned object: AnyObject) {
-        self = Self()
-        self.ptr = .anyUnowned(object)
-    }
-    
-    public func unowned() -> AnyObject {
-        self.ptr.anyUnowned()
-    }
-    
-    public mutating func owned() -> AnyObject {
-        self.ptr.anyOwned()
-    }
-    
-    public func unowned<T: AnyObject>(_ type: T.Type) -> T? {
-        self.unowned() as? T
-    }
-    
-    public mutating func owned<T: AnyObject>(_ type: T.Type) -> T? {
-        self.owned() as? T
+extension UnsafePointer where Pointee: CSwiftDropPtr {
+    public func unowned() throws -> Pointee.SObject {
+        try self.pointee.unowned()
     }
 }
 
-extension UnsafePointer where Pointee: CSwiftPtr {
-    public func unowned() -> Pointee.SObject {
-        Pointee.SObject.unowned(self.pointee.ptr)
+extension UnsafeMutablePointer where Pointee: CSwiftDropPtr {
+    public func unowned() throws -> Pointee.SObject  {
+        try self.pointee.unowned()
+    }
+    
+    public func owned() throws -> Pointee.SObject  {
+        try self.pointee.owned()
     }
 }
 
-extension UnsafeMutablePointer where Pointee: CSwiftPtr {
-    public func unowned() -> Pointee.SObject  {
-        Pointee.SObject.unowned(self.pointee.ptr)
-    }
-    
-    public func owned() -> Pointee.SObject  {
-        Pointee.SObject.owned(self.pointee.ptr)
+extension UnsafePointer where Pointee: CSwiftAnyDropPtr {
+    public func unowned() throws -> AnyObject {
+        try self.pointee.unowned()
     }
 }
 
-extension UnsafePointer where Pointee: CSwiftAnyPtr {
-    public func unowned() -> AnyObject {
-        self.pointee.ptr.anyUnowned()
+extension UnsafeMutablePointer where Pointee: CSwiftAnyDropPtr {
+    public func unowned() throws -> AnyObject  {
+        try self.pointee.unowned()
     }
     
-    public func unowned<T: AnyObject>(_ type: T.Type) -> T? {
-        self.unowned() as? T
-    }
-}
-
-extension UnsafeMutablePointer where Pointee: CSwiftAnyPtr {
-    public func unowned() -> AnyObject {
-        self.pointee.ptr.anyUnowned()
-    }
-    
-    public func unowned<T: AnyObject>(_ type: T.Type) -> T? {
-        self.unowned() as? T
-    }
-    
-    public func owned() -> AnyObject {
-        self.pointee.ptr.anyOwned()
-    }
-    
-    public func owned<T: AnyObject>(_ type: T.Type) -> T? {
-        self.owned() as? T
-    }
-}
-
-public extension AsVoidSwiftPtr {
-    func ownedPtr() -> UnsafeRawPointer {
-        UnsafeRawPointer(Unmanaged.passRetained(self).toOpaque())
-    }
-    
-    func unownedPtr() -> UnsafeRawPointer {
-        UnsafeRawPointer(Unmanaged.passUnretained(self).toOpaque())
-    }
-    
-    static func owned(_ ptr: UnsafeRawPointer!) -> Self {
-        Unmanaged<Self>.fromOpaque(ptr).takeRetainedValue()
-    }
-
-    static func unowned(_ ptr: UnsafeRawPointer!) -> Self {
-        Unmanaged<Self>.fromOpaque(ptr).takeUnretainedValue()
+    public func owned() throws -> AnyObject  {
+        try self.pointee.owned()
     }
 }
 
 public extension SyncPtr_Void {
-    func anyUnowned() -> AnyObject {
+    func unowned() -> AnyObject {
         Unmanaged<AnyObject>.fromOpaque(self).takeUnretainedValue()
     }
     
-    mutating func anyOwned() -> AnyObject {
-        Unmanaged<AnyObject>.fromOpaque(self).takeRetainedValue()
+    static func unowned(_ value: AnyObject) -> Self {
+        UnsafeRawPointer(Unmanaged.passUnretained(value).toOpaque())
     }
     
-    static func anyOwned(_ value: AnyObject) -> Self {
+    static func owned(_ value: AnyObject) -> Self {
         UnsafeRawPointer(Unmanaged.passRetained(value).toOpaque())
     }
+}
+
+public extension Optional where Wrapped == SyncPtr_Void {
+    func unowned() -> AnyObject? {
+        self?.unowned()
+    }
     
-    static func anyUnowned(_ value: AnyObject) -> Self {
-        UnsafeRawPointer(Unmanaged.passUnretained(value).toOpaque())
+    mutating func owned() -> AnyObject? {
+        guard let ptr = self else { return nil }
+        self = nil
+        return Unmanaged<AnyObject>.fromOpaque(ptr).takeRetainedValue()
+    }
+    
+    static func owned(_ value: AnyObject?) -> Self {
+        value.map { UnsafeRawPointer(Unmanaged.passRetained($0).toOpaque()) }
+    }
+    
+    static func unowned(_ value: AnyObject?) -> Self {
+        value.map { UnsafeRawPointer(Unmanaged.passUnretained($0).toOpaque()) }
     }
 }

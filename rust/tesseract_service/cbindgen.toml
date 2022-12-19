@@ -16,4 +16,4 @@ include = ["tesseract_utils"]
 
 [export]
 include = ["Transport", "BoundTransport", "TransportProcessor"]
-exclude = ["CFuture_CData", "CFuture_Void", "Void", "SyncPtr_Void", "CString", "CStringRef", "CError"]
+exclude = ["CFuture_CData", "CFuture_Void", "SyncPtr_Void", "CAnyDropPtr", "CString", "CStringRef", "CError"]

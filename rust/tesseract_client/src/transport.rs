@@ -3,9 +3,8 @@ use crate::status::Status;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 use tesseract_utils::future::CFuture;
-use tesseract_utils::ptr::SyncPtr;
+use tesseract_utils::ptr::CAnyDropPtr;
 use tesseract_utils::string::{CString, CStringRef};
-use tesseract_utils::Void;
 
 use async_trait::async_trait;
 
@@ -16,7 +15,7 @@ use tesseract::Protocol;
 
 #[repr(C)]
 pub struct NativeTransport {
-    ptr: SyncPtr<Void>,
+    ptr: CAnyDropPtr,
     id: unsafe extern "C" fn(transport: &NativeTransport) -> ManuallyDrop<CString>,
     status: unsafe extern "C" fn(
         transport: &NativeTransport,
@@ -26,13 +25,6 @@ pub struct NativeTransport {
         transport: &NativeTransport,
         protocol: CStringRef,
     ) -> ManuallyDrop<NativeConnection>,
-    release: unsafe extern "C" fn(transport: &mut NativeTransport),
-}
-
-impl Drop for NativeTransport {
-    fn drop(&mut self) {
-        unsafe { (self.release)(self) }
-    }
 }
 
 #[async_trait]

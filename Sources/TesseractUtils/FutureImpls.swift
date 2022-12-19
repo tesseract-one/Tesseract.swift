@@ -44,14 +44,6 @@ extension CFutureNothing: CFuturePtr {
         }
     }
     
-    public mutating func _setupReleaseFunc() {
-        self.release = { Self._release($0) }
-    }
-    
-    public mutating func _release() {
-        self.release(&self)
-    }
-    
     public static func convert(cvalue: inout Nothing) -> CResult<Void> {
         .success(())
     }
@@ -61,67 +53,25 @@ extension CFutureNothing: CFuturePtr {
     }
 }
 
-extension CFutureValue_CAnyPtr: CFutureValuePtr {
-    public typealias PtrVal = CAnyPtr
+extension CFutureValue_CAnyRustPtr: CFutureValueValue {
+    public typealias Val = CAnyRustPtr
     
-    public static var valueTag: CFutureValue_CAnyPtr_Tag {
-        CFutureValue_CAnyPtr_Value_CAnyPtr
+    public static var valueTag: CFutureValue_CAnyRustPtr_Tag {
+        CFutureValue_CAnyRustPtr_Value_CAnyRustPtr
     }
 
-    public static var errorTag: CFutureValue_CAnyPtr_Tag {
-        CFutureValue_CAnyPtr_Error_CAnyPtr
+    public static var errorTag: CFutureValue_CAnyRustPtr_Tag {
+        CFutureValue_CAnyRustPtr_Error_CAnyRustPtr
     }
 
-    public static var noneTag: CFutureValue_CAnyPtr_Tag {
-        CFutureValue_CAnyPtr_None_CAnyPtr
+    public static var noneTag: CFutureValue_CAnyRustPtr_Tag {
+        CFutureValue_CAnyRustPtr_None_CAnyRustPtr
     }
 }
 
-extension CFutureAnyPtr: CFuturePtr {
-    public typealias CVal = CFutureValue_CAnyPtr
-    public typealias Val = CAnyPtr
-    
-    public init<T: AsAnyPtrCopy>(copying cb: @escaping @Sendable () async throws -> T) {
-        self.init { try await cb().copiedAnyPtr() }
-    }
-    
-    public init<T: AsAnyPtrOwn>(owning cb: @escaping @Sendable () async throws -> T) {
-        self.init {
-            var val = try await cb()
-            return val.ownedAnyPtr()
-        }
-    }
-    
-    public init<T: AsAnyPtrCopy>(copying cb: @escaping @Sendable () async -> CResult<T>) {
-        self.init { await cb().map { $0.copiedAnyPtr() } }
-    }
-    
-    public init<T: AsAnyPtrOwn>(owning cb: @escaping @Sendable () async -> CResult<T>) {
-        self.init { await cb().map { val in
-            var val = val
-            return val.ownedAnyPtr()
-        } }
-    }
-    
-    public func value<T: FromAnyPtr>(_ type: T.Type) async throws -> T {
-        var val = try await self.value
-        return type.init(anyptr: &val)
-    }
-    
-    public func result<T: FromAnyPtr>(_ type: T.Type) async -> CResult<T> {
-        await self.result.map { val in
-            var val = val
-            return type.init(anyptr: &val)
-        }
-    }
-    
-    public static func convert(cvalue: inout CVal.Val) -> CResult<Val> {
-        cvalue == nil ? .failure(.nullPtr) : .success(cvalue!)
-    }
-    
-    public static func convert(value: inout Val) -> CResult<CVal.Val> {
-        .success(value)
-    }
+extension CFutureAnyRustPtr: CFuturePtr {
+    public typealias CVal = CFutureValue_CAnyRustPtr
+    public typealias Val = CAnyRustPtr
     
     public mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
         _withOnCompleteContext(cb) { ctx in
@@ -139,12 +89,12 @@ extension CFutureAnyPtr: CFuturePtr {
         }
     }
     
-    public mutating func _setupReleaseFunc() {
-        self.release = { Self._release($0) }
+    public static func convert(cvalue: inout CAnyRustPtr) -> CResult<CAnyRustPtr> {
+        .success(cvalue)
     }
     
-    public mutating func _release() {
-        self.release(&self)
+    public static func convert(value: inout CAnyRustPtr) -> CResult<CAnyRustPtr> {
+        .success(value)
     }
 }
 
@@ -183,14 +133,6 @@ extension CFutureData: CFuturePtr {
             }
         }
     }
-    
-    public mutating func _setupReleaseFunc() {
-        self.release = { Self._release($0) }
-    }
-    
-    public mutating func _release() {
-        self.release(&self)
-    }
 }
 
 extension CFutureValue_CString: CFutureValuePtr {
@@ -228,14 +170,6 @@ extension CFutureString: CFuturePtr {
             }
         }
     }
-    
-    public mutating func _setupReleaseFunc() {
-        self.release = { Self._release($0) }
-    }
-    
-    public mutating func _release() {
-        self.release(&self)
-    }
 }
 
 extension CFutureValue_bool: CFutureValueValue {
@@ -272,13 +206,5 @@ extension CFutureBool: CFuturePtr {
                 cb?(this, val, err)
             }
         }
-    }
-    
-    public mutating func _setupReleaseFunc() {
-        self.release = { Self._release($0) }
-    }
-    
-    public mutating func _release() {
-        self.release(&self)
     }
 }

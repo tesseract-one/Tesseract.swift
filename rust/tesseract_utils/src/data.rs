@@ -1,5 +1,5 @@
 use super::error::CError;
-use super::panic::handle_exception_result;
+use super::panic::{handle_exception, handle_exception_result};
 use super::ptr::SyncPtr;
 use super::response::CResponse;
 use super::traits::{QuickClone, TryAsRef};
@@ -92,14 +92,7 @@ pub unsafe extern "C" fn tesseract_utils_data_new(
     res: &mut ManuallyDrop<CData>,
     err: &mut ManuallyDrop<CError>,
 ) -> bool {
-    tesseract_utils_data_clone(
-        &CData {
-            ptr: SyncPtr::new(ptr),
-            len,
-        },
-        res,
-        err,
-    )
+    handle_exception(|| std::slice::from_raw_parts(ptr, len).into()).response(res, err)
 }
 
 #[no_mangle]

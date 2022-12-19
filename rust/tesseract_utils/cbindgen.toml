@@ -13,5 +13,6 @@ prefix_with_name = true
 include = [
   "CPtrRef", "CStringRef", "CFutureNothing",
   "CFutureString", "CFutureInt128", "CFutureUInt128",
-  "CFutureData", "CFutureBigInt", "CFutureAnyPtr", "CFutureBool"
+  "CFutureData", "CFutureBigInt", "CFutureAnyRustPtr",
+  "CFutureAnyDropPtr", "CFutureBool", "SyncPtr_Void"
 ]

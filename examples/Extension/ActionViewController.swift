@@ -54,7 +54,6 @@ class ActionViewController: UIViewController, NativeUIDelegate {
     }
 
     deinit {
-        wallet_extension_deinit(self.context)
-        self.context = nil
+        wallet_extension_deinit(&self.context)
     }
 }

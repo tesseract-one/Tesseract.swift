@@ -45,14 +45,6 @@ extension CFutureStatus: CFuturePtr {
         }
     }
     
-    mutating public func _setupReleaseFunc() {
-        self.release = { Self._release($0) }
-    }
-    
-    mutating public func _release() {
-        self.release(&self)
-    }
-    
     public static func convert(cvalue: inout CVal.Val) -> CResult<Val> {
         CResult.failure(.panic(reason: "One way conversion only"))
     }
@@ -73,11 +65,11 @@ extension CFutureStatus: CFuturePtr {
     }
 }
 
-extension NativeTransport: CSwiftAnyPtr {}
-extension NativeConnection: CSwiftAnyPtr {}
+extension NativeTransport: CSwiftAnyDropPtr {}
+extension NativeConnection: CSwiftAnyDropPtr {}
 
 private func transport_id(self: UnsafePointer<NativeTransport>!) -> CString? {
-    (self.unowned() as! Transport).id.copiedPtr()
+    (try! self.unowned() as! Transport).id.copiedPtr()
 }
 
 private func transport_status(
@@ -85,7 +77,7 @@ private func transport_status(
     proto: CStringRef!
 ) -> CFutureStatus {
     CFutureStatus {
-        await (self.unowned() as! Transport).status(proto: proto!.copied())
+        try await (self.unowned() as! Transport).status(proto: proto!.copied())
     }
 }
 
@@ -93,11 +85,7 @@ private func transport_connect(
     self: UnsafePointer<NativeTransport>!,
     proto: CStringRef!
 ) -> NativeConnection {
-    (self.unowned() as! Transport).connect(proto: proto!.copied()).asNative()
-}
-
-private func transport_release(self: UnsafeMutablePointer<NativeTransport>!) {
-    let _ = self.owned()
+    (try! self.unowned() as! Transport).connect(proto: proto!.copied()).asNative()
 }
 
 private func connection_send(self: UnsafePointer<NativeConnection>!, data: UnsafePointer<UInt8>!, len: UInt) -> CFutureNothing {
@@ -113,26 +101,20 @@ private func connection_receive(self: UnsafePointer<NativeConnection>!) -> CFutu
     }
 }
 
-private func connection_release(self: UnsafeMutablePointer<NativeConnection>!) {
-    let _ = self.owned()
-}
-
 extension NativeTransport {
     public init(transport: Transport) {
-        self = Self(owned: transport)
+        self = Self(value: transport)
         self.id = transport_id
         self.status = transport_status
         self.connect = transport_connect
-        self.release = transport_release
     }
 }
 
 extension NativeConnection {
     public init(connection: Connection) {
-        self = NativeConnection(owned: connection)
+        self = Self(value: connection)
         self.send = connection_send
         self.receive = connection_receive
-        self.release = connection_release
     }
 }
 

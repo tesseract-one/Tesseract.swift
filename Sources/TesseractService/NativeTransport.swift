@@ -22,19 +22,18 @@ public class NativeTransportProcessor: TransportProcessor {
     
     public func process(data: Data) async throws -> Data {
         let future = data.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) in
-            transport_processor_process(&self.processor, ptr.baseAddress, UInt(ptr.count))
+            transport_processor_process(self.processor, ptr.baseAddress, UInt(ptr.count))
         }
         return try await future.value
     }
 }
 
-extension CTesseractService.Transport: CSwiftAnyPtr {}
+extension CTesseractService.Transport: CSwiftAnyDropPtr {}
 
 extension CTesseractService.Transport {
     public init(transport: Transport) {
-        self = CTesseractService.Transport(owned: transport)
+        self = CTesseractService.Transport(value: transport)
         self.bind = transport_bind
-        self.release = transport_release
     }
 }
 
@@ -44,18 +43,9 @@ extension Transport {
     }
 }
 
-extension CTesseractService.BoundTransport: CSwiftAnyPtr {}
-
-extension CTesseractService.BoundTransport {
-    public init(transport: BoundTransport) {
-        self = CTesseractService.BoundTransport(owned: transport)
-        self.release = bound_transport_release
-    }
-}
-
 extension BoundTransport {
     public func asNative() -> CTesseractService.BoundTransport {
-        CTesseractService.BoundTransport(transport: self)
+        CTesseractService.BoundTransport(value: self)
     }
 }
 
@@ -63,15 +53,7 @@ private func transport_bind(this: CTesseractService.Transport,
                             processor: CTesseractService.TransportProcessor) -> CTesseractService.BoundTransport
 {
     var this = this
-    return (this.owned() as! Transport)
+    return (try! this.owned() as! Transport)
         .bind(processor: NativeTransportProcessor(processor: processor))
         .asNative()
-}
-
-private func transport_release(self: UnsafeMutablePointer<CTesseractService.Transport>!) {
-    let _ = self.owned()
-}
-
-private func bound_transport_release(self: UnsafeMutablePointer<CTesseractService.BoundTransport>!) {
-    let _ = self.owned()
 }

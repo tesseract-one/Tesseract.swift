@@ -9,7 +9,7 @@ use std::mem::ManuallyDrop;
 use std::sync::Arc;
 use tesseract::service::Tesseract;
 use tesseract_utils::future_impls::CFutureBool;
-use tesseract_utils::ptr::{SyncPtr, SyncPtrAsType, SyncPtrAsVoid};
+use tesseract_utils::ptr::{CAnyDropPtr, SyncPtr};
 use tesseract_utils::string::{CString, CStringRef};
 use tesseract_utils::tesseract_utils_init;
 use tesseract_utils::traits::TryAsRef;
@@ -20,27 +20,18 @@ pub struct AppContextPtr(SyncPtr<Void>);
 
 impl AppContextPtr {
     fn new(ctx: AppContext) -> Self {
-        Self(SyncPtr::from(Box::new(ctx)).as_void())
+        Self(SyncPtr::new(ctx).as_void())
     }
 
-    fn owned(self) -> Box<AppContext> {
-        unsafe { self.0.as_type::<AppContext>().into_box() }
+    unsafe fn owned(&mut self) -> AppContext {
+        self.0.take_typed()
     }
 }
 
 #[repr(C)]
 pub struct UI {
-    ptr: SyncPtr<Void>,
+    ptr: CAnyDropPtr,
     approve_tx: unsafe extern "C" fn(this: &UI, tx: CStringRef) -> ManuallyDrop<CFutureBool>,
-    release: unsafe extern "C" fn(transport: &mut UI),
-}
-
-impl Drop for UI {
-    fn drop(&mut self) {
-        unsafe {
-            (self.release)(self);
-        }
-    }
 }
 
 struct TestService {
@@ -120,6 +111,6 @@ pub unsafe extern "C" fn wallet_extension_init(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn wallet_extension_deinit(app: AppContextPtr) {
+pub unsafe extern "C" fn wallet_extension_deinit(app: &mut AppContextPtr) {
     let _ = app.owned();
 }

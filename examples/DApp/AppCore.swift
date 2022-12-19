@@ -10,7 +10,7 @@ import TesseractClient
 import CApp
 
 class AppCore {
-    private var rust: AppContextPtr!
+    private var rust: AppContextPtr
     
     init(alerts: AlertProvider) {
         self.rust = app_init(alerts.asNative(), IPCTransportIOS().asNative())
@@ -21,7 +21,6 @@ class AppCore {
     }
     
     deinit {
-        app_deinit(self.rust)
-        self.rust = nil
+        app_deinit(&self.rust)
     }
 }

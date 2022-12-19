@@ -9,7 +9,7 @@ import Foundation
 import TesseractUtils
 import CApp
 
-public class AlertProvider: ObservableObject, AsVoidSwiftPtr {
+public class AlertProvider: ObservableObject {
     public struct Alert: Identifiable {
         let message: String
         public var id: String { message }
@@ -23,9 +23,8 @@ public class AlertProvider: ObservableObject, AsVoidSwiftPtr {
     }
     
     func asNative() -> CApp.AlertProvider {
-        var provider = CApp.AlertProvider(owned: self)
+        var provider = CApp.AlertProvider(value: self)
         provider.show_alert = alert_provider_show_alert
-        provider.release = alert_provider_release
         return provider
     }
 }
@@ -33,14 +32,10 @@ public class AlertProvider: ObservableObject, AsVoidSwiftPtr {
 private func alert_provider_show_alert(this: UnsafePointer<CApp.AlertProvider>!, message: CStringRef!) {
     let message = message!.copied()
     Task {
-        await this.unowned().showAlert(alert: message)
+        try! await this.unowned().showAlert(alert: message)
     }
 }
 
-private func alert_provider_release(this: UnsafeMutablePointer<CApp.AlertProvider>!) {
-    let _ = this.owned()
-}
-
-extension CApp.AlertProvider: CSwiftPtr {
+extension CApp.AlertProvider: CSwiftDropPtr {
     public typealias SObject = AlertProvider
 }

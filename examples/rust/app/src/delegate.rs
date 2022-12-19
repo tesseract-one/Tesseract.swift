@@ -3,27 +3,18 @@ use std::{collections::HashMap, sync::Arc};
 use async_trait::async_trait;
 
 use tesseract::client::{transport::Status, Delegate};
-use tesseract_utils::{ptr::SyncPtr, string::CString, string::CStringRef, Void};
+use tesseract_utils::{ptr::CAnyDropPtr, string::CString, string::CStringRef};
 
 #[repr(C)]
 pub struct AlertProvider {
-    ptr: SyncPtr<Void>,
+    ptr: CAnyDropPtr,
     show_alert: unsafe extern "C" fn(&AlertProvider, CStringRef),
-    release: unsafe extern "C" fn(&mut AlertProvider),
 }
 
 impl AlertProvider {
     fn show_alert(&self, alert: &str) {
         let str: CString = alert.into();
         unsafe { (self.show_alert)(self, str.as_ptr()) };
-    }
-}
-
-impl Drop for AlertProvider {
-    fn drop(&mut self) {
-        unsafe {
-            (self.release)(self);
-        }
     }
 }
 

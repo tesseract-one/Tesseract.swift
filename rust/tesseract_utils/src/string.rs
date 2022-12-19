@@ -24,7 +24,6 @@ unsafe impl Send for CString {}
 
 impl Drop for CString {
     fn drop(&mut self) {
-        println!("CSTRING FREE!!!");
         let _ = unsafe { FCString::from_raw(self.0 as *mut c_char) };
     }
 }

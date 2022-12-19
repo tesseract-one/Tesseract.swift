@@ -89,7 +89,7 @@ public protocol CFuturePtr: CType {
     associatedtype CVal: CFutureValue
     associatedtype Val
     
-    var ptr: UnsafeRawPointer! { get set }
+    var ptr: CAnyDropPtr { get set }
     
     // Consumes future. Will call free automatically
     func onComplete(cb: @escaping (CResult<Val>) -> Void) throws -> CResult<Val>?
@@ -104,8 +104,6 @@ public protocol CFuturePtr: CType {
     // Don't use this methods directly
     mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal
     mutating func _setupSetOnCompleteFunc()
-    mutating func _setupReleaseFunc()
-    mutating func _release()
 }
 
 extension CFuturePtr {
@@ -159,10 +157,10 @@ extension CFuturePtr {
     
     // Should be mutating but has workaround for better API
     public func onComplete(cb: @escaping (CResult<Val>) -> Void) throws -> CResult<Val>? {
-        guard self.ptr != nil else { throw CError.nullPtr }
+        guard !self.ptr.isNull else { throw CError.nullPtr }
         var this = self
         withUnsafePointer(to: self) { ptr in
-            UnsafeMutablePointer(mutating: ptr)!.pointee.ptr = nil
+            UnsafeMutablePointer(mutating: ptr)!.pointee.ptr.ptr = nil
         }
         var value = this._onComplete {
             cb($0.flatMap { val in
@@ -176,11 +174,9 @@ extension CFuturePtr {
         }
     }
     
-    // Call it only if you don't want to wait for Future.
+    // Call it only if you don't want to wait for the Future.
     public mutating func free() throws {
-        guard self.ptr != nil else { throw CError.nullPtr }
-        self._release()
-        self.ptr = nil
+        try self.ptr.free()
     }
 }
 
@@ -279,7 +275,7 @@ private struct CFutureContext<F> where F: CFuturePtr {
     }
 }
 
-private class CAsyncContext<V>: AsVoidSwiftPtr {
+private class CAsyncContext<V> {
     enum State<V> {
         case empty
         case value(CResult<V>)
@@ -314,7 +310,7 @@ extension CFuturePtr {
         if value.isSome { // We have value already. Context is non needed
             var this = self
             let _ = CFutureContext<Self>.take(pointer)
-            this._release()
+            try! this.free()
         }
         return value
     }
@@ -325,7 +321,7 @@ extension CFuturePtr {
         _ error: UnsafeMutablePointer<CTesseractUtils.CError>?
     ) {
         var ctx = CFutureContext<Self>.take(ctx)
-        defer { ctx.future._release() }
+        defer { try! ctx.future.free() }
         if let error = error {
             ctx.callback(.failure(error.pointee.owned()))
         } else {
@@ -337,9 +333,8 @@ extension CFuturePtr {
         let context = CAsyncContext<CVal.Val>()
         
         var future = Self()
-        future.ptr = context.ownedPtr()
+        future.ptr = .wrapped(context)
         future._setupSetOnCompleteFunc()
-        future._setupReleaseFunc()
         
         // Will be detached anyway because there is no Task context.
         Task.detached {
@@ -375,7 +370,7 @@ extension CFuturePtr {
                          UnsafeMutablePointer<CVal.Val>?,
                          UnsafeMutablePointer<CTesseractUtils.CError>?) -> Void
     ) -> CVal {
-        let context = CAsyncContext<CVal.Val>.unowned(this.pointee.ptr)
+        let context = try! this.pointee.ptr.unowned(CAsyncContext<CVal.Val>.self)
         
         let newCb = { (res: CResult<CVal.Val>) in
             switch res {
@@ -402,10 +397,5 @@ extension CFuturePtr {
             context.unlock()
             return CVal(value)
         }
-    }
-    
-    public static func _release(_ this: UnsafeMutablePointer<Self>!) {
-        print("SWIFT FUTURE RELEASE!!!!")
-        let _ = CAsyncContext<CVal.Val>.owned(this.pointee.ptr)
     }
 }

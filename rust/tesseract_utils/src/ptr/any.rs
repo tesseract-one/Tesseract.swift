@@ -1,112 +1,98 @@
+use super::SyncPtr;
 use crate::error::CError;
 use crate::result::Result;
 use crate::traits::IntoC;
 use crate::Void;
-use std::any::Any;
+use std::any::{type_name, Any};
 use std::mem::ManuallyDrop;
 
-pub trait AnyPtrRepresentable: Sized + 'static {
-    fn any_ptr(self) -> CAnyPtr {
-        let b: Box<Box<dyn Any>> = Box::new(Box::new(self));
-        b.into()
+#[repr(C)]
+pub struct CAnyRustPtr(SyncPtr<Void>);
+
+impl CAnyRustPtr {
+    pub fn new<T: Any>(val: T) -> Self {
+        let bx: Box<dyn Any> = Box::new(val);
+        bx.into()
     }
-}
 
-pub trait AnyPtr {
-    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> Result<&mut T>;
-}
-
-pub trait AnyOwnedPtr {
-    unsafe fn try_into<T: AnyPtrRepresentable>(self) -> Result<T>;
-}
-
-pub type CAnyPtrRef = *const Void;
-
-#[repr(transparent)]
-pub struct CAnyPtr(*const Void);
-
-impl From<CAnyPtr> for usize {
-    fn from(ptr: CAnyPtr) -> Self {
-        ptr.0 as usize
+    pub fn raw(ptr: SyncPtr<Void>) -> Self {
+        Self(ptr)
     }
-}
 
-impl From<usize> for CAnyPtr {
-    fn from(ptr: usize) -> Self {
-        Self(ptr as *mut Void)
+    pub fn as_ref<T: Any>(&self) -> Result<&T> {
+        unsafe { self.0.as_typed_ref::<Box<dyn Any>>() }
+            .ok_or_else(|| CError::NullPtr)
+            .and_then(|any| {
+                any.downcast_ref::<T>()
+                    .ok_or_else(|| format!("Bad type: {}", type_name::<T>()).into())
+            })
     }
-}
 
-impl From<Box<Box<dyn Any>>> for CAnyPtr {
-    fn from(boxed: Box<Box<dyn Any>>) -> Self {
-        Self(Box::into_raw(boxed) as *const Void)
+    pub fn as_mut<T: Any>(&mut self) -> Result<&mut T> {
+        unsafe { self.0.as_typed_mut::<Box<dyn Any>>() }
+            .ok_or_else(|| CError::NullPtr)
+            .and_then(|any| {
+                any.downcast_mut::<T>()
+                    .ok_or_else(|| format!("Bad type: {}", type_name::<T>()).into())
+            })
     }
-}
 
-unsafe impl Send for CAnyPtr {}
-unsafe impl Sync for CAnyPtr {}
-
-impl AnyPtr for CAnyPtrRef {
-    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> Result<&mut T> {
-        if self.is_null() {
-            return Err(CError::NullPtr);
-        }
-        (*self as *mut Box<dyn Any>)
-            .as_mut()
-            .and_then(|any| any.downcast_mut::<T>())
-            .ok_or_else(|| format!("Bad pointer: 0x{:x}", *self as usize).into())
-    }
-}
-
-impl CAnyPtr {
-    pub fn new<T: AnyPtrRepresentable>(val: T) -> Self {
-        val.any_ptr()
-    }
-}
-
-impl AnyPtr for CAnyPtr {
-    unsafe fn try_as_ref<T: AnyPtrRepresentable>(&self) -> Result<&mut T> {
-        self.0.try_as_ref()
-    }
-}
-
-impl AnyOwnedPtr for CAnyPtr {
-    unsafe fn try_into<T: AnyPtrRepresentable>(mut self) -> Result<T> {
+    pub fn take<T: Any>(mut self) -> Result<T> {
         if self.0.is_null() {
             return Err(CError::NullPtr);
         }
-        let boxed = *Box::from_raw(self.0 as *mut Box<dyn Any>);
-        self.0 = std::ptr::null_mut();
-        boxed.downcast::<T>().into_c().map(|boxed| *boxed)
+        let val = unsafe { self.0.take_typed::<Box<dyn Any>>() };
+        std::mem::forget(self);
+        val.downcast::<T>().into_c().map(|boxed| *boxed)
     }
 }
 
-impl<T: AnyPtrRepresentable> From<T> for CAnyPtr {
-    fn from(rep: T) -> Self {
-        rep.any_ptr()
-    }
-}
-
-impl Drop for CAnyPtr {
+impl Drop for CAnyRustPtr {
     fn drop(&mut self) {
-        if self.0.is_null() {
-            return;
-        }
-        let _ = unsafe { Box::from_raw(self.0 as *mut Box<dyn Any>) };
-        self.0 = std::ptr::null_mut();
+        let _ = unsafe { self.0.take_typed::<Box<dyn Any>>() };
     }
 }
 
-impl<T: AnyPtrRepresentable> AnyPtrRepresentable for Option<T> {
-    fn any_ptr(self) -> CAnyPtr {
+impl From<CAnyRustPtr> for usize {
+    fn from(ptr: CAnyRustPtr) -> Self {
+        ptr.0.ptr() as usize
+    }
+}
+
+impl From<usize> for CAnyRustPtr {
+    fn from(ptr: usize) -> Self {
+        Self::new(SyncPtr::new(ptr as *mut Void))
+    }
+}
+
+impl From<Box<dyn Any>> for CAnyRustPtr {
+    fn from(boxed: Box<dyn Any>) -> Self {
+        Self::new(SyncPtr::new(boxed).as_void())
+    }
+}
+
+pub trait IntoAnyPtr: Any + Sized {
+    fn into_any_ptr(self) -> CAnyRustPtr {
+        CAnyRustPtr::new(self)
+    }
+}
+
+impl<T: IntoAnyPtr> From<T> for CAnyRustPtr {
+    fn from(val: T) -> Self {
+        val.into_any_ptr()
+    }
+}
+
+impl<T: IntoAnyPtr> IntoAnyPtr for Option<T> {
+    fn into_any_ptr(self) -> CAnyRustPtr {
         match self {
-            Some(val) => val.any_ptr(),
-            None => CAnyPtr(std::ptr::null_mut()),
+            Some(val) => val.into_any_ptr(),
+            None => CAnyRustPtr::raw(SyncPtr::null()),
         }
     }
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn tesseract_utils_anyptr_free(ptr: ManuallyDrop<CAnyPtr>) {
-    let _ = ManuallyDrop::into_inner(ptr);
+pub unsafe extern "C" fn tesseract_utils_any_rust_ptr_free(ptr: &mut ManuallyDrop<CAnyRustPtr>) {
+    let _ = ManuallyDrop::take(ptr);
 }

@@ -21,7 +21,7 @@ impl<V> TryFrom<CFuture<V>> for CFutureWrapper<V> {
     type Error = CError;
 
     fn try_from(future: CFuture<V>) -> Result<Self> {
-        if future.get_ptr().is_null() {
+        if future.ptr().is_null() {
             return Err(CError::NullPtr);
         } else {
             Ok(Self {
