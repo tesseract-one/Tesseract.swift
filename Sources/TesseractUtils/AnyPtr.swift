@@ -8,6 +8,8 @@
 import Foundation
 import CTesseractUtils
 
+extension CAnyDropPtr: CType {}
+
 extension CAnyDropPtr {
     public init(value: AnyObject) {
         self = Self(
@@ -61,6 +63,8 @@ extension CAnyDropPtr {
 private func any_ptr_swift_drop(ptr: UnsafeMutablePointer<CAnyDropPtr>!) {
     let _ = ptr.pointee.ptr.owned()!
 }
+
+extension CAnyRustPtr: CType {}
 
 extension CAnyRustPtr {
     public mutating func free() {
