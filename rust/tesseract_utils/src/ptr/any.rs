@@ -61,13 +61,13 @@ impl From<CAnyRustPtr> for usize {
 
 impl From<usize> for CAnyRustPtr {
     fn from(ptr: usize) -> Self {
-        Self::new(SyncPtr::new(ptr as *mut Void))
+        Self::raw(SyncPtr::raw(ptr as *mut Void))
     }
 }
 
 impl From<Box<dyn Any>> for CAnyRustPtr {
     fn from(boxed: Box<dyn Any>) -> Self {
-        Self(SyncPtr::new(boxed).as_void())
+        Self::raw(SyncPtr::new(boxed).as_void())
     }
 }
 
