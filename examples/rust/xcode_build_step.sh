@@ -19,12 +19,17 @@ else
   RELEASE=""
 fi
 
-if [[ -n "${DEVELOPER_SDK_DIR:-}" ]]; then
-  # Assume we're in Xcode, which means we're probably cross-compiling.
+if [[ -n "${DEVELOPER_SDK_DIR:-}" && "$PLATFORM_NAME" != "macosx" ]]; then
+  # We're in Xcode, and we're cross-compiling.
   # In this case, we need to add an extra library search path for build scripts and proc-macros,
   # which run on the host instead of the target.
   # (macOS Big Sur does not have linkable libraries in /usr/lib/.)
+  # We are adding it by providing Clang variable.
+  # Cargo can't pass any meaningfull conpiler variables to build scripts when cross-compiling.
   export LIBRARY_PATH="${DEVELOPER_SDK_DIR}/MacOSX.sdk/usr/lib:${LIBRARY_PATH:-}"
+  # And set library path back for our targets (or it will link with macOS system libraries)
+  # we can't avoid it because we can't path build script specific configuration to Cargo
+  export RUSTFLAGS="-L${SDKROOT}/usr/lib"
 fi
 
 function get_platform_triplet() {
