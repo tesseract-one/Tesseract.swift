@@ -8,6 +8,8 @@
 import Foundation
 import CTesseractUtils
 
+extension Nothing: CType {}
+
 extension Nothing {
     public static let nothing = Nothing(_0: false)
 }
