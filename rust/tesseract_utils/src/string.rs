@@ -93,7 +93,7 @@ impl From<&String> for CString {
     }
 }
 
-impl CResponse<ManuallyDrop<CString>, bool> for Result<String> {
+impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<String> {
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
@@ -108,7 +108,7 @@ impl CResponse<ManuallyDrop<CString>, bool> for Result<String> {
     }
 }
 
-impl CResponse<ManuallyDrop<CString>, bool> for Result<&str> {
+impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<&str> {
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
@@ -123,7 +123,7 @@ impl CResponse<ManuallyDrop<CString>, bool> for Result<&str> {
     }
 }
 
-impl CResponse<ManuallyDrop<CString>, bool> for Result<Option<String>> {
+impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<Option<String>> {
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
@@ -141,7 +141,7 @@ impl CResponse<ManuallyDrop<CString>, bool> for Result<Option<String>> {
     }
 }
 
-impl CResponse<ManuallyDrop<CString>, bool> for Result<Option<&str>> {
+impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<Option<&str>> {
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {

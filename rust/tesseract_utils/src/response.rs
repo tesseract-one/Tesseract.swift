@@ -11,15 +11,11 @@ pub enum CResponseOption {
 }
 
 pub trait CResponse<T, R> {
-    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> R;
+    fn response(self, value: T, error: &mut ManuallyDrop<CError>) -> R;
 }
 
-pub trait CVoidResponse<R> {
-    fn response(self, error: &mut ManuallyDrop<CError>) -> R;
-}
-
-impl CVoidResponse<bool> for Result<()> {
-    fn response(self, error: &mut ManuallyDrop<CError>) -> bool {
+impl CResponse<(), bool> for Result<()> {
+    fn response(self, _value: (), error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
                 *error = ManuallyDrop::new(err);
@@ -30,18 +26,7 @@ impl CVoidResponse<bool> for Result<()> {
     }
 }
 
-impl CVoidResponse<()> for Result<()> {
-    fn response(self, error: &mut ManuallyDrop<CError>) -> () {
-        match self {
-            Err(err) => {
-                *error = ManuallyDrop::new(err);
-            }
-            Ok(_) => (),
-        }
-    }
-}
-
-impl<T> CResponse<ManuallyDrop<T>, bool> for Result<T> {
+impl<T> CResponse<&mut ManuallyDrop<T>, bool> for Result<T> {
     fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
@@ -56,7 +41,7 @@ impl<T> CResponse<ManuallyDrop<T>, bool> for Result<T> {
     }
 }
 
-impl<T: Copy> CResponse<T, CResponseOption> for Result<Option<T>> {
+impl<T: Copy> CResponse<&mut T, CResponseOption> for Result<Option<T>> {
     fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> CResponseOption {
         match self {
             Err(err) => {
@@ -74,7 +59,7 @@ impl<T: Copy> CResponse<T, CResponseOption> for Result<Option<T>> {
     }
 }
 
-impl<T> CResponse<ManuallyDrop<T>, CResponseOption> for Result<Option<T>> {
+impl<T> CResponse<&mut ManuallyDrop<T>, CResponseOption> for Result<Option<T>> {
     fn response(
         self,
         value: &mut ManuallyDrop<T>,
