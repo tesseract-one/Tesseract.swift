@@ -14,6 +14,33 @@ pub trait CResponse<T, R> {
     fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> R;
 }
 
+pub trait CVoidResponse<R> {
+    fn response(self, error: &mut ManuallyDrop<CError>) -> R;
+}
+
+impl CVoidResponse<bool> for Result<()> {
+    fn response(self, error: &mut ManuallyDrop<CError>) -> bool {
+        match self {
+            Err(err) => {
+                *error = ManuallyDrop::new(err);
+                false
+            }
+            Ok(_) => true,
+        }
+    }
+}
+
+impl CVoidResponse<()> for Result<()> {
+    fn response(self, error: &mut ManuallyDrop<CError>) -> () {
+        match self {
+            Err(err) => {
+                *error = ManuallyDrop::new(err);
+            }
+            Ok(_) => (),
+        }
+    }
+}
+
 impl<T> CResponse<ManuallyDrop<T>, bool> for Result<T> {
     fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
