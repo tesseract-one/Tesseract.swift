@@ -36,9 +36,9 @@ extension String: AsCRef {
 extension String: AsCPtrCopy {
     public func copiedPtr() -> CString {
         try! withRef { cstr in
-            try CResult<CString?>.wrap { res, err in
+            try CResult<CString>.wrap { res, err in
                 tesseract_utils_cstring_new(cstr, res, err)
             }.get()
-        }!
+        }
     }
 }

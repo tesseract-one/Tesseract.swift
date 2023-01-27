@@ -1,7 +1,6 @@
 use super::SyncPtr;
 use crate::error::CError;
 use crate::result::Result;
-use crate::traits::IntoC;
 use crate::Void;
 use std::any::{type_name, Any};
 use std::mem::ManuallyDrop;
@@ -23,8 +22,9 @@ impl CAnyRustPtr {
         unsafe { self.0.as_typed_ref::<Box<dyn Any>>() }
             .ok_or_else(|| CError::NullPtr)
             .and_then(|any| {
-                any.downcast_ref::<T>()
-                    .ok_or_else(|| format!("Bad type: {}", type_name::<T>()).into())
+                any.downcast_ref::<T>().ok_or_else(|| {
+                    CError::DynamicCast(format!("Bad type: {}", type_name::<T>()).into())
+                })
             })
     }
 
@@ -32,8 +32,9 @@ impl CAnyRustPtr {
         unsafe { self.0.as_typed_mut::<Box<dyn Any>>() }
             .ok_or_else(|| CError::NullPtr)
             .and_then(|any| {
-                any.downcast_mut::<T>()
-                    .ok_or_else(|| format!("Bad type: {}", type_name::<T>()).into())
+                any.downcast_mut::<T>().ok_or_else(|| {
+                    CError::DynamicCast(format!("Bad type: {}", type_name::<T>()).into())
+                })
             })
     }
 
@@ -43,7 +44,9 @@ impl CAnyRustPtr {
         }
         let val = unsafe { self.0.take_typed::<Box<dyn Any>>() };
         std::mem::forget(self);
-        val.downcast::<T>().into_c().map(|boxed| *boxed)
+        val.downcast::<T>()
+            .map_err(|_| CError::DynamicCast(format!("Bad type: {}", type_name::<T>()).into()))
+            .map(|boxed| *boxed)
     }
 }
 

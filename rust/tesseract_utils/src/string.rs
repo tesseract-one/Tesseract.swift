@@ -1,8 +1,8 @@
 use super::error::CError;
 use super::panic::handle_exception_result;
-use super::response::CResponse;
+use super::response::{COptionResponseResult, CResponse};
 use super::result::Result;
-use super::traits::TryAsRef;
+use super::traits::{IntoC, TryAsRef};
 use std::ffi::{CStr as FCStr, CString as FCString};
 use std::mem::ManuallyDrop;
 use std::os::raw::c_char;
@@ -93,11 +93,30 @@ impl From<&String> for CString {
     }
 }
 
-impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<String> {
+impl IntoC for String {
+    type CVal = CString;
+
+    fn into_c(self) -> Self::CVal {
+        self.into()
+    }
+}
+
+impl IntoC for &str {
+    type CVal = CString;
+
+    fn into_c(self) -> Self::CVal {
+        self.into()
+    }
+}
+
+impl<E> CResponse<&mut ManuallyDrop<CString>, bool> for std::result::Result<String, E>
+where
+    E: IntoC<CVal = CError>,
+{
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err);
+                *error = ManuallyDrop::new(err.into_c());
                 false
             }
             Ok(val) => {
@@ -108,11 +127,14 @@ impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<String> {
     }
 }
 
-impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<&str> {
+impl<E> CResponse<&mut ManuallyDrop<CString>, bool> for std::result::Result<&str, E>
+where
+    E: IntoC<CVal = CError>,
+{
     fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err);
+                *error = ManuallyDrop::new(err.into_c());
                 false
             }
             Ok(val) => {
@@ -123,38 +145,60 @@ impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<&str> {
     }
 }
 
-impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<Option<String>> {
-    fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
+impl<E> CResponse<&mut ManuallyDrop<CString>, COptionResponseResult>
+    for std::result::Result<Option<String>, E>
+where
+    E: IntoC<CVal = CError>,
+{
+    fn response(
+        self,
+        value: &mut ManuallyDrop<CString>,
+        error: &mut ManuallyDrop<CError>,
+    ) -> COptionResponseResult {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err);
-                false
+                *error = ManuallyDrop::new(err.into_c());
+                COptionResponseResult::Error
             }
-            Ok(opt) => {
-                match opt {
-                    None => value.0 = std::ptr::null_mut(),
-                    Some(val) => *value = ManuallyDrop::new(val.into()),
+            Ok(opt) => match opt {
+                None => {
+                    value.0 = std::ptr::null_mut();
+                    COptionResponseResult::None
                 }
-                true
-            }
+                Some(val) => {
+                    *value = ManuallyDrop::new(val.into());
+                    COptionResponseResult::Some
+                }
+            },
         }
     }
 }
 
-impl CResponse<&mut ManuallyDrop<CString>, bool> for Result<Option<&str>> {
-    fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
+impl<E> CResponse<&mut ManuallyDrop<CString>, COptionResponseResult>
+    for std::result::Result<Option<&str>, E>
+where
+    E: IntoC<CVal = CError>,
+{
+    fn response(
+        self,
+        value: &mut ManuallyDrop<CString>,
+        error: &mut ManuallyDrop<CError>,
+    ) -> COptionResponseResult {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err);
-                false
+                *error = ManuallyDrop::new(err.into_c());
+                COptionResponseResult::Error
             }
-            Ok(opt) => {
-                match opt {
-                    None => value.0 = std::ptr::null_mut(),
-                    Some(val) => *value = ManuallyDrop::new(val.into()),
+            Ok(opt) => match opt {
+                None => {
+                    value.0 = std::ptr::null_mut();
+                    COptionResponseResult::None
                 }
-                true
-            }
+                Some(val) => {
+                    *value = ManuallyDrop::new(val.into());
+                    COptionResponseResult::Some
+                }
+            },
         }
     }
 }

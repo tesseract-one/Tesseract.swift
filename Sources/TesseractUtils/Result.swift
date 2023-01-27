@@ -40,32 +40,46 @@ public extension CResult {
 
 public extension CResult {
     static func wrap<S: CType>(
-        ccall: @escaping (UnsafeMutablePointer<UnsafeMutablePointer<S>?>, UnsafeMutablePointer<CTesseractUtils.CError>) -> Bool
-    ) -> CResult<Optional<S>> {
+        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<CTesseractUtils.CError>) -> COptionResponseResult
+    ) -> CResult<S?> {
         var error = CTesseractUtils.CError()
         var val = S()
-        return withUnsafeMutablePointer(to: &val) { valPtr in
-            var option = Optional(valPtr)
-            if !ccall(&option, &error) {
-                return .failure(error.owned())
-            }
-            return .success(option?.pointee)
+        switch ccall(&val, &error) {
+        case COptionResponseResult_Error: return .failure(error.owned())
+        case COptionResponseResult_None: return .success(nil)
+        case COptionResponseResult_Some: return .success(val)
+        default: fatalError("Unknown enum case!")
         }
     }
 }
 
-//extension CResult {
-//    static func wrap(
-//        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseract.CError>) -> Bool
-//    ) -> CResult<CString?> {
-//        var error = CTesseract.CError()
-//        var val: CString? = nil
-//        if !ccall(&val, &error) {
-//            return .failure(error.owned())
-//        }
-//        return .success(val)
-//    }
-//}
+extension CResult {
+    static func wrap(
+        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseractUtils.CError>) -> Bool
+    ) -> CResult<CString> {
+        var error = CTesseractUtils.CError()
+        var val: CString? = nil
+        if !ccall(&val, &error) {
+            return .failure(error.owned())
+        }
+        return .success(val!)
+    }
+}
+
+extension CResult {
+    static func wrap(
+        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseractUtils.CError>) -> COptionResponseResult
+    ) -> CResult<CString?> {
+        var error = CTesseractUtils.CError()
+        var val: CString? = nil
+        switch ccall(&val, &error) {
+        case COptionResponseResult_Error: return .failure(error.owned())
+        case COptionResponseResult_None: return .success(nil)
+        case COptionResponseResult_Some: return .success(val)
+        default: fatalError("Unknown enum case!")
+        }
+    }
+}
 
 public extension CResult {
     static func wrap(

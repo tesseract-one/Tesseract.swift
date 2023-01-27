@@ -8,7 +8,7 @@ pub trait QuickClone {
     fn quick_clone(&self) -> Self;
 }
 
-pub trait IntoC<T> {
+pub trait IntoC {
     type CVal;
 
     fn into_c(self) -> Self::CVal;

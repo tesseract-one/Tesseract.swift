@@ -1,10 +1,11 @@
 use super::error::CError;
-use super::result::Result;
+use super::traits::IntoC;
 use std::mem::ManuallyDrop;
+use std::result::Result;
 
-#[repr(u8)]
+#[repr(C)]
 #[derive(Copy, Clone, Debug)]
-pub enum CResponseOption {
+pub enum COptionResponseResult {
     Error = 0,
     None,
     Some,
@@ -14,11 +15,14 @@ pub trait CResponse<T, R> {
     fn response(self, value: T, error: &mut ManuallyDrop<CError>) -> R;
 }
 
-impl CResponse<(), bool> for Result<()> {
+impl<E> CResponse<(), bool> for Result<(), E>
+where
+    E: IntoC<CVal = CError>,
+{
     fn response(self, _value: (), error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err);
+                *error = ManuallyDrop::new(err.into_c());
                 false
             }
             Ok(_) => true,
@@ -26,11 +30,32 @@ impl CResponse<(), bool> for Result<()> {
     }
 }
 
-impl<T> CResponse<&mut ManuallyDrop<T>, bool> for Result<T> {
+impl<T: Copy, E> CResponse<&mut T, bool> for Result<T, E>
+where
+    E: IntoC<CVal = CError>,
+{
+    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> bool {
+        match self {
+            Err(err) => {
+                *error = ManuallyDrop::new(err.into_c());
+                false
+            }
+            Ok(val) => {
+                *value = val;
+                true
+            }
+        }
+    }
+}
+
+impl<T, E> CResponse<&mut ManuallyDrop<T>, bool> for Result<T, E>
+where
+    E: IntoC<CVal = CError>,
+{
     fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err);
+                *error = ManuallyDrop::new(err.into_c());
                 false
             }
             Ok(val) => {
@@ -41,40 +66,46 @@ impl<T> CResponse<&mut ManuallyDrop<T>, bool> for Result<T> {
     }
 }
 
-impl<T: Copy> CResponse<&mut T, CResponseOption> for Result<Option<T>> {
-    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> CResponseOption {
+impl<T: Copy, E> CResponse<&mut T, COptionResponseResult> for Result<Option<T>, E>
+where
+    E: IntoC<CVal = CError>,
+{
+    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> COptionResponseResult {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err);
-                CResponseOption::Error
+                *error = ManuallyDrop::new(err.into_c());
+                COptionResponseResult::Error
             }
             Ok(opt) => match opt {
-                None => CResponseOption::None,
+                None => COptionResponseResult::None,
                 Some(val) => {
                     *value = val;
-                    CResponseOption::Some
+                    COptionResponseResult::Some
                 }
             },
         }
     }
 }
 
-impl<T> CResponse<&mut ManuallyDrop<T>, CResponseOption> for Result<Option<T>> {
+impl<T, E> CResponse<&mut ManuallyDrop<T>, COptionResponseResult> for Result<Option<T>, E>
+where
+    E: IntoC<CVal = CError>,
+{
     fn response(
         self,
         value: &mut ManuallyDrop<T>,
         error: &mut ManuallyDrop<CError>,
-    ) -> CResponseOption {
+    ) -> COptionResponseResult {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err);
-                CResponseOption::Error
+                *error = ManuallyDrop::new(err.into_c());
+                COptionResponseResult::Error
             }
             Ok(opt) => match opt {
-                None => CResponseOption::None,
+                None => COptionResponseResult::None,
                 Some(val) => {
                     *value = ManuallyDrop::new(val);
-                    CResponseOption::Some
+                    COptionResponseResult::Some
                 }
             },
         }

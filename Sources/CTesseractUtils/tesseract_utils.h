@@ -15,6 +15,12 @@ typedef enum CBigIntSign {
   CBigIntSign_Plus,
 } CBigIntSign;
 
+typedef enum COptionResponseResult {
+  COptionResponseResult_Error = 0,
+  COptionResponseResult_None,
+  COptionResponseResult_Some,
+} COptionResponseResult;
+
 typedef const uint8_t *SyncPtr_u8;
 
 typedef struct CData {
@@ -30,6 +36,7 @@ typedef enum CError_Tag {
   CError_Panic,
   CError_Utf8Error,
   CError_ErrorCode,
+  CError_DynamicCast,
 } CError_Tag;
 
 typedef struct CError_ErrorCode_Body {
@@ -47,6 +54,9 @@ typedef struct CError {
       CString utf8_error;
     };
     CError_ErrorCode_Body error_code;
+    struct {
+      CString dynamic_cast_;
+    };
   };
 } CError;
 

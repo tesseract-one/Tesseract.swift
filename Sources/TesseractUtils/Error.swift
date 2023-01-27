@@ -13,6 +13,7 @@ public enum CError: Error {
     case canceled
     case panic(reason: String)
     case utf8(message: String)
+    case dynamicCast(reason: String)
     case error(code: UInt32, message: String)
     
     public init(copying error: CTesseractUtils.CError) {
@@ -24,6 +25,8 @@ public enum CError: Error {
         case CError_ErrorCode:
             self = .error(code: error.error_code._0,
                           message: error.error_code._1.copied())
+        case CError_DynamicCast:
+            self = .dynamicCast(reason: error.dynamic_cast_.copied())
         default: fatalError("Unknown enum tag: \(error.tag)")
         }
     }
@@ -47,6 +50,9 @@ extension CError: AsCPtrCopy {
         case .utf8(message: let message):
             error.tag = CError_Utf8Error
             error.utf8_error = message.copiedPtr()
+        case .dynamicCast(reason: let reason):
+            error.tag = CError_DynamicCast
+            error.dynamic_cast_ = reason.copiedPtr()
         }
         return error
     }
@@ -81,6 +87,12 @@ extension CError: AsCPtrRef {
             error.tag = CError_Utf8Error
             return try message.withRef {
                 error.utf8_error = $0
+                return try fn(error)
+            }
+        case .dynamicCast(reason: let reason):
+            error.tag = CError_Utf8Error
+            return try reason.withRef {
+                error.dynamic_cast_ = $0
                 return try fn(error)
             }
         }

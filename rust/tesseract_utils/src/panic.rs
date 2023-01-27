@@ -14,42 +14,21 @@ fn string_from_panic_err(err: Box<dyn Any>) -> String {
     }
 }
 
-impl<T> IntoC<T> for std::result::Result<T, Box<dyn Any + Send + 'static>> {
-    type CVal = Result<T>;
-
-    fn into_c(self) -> Result<T> {
-        self.map_err(|err| CError::Panic(string_from_panic_err(err).into()))
-    }
-}
-
-impl<T> IntoC<T> for std::result::Result<T, Box<dyn Any + 'static>> {
-    type CVal = Result<T>;
-
-    fn into_c(self) -> Result<T> {
-        self.map_err(|err| CError::Panic(string_from_panic_err(err).into()))
-    }
-}
-
-impl<T, E> IntoC<T> for std::result::Result<T, E>
+pub fn handle_exception<F, R>(func: F) -> Result<R>
 where
-    E: Into<CError>,
+    F: FnOnce() -> R + panic::UnwindSafe,
 {
-    type CVal = Result<T>;
-
-    fn into_c(self) -> Result<T> {
-        self.map_err(|err| err.into())
-    }
+    handle_exception_result(|| Result::Ok(func()))
 }
 
-#[allow(dead_code)]
-pub fn handle_exception<F: FnOnce() -> R + panic::UnwindSafe, R>(func: F) -> Result<R> {
-    handle_exception_result(|| Ok(func()))
-}
-
-pub fn handle_exception_result<F: FnOnce() -> Result<R> + panic::UnwindSafe, R>(
-    func: F,
-) -> Result<R> {
-    panic::catch_unwind(func).into_c().and_then(|res| res)
+pub fn handle_exception_result<F, R, E>(func: F) -> Result<R>
+where
+    F: FnOnce() -> std::result::Result<R, E> + panic::UnwindSafe,
+    E: IntoC<CVal = CError>,
+{
+    panic::catch_unwind(func)
+        .map_err(|err| CError::Panic(string_from_panic_err(err).into()))
+        .and_then(|res| res.map_err(|e| e.into_c()))
 }
 
 #[allow(dead_code)]

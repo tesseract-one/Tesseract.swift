@@ -14,5 +14,6 @@ include = [
   "CPtrRef", "CStringRef", "CFutureNothing",
   "CFutureString", "CFutureInt128", "CFutureUInt128",
   "CFutureData", "CFutureBigInt", "CFutureAnyRustPtr",
-  "CFutureAnyDropPtr", "CFutureBool", "SyncPtr_Void"
+  "CFutureAnyDropPtr", "CFutureBool", "SyncPtr_Void",
+  "COptionResponseResult"
 ]

@@ -30,8 +30,9 @@ impl CAnyDropPtr {
         unsafe { self.ptr.as_typed_ref::<Box<dyn Any>>() }
             .ok_or_else(|| CError::NullPtr)
             .and_then(|any| {
-                any.downcast_ref::<T>()
-                    .ok_or_else(|| format!("Bad type: {}", type_name::<T>()).into())
+                any.downcast_ref::<T>().ok_or_else(|| {
+                    CError::DynamicCast(format!("Bad type: {}", type_name::<T>()).into())
+                })
             })
     }
 
@@ -39,8 +40,9 @@ impl CAnyDropPtr {
         unsafe { self.ptr.as_typed_mut::<Box<dyn Any>>() }
             .ok_or_else(|| CError::NullPtr)
             .and_then(|any| {
-                any.downcast_mut::<T>()
-                    .ok_or_else(|| format!("Bad type: {}", type_name::<T>()).into())
+                any.downcast_mut::<T>().ok_or_else(|| {
+                    CError::DynamicCast(format!("Bad type: {}", type_name::<T>()).into())
+                })
             })
     }
 

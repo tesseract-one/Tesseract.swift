@@ -1,8 +1,8 @@
 use super::error::CError;
 use super::panic::{handle_exception, handle_exception_result};
 use super::ptr::SyncPtr;
-use super::response::CResponse;
-use super::traits::{QuickClone, TryAsRef};
+use super::response::{COptionResponseResult, CResponse};
+use super::traits::{IntoC, QuickClone, TryAsRef};
 use std::mem::ManuallyDrop;
 
 #[repr(C)]
@@ -85,6 +85,100 @@ impl From<Vec<u8>> for CData {
     }
 }
 
+impl<E> CResponse<&mut ManuallyDrop<CData>, bool> for Result<Vec<u8>, E>
+where
+    E: IntoC<CVal = CError>,
+{
+    fn response(self, value: &mut ManuallyDrop<CData>, error: &mut ManuallyDrop<CError>) -> bool {
+        match self {
+            Err(err) => {
+                *error = ManuallyDrop::new(err.into_c());
+                false
+            }
+            Ok(val) => {
+                *value = ManuallyDrop::new(val.into());
+                true
+            }
+        }
+    }
+}
+
+impl<E> CResponse<&mut ManuallyDrop<CData>, bool> for Result<&[u8], E>
+where
+    E: IntoC<CVal = CError>,
+{
+    fn response(self, value: &mut ManuallyDrop<CData>, error: &mut ManuallyDrop<CError>) -> bool {
+        match self {
+            Err(err) => {
+                *error = ManuallyDrop::new(err.into_c());
+                false
+            }
+            Ok(val) => {
+                *value = ManuallyDrop::new(val.into());
+                true
+            }
+        }
+    }
+}
+
+impl<E> CResponse<&mut ManuallyDrop<CData>, COptionResponseResult> for Result<Option<Vec<u8>>, E>
+where
+    E: IntoC<CVal = CError>,
+{
+    fn response(
+        self,
+        value: &mut ManuallyDrop<CData>,
+        error: &mut ManuallyDrop<CError>,
+    ) -> COptionResponseResult {
+        match self {
+            Err(err) => {
+                *error = ManuallyDrop::new(err.into_c());
+                COptionResponseResult::Error
+            }
+            Ok(opt) => match opt {
+                None => {
+                    value.ptr = SyncPtr::null();
+                    value.len = 0;
+                    COptionResponseResult::None
+                }
+                Some(val) => {
+                    *value = ManuallyDrop::new(val.into());
+                    COptionResponseResult::Some
+                }
+            },
+        }
+    }
+}
+
+impl<E> CResponse<&mut ManuallyDrop<CData>, COptionResponseResult> for Result<Option<&[u8]>, E>
+where
+    E: IntoC<CVal = CError>,
+{
+    fn response(
+        self,
+        value: &mut ManuallyDrop<CData>,
+        error: &mut ManuallyDrop<CError>,
+    ) -> COptionResponseResult {
+        match self {
+            Err(err) => {
+                *error = ManuallyDrop::new(err.into_c());
+                COptionResponseResult::Error
+            }
+            Ok(opt) => match opt {
+                None => {
+                    value.ptr = SyncPtr::null();
+                    value.len = 0;
+                    COptionResponseResult::None
+                }
+                Some(val) => {
+                    *value = ManuallyDrop::new(val.into());
+                    COptionResponseResult::Some
+                }
+            },
+        }
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn tesseract_utils_data_new(
     ptr: &u8,
@@ -92,7 +186,7 @@ pub unsafe extern "C" fn tesseract_utils_data_new(
     res: &mut ManuallyDrop<CData>,
     err: &mut ManuallyDrop<CError>,
 ) -> bool {
-    handle_exception(|| std::slice::from_raw_parts(ptr, len).into()).response(res, err)
+    handle_exception(|| std::slice::from_raw_parts(ptr, len)).response(res, err)
 }
 
 #[no_mangle]
@@ -101,7 +195,7 @@ pub unsafe extern "C" fn tesseract_utils_data_clone(
     res: &mut ManuallyDrop<CData>,
     err: &mut ManuallyDrop<CError>,
 ) -> bool {
-    handle_exception_result(|| data.try_as_ref().map(|sl| sl.into())).response(res, err)
+    handle_exception_result(|| data.try_as_ref()).response(res, err)
 }
 
 #[no_mangle]
