@@ -5,31 +5,26 @@ MODULE_NAME="$1"
 C_LIB_NAME="$2"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-HAS_CARGO_IN_PATH=`command -v cargo >/dev/null 2>&1; echo $?`
-
-if [ "${HAS_CARGO_IN_PATH}" -ne "0" ]; then
-    source $HOME/.cargo/env
-fi
-
 ROOT_DIR="${SCRIPT_DIR}"
+
+# rustc chooses the SDK with `xcrun --show-sdk-path -sdk macosx` and `xcrun --show-sdk-path -sdk iphoneos` for macros and regular crates respectively.
+# We need to help it though, by cleaning up the ENV mess XCode pushes to us
+# Note that default SDK will be used for macOS and iOS. We can't select SDK version
+ALLOWED_ENV_VARS="^PATH$|^SHELL$|^PWD$|^LOGNAME$|^HOME$|^TMPDIR$|^USER$|^SRCROOT$|^CONFIGURATION_BUILD_DIR$"
+ALLOWED_ENV_VARS="$ALLOWED_ENV_VARS|^CONFIGURATION$|^ARCHS$|^PLATFORM_NAME$|^DEVELOPER_DIR$"
+unset $(env | cut -d= -f1 | egrep -v "$ALLOWED_ENV_VARS")
+export PATH="$(echo $PATH | tr ':' '\n' | egrep -v 'platform|xctoolchain' | tr '\n' ':')"
+
+# check that we have cargo. If not - import cargo env
+HAS_CARGO_IN_PATH=$(command -v cargo >/dev/null 2>&1; echo $?)
+if [[ "${HAS_CARGO_IN_PATH}" != "0" ]]; then
+    source "$HOME/.cargo/env"
+fi
 
 if [[ "${CONFIGURATION}" == "Release" ]]; then
   RELEASE="--release"
 else
   RELEASE=""
-fi
-
-if [[ -n "${DEVELOPER_SDK_DIR:-}" && "$PLATFORM_NAME" != "macosx" ]]; then
-  # We're in Xcode, and we're cross-compiling.
-  # In this case, we need to add an extra library search path for build scripts and proc-macros,
-  # which run on the host instead of the target.
-  # (macOS Big Sur does not have linkable libraries in /usr/lib/.)
-  # We are adding it by providing Clang variable.
-  # Cargo can't pass any meaningfull conpiler variables to build scripts when cross-compiling.
-  export LIBRARY_PATH="${DEVELOPER_SDK_DIR}/MacOSX.sdk/usr/lib:${LIBRARY_PATH:-}"
-  # And set library path back for our targets (or it will link with macOS system libraries)
-  # we can't avoid it because we can't path build script specific configuration to Cargo
-  export RUSTFLAGS="-L${SDKROOT}/usr/lib"
 fi
 
 function get_platform_triplet() {
@@ -71,14 +66,16 @@ function generate_modulemap() {
   local path="$1/module.modulemap"
   local module="$2"
   local lib="$3"
-  echo "module ${module} {" > "$path"
-  echo "    umbrella header \"${lib}.h\"" >> "$path"
-  echo "    link \"${lib}\"" >> "$path"
-  echo "    export *" >> "$path"
-  echo "}" >> "$path"
+  {
+    echo "module ${module} {"
+    echo "    umbrella header \"${lib}.h\""
+    echo "    link \"${lib}\""
+    echo "    export *"
+    echo "}"
+  } > "$path"
 }
 
-OUTPUT_DIR=`echo "${CONFIGURATION}" | tr '[:upper:]' '[:lower:]'`
+OUTPUT_DIR=$(echo "${CONFIGURATION}" | tr '[:upper:]' '[:lower:]')
 
 cd "${ROOT_DIR}"
 
@@ -88,7 +85,7 @@ mkdir -p "${CONFIGURATION_BUILD_DIR}/${MODULE_NAME}"
 BUILT_LIBS=""
 for arch in $ARCHS; do
   TTRIPLET=$(get_platform_triplet $arch $PLATFORM_NAME)
-  cargo build -p $C_LIB_NAME --lib $RELEASE --target ${TTRIPLET}
+  cargo build -p $C_LIB_NAME --lib $RELEASE --target $TTRIPLET
   BUILT_LIBS="${BUILT_LIBS} ${ROOT_DIR}/target/${TTRIPLET}/${OUTPUT_DIR}/lib${C_LIB_NAME}.a"
 done
 
