@@ -1,27 +1,17 @@
 #!/bin/zsh
 set -e
 
-PREFIX="tesseract"
-INPUT_DIR=rust
-OUTPUT_DIR=Sources
-OUTPUT_DIR="$(cd "$(dirname "$OUTPUT_DIR")"; pwd -P)/$(basename "$OUTPUT_DIR")"
+MODULE_NAME="CTesseract"
+MAIN_CRATE="tesseract-swift"
+HEADERS_DIR="target/release/include"
+OUTPUT_DIR="Sources/$MODULE_NAME/include"
 
-function generate_modulemap() {
-  local path="$1/module.modulemap"
-  local module="$2"
-  local lib="$3"
-  echo "module ${module} {" > "$path"
-  echo "    umbrella header \"${lib}.h\"" >> "$path"
-  echo "    export *" >> "$path"
-  echo "}" >> "$path"
-}
+DIR="$(cd "$(dirname "$0")" && pwd -P)"
+cd "$DIR"
 
-cd "$INPUT_DIR"
+cargo build -p "$MAIN_CRATE" --release
 
-for crate in ${PREFIX}* ; do
-  cargo build -p "${crate}" --release
-  module_name="C${${(C)crate}//_}"
-  out_dir="${OUTPUT_DIR}/${module_name}"
-  cp -f "../target/release/include/${crate}.h" "${out_dir}"/
-  generate_modulemap "${out_dir}" "${module_name}" "${crate}"
-done
+rm -f "$OUTPUT_DIR"/*
+cp $HEADERS_DIR/*.h "$OUTPUT_DIR/"
+
+exit 0

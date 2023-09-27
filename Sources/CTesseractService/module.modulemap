@@ -1,4 +1,0 @@
-module CTesseractService {
-    umbrella header "tesseract_service.h"
-    export *
-}

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseractUtils
+import CTesseract
 
 public typealias CResult<T> = Result<T, CError>
 
@@ -17,7 +17,7 @@ public protocol CResultPtr: CType, CPtr where Val == CResult<SResVal> {
     associatedtype SResVal
     
     var tag: CResTag { get set }
-    var err: CTesseractUtils.CError { get set }
+    var err: CTesseract.CError { get set }
     var ok: CResVal { get set }
     
     static var ok: CResTag { get }
@@ -27,9 +27,9 @@ public protocol CResultPtr: CType, CPtr where Val == CResult<SResVal> {
 
 public extension CResult {
     static func wrap<S: CType>(
-        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<CTesseractUtils.CError>) -> Bool
+        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<CTesseract.CError>) -> Bool
     ) -> CResult<S> {
-        var error = CTesseractUtils.CError()
+        var error = CTesseract.CError()
         var val = S()
         if !ccall(&val, &error) {
             return .failure(error.owned())
@@ -40,9 +40,9 @@ public extension CResult {
 
 public extension CResult {
     static func wrap<S: CType>(
-        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<CTesseractUtils.CError>) -> COptionResponseResult
+        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<CTesseract.CError>) -> COptionResponseResult
     ) -> CResult<S?> {
-        var error = CTesseractUtils.CError()
+        var error = CTesseract.CError()
         var val = S()
         switch ccall(&val, &error) {
         case COptionResponseResult_Error: return .failure(error.owned())
@@ -55,9 +55,9 @@ public extension CResult {
 
 extension CResult {
     static func wrap(
-        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseractUtils.CError>) -> Bool
+        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseract.CError>) -> Bool
     ) -> CResult<CString> {
-        var error = CTesseractUtils.CError()
+        var error = CTesseract.CError()
         var val: CString? = nil
         if !ccall(&val, &error) {
             return .failure(error.owned())
@@ -68,9 +68,9 @@ extension CResult {
 
 extension CResult {
     static func wrap(
-        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseractUtils.CError>) -> COptionResponseResult
+        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseract.CError>) -> COptionResponseResult
     ) -> CResult<CString?> {
-        var error = CTesseractUtils.CError()
+        var error = CTesseract.CError()
         var val: CString? = nil
         switch ccall(&val, &error) {
         case COptionResponseResult_Error: return .failure(error.owned())
@@ -83,9 +83,9 @@ extension CResult {
 
 public extension CResult {
     static func wrap(
-        ccall: @escaping (UnsafeMutablePointer<CTesseractUtils.CError>) -> Bool
+        ccall: @escaping (UnsafeMutablePointer<CTesseract.CError>) -> Bool
     ) -> CResult<Void> {
-        var error = CTesseractUtils.CError()
+        var error = CTesseract.CError()
         if !ccall(&error) {
             return .failure(error.owned())
         }

@@ -1,7 +1,8 @@
 // swift-tools-version:5.6
 // The swift-tools-version declares the minimum version of Swift required to build this package.
-
 import PackageDescription
+
+let useLocalBinary = true
 
 var package = Package(
     name: "Tesseract",
@@ -11,8 +12,17 @@ var package = Package(
             name: "TesseractClient",
             targets: ["TesseractClient"]),
         .library(
+            name: "TesseractClientTransports",
+            targets: ["TesseractClientTransports"]),
+        .library(
             name: "TesseractService",
             targets: ["TesseractService"]),
+        .library(
+            name: "TesseractServiceTransports",
+            targets: ["TesseractServiceTransports"]),
+        .library(
+            name: "TesseractShared",
+            targets: ["TesseractShared"]),
         .library(
             name: "TesseractUtils",
             targets: ["TesseractUtils"])
@@ -21,19 +31,25 @@ var package = Package(
     targets: [
         .target(
             name: "TesseractClient",
-            dependencies: ["TesseractUtils", "TesseractCommon", "CTesseractClient"]),
+            dependencies: ["TesseractClientTransports", "CTesseractBin"]),
         .target(
             name: "TesseractService",
-            dependencies: ["TesseractUtils", "TesseractCommon", "CTesseractService"]),
+            dependencies: ["TesseractServiceTransports", "CTesseractBin"]),
         .target(
-            name: "TesseractCommon",
-            dependencies: ["TesseractUtils", "CTesseractCommon"]),
+            name: "TesseractClientTransports",
+            dependencies: ["TesseractUtils", "TesseractShared", "CTesseract"]),
+        .target(
+            name: "TesseractServiceTransports",
+            dependencies: ["TesseractUtils", "TesseractShared", "CTesseract"]),
+        .target(
+            name: "TesseractShared",
+            dependencies: ["TesseractUtils", "CTesseract"]),
         .target(
             name: "TesseractUtils",
-            dependencies: ["CTesseractUtils"]),
-        .systemLibrary(name: "CTesseractUtils"),
-        .systemLibrary(name: "CTesseractCommon"),
-        .systemLibrary(name: "CTesseractClient"),
-        .systemLibrary(name: "CTesseractService")
+            dependencies: ["CTesseract"]),
+        .target(name: "CTesseract", dependencies: []),
+        useLocalBinary
+            ? .binaryTarget(name: "CTesseractBin", path: "CTesseractBin.xcframework")
+            : .binaryTarget(name: "CTesseractBin", url: "", checksum: "")
     ]
 )

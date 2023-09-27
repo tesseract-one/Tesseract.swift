@@ -1,0 +1,12 @@
+[workspace]
+
+resolver = "2"
+
+members = [
+    "app",
+    "wallet"
+]
+
+[profile.release]
+strip = true
+lto = true

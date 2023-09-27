@@ -1,8 +1,10 @@
 [workspace]
+resolver = "2"
 
 members = [
-    "rust/tesseract_client",
-    "rust/tesseract_service",
-    "rust/tesseract_utils",
-    "rust/tesseract_common"
+    "Rust/client",
+    "Rust/service",
+    "Rust/utils",
+    "Rust/shared",
+    "Rust/tesseract"
 ]

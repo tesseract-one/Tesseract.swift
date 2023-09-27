@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseractUtils
+import CTesseract
 
 extension CString: CPtr {
     public typealias Val = String

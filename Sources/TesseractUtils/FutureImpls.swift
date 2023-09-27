@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseractUtils
+import CTesseract
 
 extension CFutureValue_Nothing: CFutureValueValue {
     public typealias Val = Nothing

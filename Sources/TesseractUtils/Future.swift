@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import CTesseractUtils
+import CTesseract
 
 public protocol CFutureValue: CType {
     associatedtype Val
     associatedtype Tag: Equatable
     
     var tag: Tag { get set }
-    var error: CTesseractUtils.CError { get set }
+    var error: CTesseract.CError { get set }
     
     var _value: Val { get set }
     
@@ -52,7 +52,7 @@ extension CFutureValue {
         return val
     }
     
-    public static func error(_ error: CTesseractUtils.CError) -> Self {
+    public static func error(_ error: CTesseract.CError) -> Self {
         var val = Self()
         val.tag = Self.errorTag
         val.error = error
@@ -318,7 +318,7 @@ extension CFuturePtr {
     public static func _onCompleteCallback(
         _ ctx: UnsafeRawPointer!,
         _ value: UnsafeMutablePointer<CVal.Val>?,
-        _ error: UnsafeMutablePointer<CTesseractUtils.CError>?
+        _ error: UnsafeMutablePointer<CTesseract.CError>?
     ) {
         var ctx = CFutureContext<Self>.take(ctx)
         defer { try! ctx.future.free() }
@@ -368,7 +368,7 @@ extension CFuturePtr {
         _ ctx: UnsafeRawPointer?,
         _ cb: @escaping (UnsafeRawPointer?,
                          UnsafeMutablePointer<CVal.Val>?,
-                         UnsafeMutablePointer<CTesseractUtils.CError>?) -> Void
+                         UnsafeMutablePointer<CTesseract.CError>?) -> Void
     ) -> CVal {
         let context = try! this.pointee.ptr.unowned(CAsyncContext<CVal.Val>.self)
         

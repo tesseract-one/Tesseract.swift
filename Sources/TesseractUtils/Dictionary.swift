@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseractUtils
+import CTesseract
 
 public protocol CKeyValue {
     associatedtype CKey

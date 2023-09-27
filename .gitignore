@@ -22,6 +22,9 @@ DerivedData
 *.xcuserstate
 *.xcworkspace
 
+# SPM
+.swiftpm
+
 # Pods
 Pods/
 
@@ -30,3 +33,7 @@ Carthage/
 
 /target
 Cargo.lock
+
+# binaries
+*.bin.zip
+*.xcframework

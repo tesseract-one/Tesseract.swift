@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseractUtils
+import CTesseract
 
 public func InitialiseTesseractUtils() {
     tesseract_utils_init()

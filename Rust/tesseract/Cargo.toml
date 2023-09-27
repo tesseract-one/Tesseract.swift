@@ -1,0 +1,24 @@
+[package]
+name = "tesseract-swift"
+version = "0.1.0"
+authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
+license = "Apache-2.0"
+description = "Umbrella project for full Tesseract Swift binary"
+keywords = [ "Tesseract", "Swift", "C" ]
+edition = "2021"
+
+[dependencies]
+tesseract-swift-utils = { path = "../utils" }
+tesseract-swift-shared = { path = "../shared" }
+tesseract-swift-client = { path = "../client" }
+tesseract-swift-service = { path = "../service" }
+
+[build-dependencies]
+cbindgen = "0.26"
+
+[lib]
+crate-type = ["staticlib"]
+
+[profile.release]
+strip = true
+lto = true

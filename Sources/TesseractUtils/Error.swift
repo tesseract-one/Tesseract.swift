@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseractUtils
+import CTesseract
 
 public enum CError: Error {
     case nullPtr
@@ -16,7 +16,7 @@ public enum CError: Error {
     case dynamicCast(reason: String)
     case error(code: UInt32, message: String)
     
-    public init(copying error: CTesseractUtils.CError) {
+    public init(copying error: CTesseract.CError) {
         switch error.tag {
         case CError_NullPtr: self = .nullPtr
         case CError_Canceled: self = .canceled
@@ -33,10 +33,10 @@ public enum CError: Error {
 }
 
 extension CError: AsCPtrCopy {
-    public typealias CopyPtr = CTesseractUtils.CError
+    public typealias CopyPtr = CTesseract.CError
     
     public func copiedPtr() -> CopyPtr {
-        var error = CTesseractUtils.CError()
+        var error = CTesseract.CError()
         switch self {
         case .nullPtr: error.tag = CError_NullPtr
         case .canceled: error.tag = CError_Canceled
@@ -59,10 +59,10 @@ extension CError: AsCPtrCopy {
 }
 
 extension CError: AsCPtrRef {
-    public typealias RefPtr = CTesseractUtils.CError
+    public typealias RefPtr = CTesseract.CError
     
     public func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T {
-        var error = CTesseractUtils.CError()
+        var error = CTesseract.CError()
         switch self {
         case .nullPtr:
             error.tag = CError_NullPtr
@@ -99,9 +99,9 @@ extension CError: AsCPtrRef {
     }
 }
 
-extension CTesseractUtils.CError: CType {}
+extension CTesseract.CError: CType {}
 
-extension CTesseractUtils.CError: CPtr {
+extension CTesseract.CError: CPtr {
     public typealias Val = CError
     
     public func copied() -> CError {
