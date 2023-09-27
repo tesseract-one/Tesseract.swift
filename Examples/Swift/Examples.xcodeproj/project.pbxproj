@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		923ADAE22AC4127F001853DA /* TesseractClientTransports in Frameworks */ = {isa = PBXBuildFile; productRef = 923ADAE12AC4127F001853DA /* TesseractClientTransports */; };
 		923ADAE62AC4A092001853DA /* TesseractService in Frameworks */ = {isa = PBXBuildFile; productRef = 923ADAE52AC4A092001853DA /* TesseractService */; };
+		923ADAE82AC4B6C5001853DA /* TestSigningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923ADAE72AC4B6C5001853DA /* TestSigningService.swift */; };
 		9244C7A929246C100055E6B6 /* DAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9244C7A829246C100055E6B6 /* DAppApp.swift */; };
 		9244C7AB29246C100055E6B6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9244C7AA29246C100055E6B6 /* ContentView.swift */; };
 		9244C7AD29246C120055E6B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9244C7AC29246C120055E6B6 /* Assets.xcassets */; };
@@ -53,6 +54,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		923ADAE72AC4B6C5001853DA /* TestSigningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSigningService.swift; sourceTree = "<group>"; };
 		9244C7A529246C100055E6B6 /* DApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9244C7A829246C100055E6B6 /* DAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAppApp.swift; sourceTree = "<group>"; };
 		9244C7AA29246C100055E6B6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 			children = (
 				BAED6AEC292C3AC900A9BA2D /* Extension.entitlements */,
 				929FF53C29246E0D00F79FD7 /* Media.xcassets */,
+				923ADAE72AC4B6C5001853DA /* TestSigningService.swift */,
 				929FF53E29246E0D00F79FD7 /* ActionViewController.swift */,
 				929FF54029246E0D00F79FD7 /* MainInterface.storyboard */,
 				929FF54329246E0D00F79FD7 /* Info.plist */,
@@ -383,6 +386,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				923ADAE82AC4B6C5001853DA /* TestSigningService.swift in Sources */,
 				929FF53F29246E0D00F79FD7 /* ActionViewController.swift in Sources */,
 				BAED6AEA292C3AA600A9BA2D /* WalletData.swift in Sources */,
 			);

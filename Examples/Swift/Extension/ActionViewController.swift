@@ -9,43 +9,39 @@ import UIKit
 import MobileCoreServices
 import TesseractService
 
-class ActionViewController: UIViewController, TestService {
+class ActionViewController: UIViewController, TestSigningServiceDelegate {
     @IBOutlet weak var textView: UILabel!
     
-    var continuation: UnsafeContinuation<CResult<String>, Never>?
+    var continuation: UnsafeContinuation<CResult<Bool>, Never>?
     
     var tesseract: Tesseract!
-    var data: WalletData!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        data = WalletData()
+        let data = WalletData()
+        let service = TestSigningService(delegate: self, signature: data.signature)
+        
         tesseract = Tesseract()
             .transport(IPCTransportIOS(self))
-            .service(self)
+            .service(service)
     }
     
     @MainActor
-    func signTransation(req: String) async -> CResult<String> {
+    func acceptTx(tx: String) async -> CResult<Bool> {
         return await withUnsafeContinuation { cont in
             self.continuation = cont
-            self.textView.text = req
+            self.textView.text = tx
         }
     }
     
-    func signed() -> String {
-        self.textView.text! + data.signature
-    }
-    
-
     @IBAction func allow() {
-        self.continuation?.resume(returning: .success(signed()))
+        self.continuation?.resume(returning: .success(true))
         self.continuation = nil
     }
     
     @IBAction func reject() {
-        self.continuation?.resume(returning: .failure(.canceled))
+        self.continuation?.resume(returning: .success(false))
         self.continuation = nil
     }
     
