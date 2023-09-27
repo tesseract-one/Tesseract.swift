@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import TesseractShared
 
 public protocol TransportProcessor: AnyObject {
-    func process(data: Data) async throws -> Data
+    func process(data: Data) async -> Result<Data, CError>
 }
 
 public protocol BoundTransport: AnyObject {}

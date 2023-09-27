@@ -18,6 +18,10 @@ extension UIActivity.ActivityType {
         if #available(iOS 15.4, *) {
             types.append(.sharePlay)
         }
+        if #available(iOS 16.0, *) {
+            types.append(.collaborationCopyLink)
+            types.append(.collaborationInviteWithLink)
+        }
         return types
     }()
 }

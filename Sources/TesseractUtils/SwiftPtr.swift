@@ -15,10 +15,10 @@ public protocol CSwiftDropPtr: CType {
     
     init(value object: SObject)
     
-    func unowned() throws -> SObject
-    mutating func owned() throws -> SObject
+    func unowned() -> CResult<SObject>
+    mutating func owned() -> CResult<SObject>
     
-    mutating func free() throws
+    mutating func free() -> CResult<Void>
 }
 
 extension CSwiftDropPtr {
@@ -27,16 +27,16 @@ extension CSwiftDropPtr {
         self.ptr = .wrapped(object)
     }
     
-    public func unowned() throws -> SObject {
-        try self.ptr.unowned(SObject.self)
+    public func unowned() -> CResult<SObject> {
+        self.ptr.unowned(SObject.self)
     }
     
-    public mutating func owned() throws -> SObject {
-        try self.ptr.owned(SObject.self)
+    public mutating func owned() -> CResult<SObject> {
+        self.ptr.owned(SObject.self)
     }
     
-    public mutating func free() throws {
-        try self.ptr.free()
+    public mutating func free() -> CResult<Void> {
+        self.ptr.free()
     }
 }
 
@@ -45,10 +45,13 @@ public protocol CSwiftAnyDropPtr: CType {
     
     init(value object: AnyObject)
     
-    func unowned() throws -> AnyObject
-    mutating func owned() throws -> AnyObject
+    func unowned() -> CResult<AnyObject>
+    func unowned<T>(_ type: T.Type) -> CResult<T>
     
-    mutating func free() throws
+    mutating func owned() -> CResult<AnyObject>
+    mutating func owned<T>(_ type: T.Type) -> CResult<T>
+    
+    mutating func free() -> CResult<Void>
 }
 
 extension CSwiftAnyDropPtr {
@@ -57,51 +60,71 @@ extension CSwiftAnyDropPtr {
         self.ptr = .wrapped(object)
     }
     
-    public func unowned() throws -> AnyObject {
+    public func unowned() -> CResult<AnyObject> {
         guard let obj = self.ptr.unowned() else {
-            throw CError.nullPtr
+            return .failure(.nullPtr)
         }
-        return obj
+        return .success(obj)
     }
     
-    public mutating func owned() throws -> AnyObject {
-        try self.ptr.owned()
+    public func unowned<T>(_ type: T.Type) -> CResult<T> {
+        self.ptr.unowned(type)
     }
     
-    public mutating func free() throws {
-        try self.ptr.free()
+    public mutating func owned() -> CResult<AnyObject> {
+        self.ptr.owned()
+    }
+    
+    public mutating func owned<T>(_ type: T.Type) -> CResult<T> {
+        self.ptr.owned(type)
+    }
+    
+    public mutating func free() -> CResult<Void> {
+        self.ptr.free()
     }
 }
 
 extension UnsafePointer where Pointee: CSwiftDropPtr {
-    public func unowned() throws -> Pointee.SObject {
-        try self.pointee.unowned()
+    public func unowned() throws -> CResult<Pointee.SObject> {
+        self.pointee.unowned()
     }
 }
 
 extension UnsafeMutablePointer where Pointee: CSwiftDropPtr {
-    public func unowned() throws -> Pointee.SObject  {
-        try self.pointee.unowned()
+    public func unowned() -> CResult<Pointee.SObject> {
+        self.pointee.unowned()
     }
     
-    public func owned() throws -> Pointee.SObject  {
-        try self.pointee.owned()
+    public func owned() throws -> CResult<Pointee.SObject>  {
+        self.pointee.owned()
     }
 }
 
 extension UnsafePointer where Pointee: CSwiftAnyDropPtr {
-    public func unowned() throws -> AnyObject {
-        try self.pointee.unowned()
+    public func unowned() -> CResult<AnyObject> {
+        self.pointee.unowned()
+    }
+    
+    public func unowned<T>(_ type: T.Type) -> CResult<T> {
+        self.pointee.unowned(type)
     }
 }
 
 extension UnsafeMutablePointer where Pointee: CSwiftAnyDropPtr {
-    public func unowned() throws -> AnyObject  {
-        try self.pointee.unowned()
+    public func unowned() throws -> CResult<AnyObject>  {
+        self.pointee.unowned()
     }
     
-    public func owned() throws -> AnyObject  {
-        try self.pointee.owned()
+    public func unowned<T>(_ type: T.Type) -> CResult<T> {
+        self.pointee.unowned(type)
+    }
+    
+    public func owned() throws -> CResult<AnyObject>  {
+        self.pointee.owned()
+    }
+    
+    public func owned<T>(_ type: T.Type) -> CResult<T> {
+        self.pointee.owned(type)
     }
 }
 

@@ -59,7 +59,7 @@
 		9244C7AA29246C100055E6B6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9244C7AC29246C120055E6B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9244C7AF29246C120055E6B6 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		9244C7BA29246CBF0055E6B6 /* Wallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9244C7BA29246CBF0055E6B6 /* RustWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RustWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9244C7BC29246CBF0055E6B6 /* WalletApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletApp.swift; sourceTree = "<group>"; };
 		9244C7BE29246CBF0055E6B6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9244C7C029246CC10055E6B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -70,7 +70,7 @@
 		929FF53E29246E0D00F79FD7 /* ActionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
 		929FF54129246E0D00F79FD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		929FF54329246E0D00F79FD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		929FF54C29246EA000F79FD7 /* Tesseract.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Tesseract.swift; path = ..; sourceTree = "<group>"; };
+		929FF54C29246EA000F79FD7 /* Tesseract.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Tesseract.swift; path = ../..; sourceTree = "<group>"; };
 		929FF54D29246F0C00F79FD7 /* AppCore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppCore.swift; sourceTree = "<group>"; };
 		929FF54E29246F0C00F79FD7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		929FF55E292510EB00F79FD7 /* NativeUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeUI.swift; sourceTree = "<group>"; };
@@ -125,7 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				9244C7A529246C100055E6B6 /* DApp.app */,
-				9244C7BA29246CBF0055E6B6 /* Wallet.app */,
+				9244C7BA29246CBF0055E6B6 /* RustWallet.app */,
 				929FF53729246E0D00F79FD7 /* Extension.appex */,
 			);
 			name = Products;
@@ -207,9 +207,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9244C7A429246C100055E6B6 /* DApp */ = {
+		9244C7A429246C100055E6B6 /* RustDApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9244C7B329246C120055E6B6 /* Build configuration list for PBXNativeTarget "DApp" */;
+			buildConfigurationList = 9244C7B329246C120055E6B6 /* Build configuration list for PBXNativeTarget "RustDApp" */;
 			buildPhases = (
 				929FF558292470A600F79FD7 /* Build Rust */,
 				9244C7A129246C100055E6B6 /* Sources */,
@@ -220,7 +220,7 @@
 			);
 			dependencies = (
 			);
-			name = DApp;
+			name = RustDApp;
 			packageProductDependencies = (
 				923ADAE12AC4127F001853DA /* TesseractClientTransports */,
 			);
@@ -228,9 +228,9 @@
 			productReference = 9244C7A529246C100055E6B6 /* DApp.app */;
 			productType = "com.apple.product-type.application";
 		};
-		9244C7B929246CBF0055E6B6 /* Wallet */ = {
+		9244C7B929246CBF0055E6B6 /* RustWallet */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9244C7C529246CC10055E6B6 /* Build configuration list for PBXNativeTarget "Wallet" */;
+			buildConfigurationList = 9244C7C529246CC10055E6B6 /* Build configuration list for PBXNativeTarget "RustWallet" */;
 			buildPhases = (
 				9244C7B629246CBF0055E6B6 /* Sources */,
 				9244C7B729246CBF0055E6B6 /* Frameworks */,
@@ -242,9 +242,9 @@
 			dependencies = (
 				929FF54529246E0D00F79FD7 /* PBXTargetDependency */,
 			);
-			name = Wallet;
+			name = RustWallet;
 			productName = Wallet;
-			productReference = 9244C7BA29246CBF0055E6B6 /* Wallet.app */;
+			productReference = 9244C7BA29246CBF0055E6B6 /* RustWallet.app */;
 			productType = "com.apple.product-type.application";
 		};
 		929FF53629246E0D00F79FD7 /* Extension */ = {
@@ -302,8 +302,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9244C7A429246C100055E6B6 /* DApp */,
-				9244C7B929246CBF0055E6B6 /* Wallet */,
+				9244C7A429246C100055E6B6 /* RustDApp */,
+				9244C7B929246CBF0055E6B6 /* RustWallet */,
 				929FF53629246E0D00F79FD7 /* Extension */,
 			);
 		};
@@ -570,7 +570,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.DApp;
+				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.DApp.Rust;
 				PRODUCT_NAME = DApp;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -600,7 +600,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.DApp;
+				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.DApp.Rust;
 				PRODUCT_NAME = DApp;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -632,7 +632,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Wallet;
+				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Wallet.Rust;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -664,7 +664,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Wallet;
+				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Wallet.Rust;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -689,7 +689,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Wallet.Extension;
+				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Wallet.Rust.Extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -715,7 +715,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Wallet.Extension;
+				PRODUCT_BUNDLE_IDENTIFIER = one.tesseract.Wallet.Rust.Extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -736,7 +736,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9244C7B329246C120055E6B6 /* Build configuration list for PBXNativeTarget "DApp" */ = {
+		9244C7B329246C120055E6B6 /* Build configuration list for PBXNativeTarget "RustDApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9244C7B429246C120055E6B6 /* Debug */,
@@ -745,7 +745,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9244C7C529246CC10055E6B6 /* Build configuration list for PBXNativeTarget "Wallet" */ = {
+		9244C7C529246CC10055E6B6 /* Build configuration list for PBXNativeTarget "RustWallet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9244C7C629246CC10055E6B6 /* Debug */,

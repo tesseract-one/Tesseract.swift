@@ -69,15 +69,18 @@ extension ClientTransport: CSwiftAnyDropPtr {}
 extension ClientConnection: CSwiftAnyDropPtr {}
 
 private func transport_id(self: UnsafePointer<ClientTransport>!) -> CString? {
-    (try! self.unowned() as! Transport).id.copiedPtr()
+    try! self.unowned(Transport.self).get().id.copiedPtr()
 }
 
 private func transport_status(
     self: UnsafePointer<ClientTransport>!,
     proto: CStringRef!
 ) -> CFutureClientStatus {
-    CFutureClientStatus {
-        try await (self.unowned() as! Transport).status(proto: proto!.copied())
+    let proto = proto!.copied()
+    return CFutureClientStatus {
+        await self.unowned(Transport.self).asyncFlatMap {
+            .success(await $0.status(proto: proto))
+        }
     }
 }
 
@@ -85,7 +88,7 @@ private func transport_connect(
     self: UnsafePointer<ClientTransport>!,
     proto: CStringRef!
 ) -> ClientConnection {
-    (try! self.unowned() as! Transport).connect(proto: proto!.copied()).asNative()
+    try! self.unowned(Transport.self).get().connect(proto: proto.copied()).asNative()
 }
 
 private func connection_send(self: UnsafePointer<ClientConnection>!,
@@ -94,13 +97,17 @@ private func connection_send(self: UnsafePointer<ClientConnection>!,
 {
     let data = Data(bytes: UnsafeRawPointer(data), count: Int(len))
     return CFutureNothing {
-        try await (self.unowned() as! Connection).send(request: data)
+        await self.unowned(Connection.self).asyncFlatMap {
+            await $0.send(request: data)
+        }
     }
 }
 
 private func connection_receive(self: UnsafePointer<ClientConnection>!) -> CFutureData {
     return CFutureData {
-        try await (self.unowned() as! Connection).receive()
+        await self.unowned(Connection.self).asyncFlatMap {
+            await $0.receive()
+        }
     }
 }
 

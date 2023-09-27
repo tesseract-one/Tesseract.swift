@@ -9,7 +9,7 @@ import Foundation
 import CTesseract
 import TesseractShared
 
-extension CTesseract.TestService: NativeService {
+extension CTesseract.TestService: NativeService {    
     public func register(
         in tesseract: UnsafeMutablePointer<ServiceTesseract>
     ) -> ServiceTesseract {
@@ -18,7 +18,7 @@ extension CTesseract.TestService: NativeService {
 }
 
 public protocol TestService: Service where Native == CTesseract.TestService {
-    func signTransation(req: String) async throws -> String
+    func signTransation(req: String) async -> CResult<String>
 }
 
 public extension TestService {
@@ -34,6 +34,8 @@ private func test_service_sign(this: UnsafePointer<CTesseract.TestService>!,
 {
     let req = req.copied()!
     return CFutureString {
-        try await (this.unowned() as! (any TestService)).signTransation(req: req)
+        await this.unowned((any TestService).self).asyncFlatMap {
+            await $0.signTransation(req: req)
+        }
     }
 }

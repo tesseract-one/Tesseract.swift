@@ -75,12 +75,12 @@ extension CTesseract.SubstrateService: NativeService {
 public protocol SubstrateService: Service where Native == CTesseract.SubstrateService {
     func getAccount(
         type: SubstrateAccountType
-    ) async throws -> (pubKey: Data, path: String)
+    ) async -> CResult<(pubKey: Data, path: String)>
     
     func signTransation(
         type: SubstrateAccountType, path: String,
         extrinsic: Data, metadata: Data, types: Data
-    ) async throws -> Data
+    ) async -> CResult<Data>
 }
 
 public extension SubstrateService {
@@ -97,7 +97,9 @@ private func substrate_service_get_account(
     accountType: SubstrateAccountType
 ) -> CFuture_SubstrateGetAccountResponse {
     CFuture_SubstrateGetAccountResponse {
-        try await (this.unowned() as! (any SubstrateService)).getAccount(type: accountType)
+        await this.unowned((any SubstrateService).self).asyncFlatMap {
+            await $0.getAccount(type: accountType)
+        }
     }
 }
 
@@ -113,9 +115,9 @@ private func substrate_service_sign(
     let metadata = Data(bytes: metadata, count: Int(metadataLen))
     let types = Data(bytes: types, count: Int(typesLen))
     return CFutureData {
-        try await (this.unowned() as! (any SubstrateService)).signTransation(
-            type: type, path: path, extrinsic: extrinsic,
-            metadata: metadata, types: types
-        )
+        await this.unowned((any SubstrateService).self).asyncFlatMap {
+            await $0.signTransation(type: type, path: path, extrinsic: extrinsic,
+                                    metadata: metadata, types: types)
+        }
     }
 }

@@ -18,11 +18,11 @@ import UIKit
     }
     
     public func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
-        return Data()
+        return NSData()
     }
     
     public func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
-        return data
+        return data as NSData
     }
     
     public func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {

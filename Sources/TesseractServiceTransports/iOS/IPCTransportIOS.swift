@@ -15,7 +15,7 @@ public class IPCTransportIOS {
         self.context = context
     }
     
-    func rawRequest() async throws -> (data: Data, uti: String) {
+    func rawRequest() async -> Result<(data: Data, uti: String), CError> {
         let item = context.inputItems
             .compactMap{$0 as? NSExtensionItem}
             .compactMap{$0.attachments}
@@ -23,39 +23,47 @@ public class IPCTransportIOS {
             .first
         
         guard let item = item else {
-            throw CError.emptyRequest(message: "No attachment items")
+            return .failure(.emptyRequest(message: "No attachment items"))
         }
                 
         guard let requestUTI = item.registeredTypeIdentifiers.first else {
-            throw CError.emptyRequest(message: "No items UTI")
+            return .failure(.emptyRequest(message: "No items UTI"))
         }
         
-        let request = try await item.loadItem(forTypeIdentifier: requestUTI, options: nil)
+        let request: NSSecureCoding
+        do {
+            request = try await item.loadItem(forTypeIdentifier: requestUTI,
+                                              options: nil)
+        } catch {
+            return .failure(.nested(error: error))
+        }
         
         guard let data = request as? Data else {
-            throw CError.unsupportedDataType(message: "Wrong message type: \(request)")
+            return .failure(.unsupportedDataType(
+                message: "Wrong message type: \(request)"
+            ))
         }
         
-        return (data: data, uti: requestUTI)
+        return .success((data: data, uti: requestUTI))
     }
     
-    func sendResponse(data: Data, uti: String) async throws {
+    func sendResponse(data: Data, uti: String) async -> Result<(), CError> {
         let reply = NSExtensionItem()
         reply.attachments = [
-            NSItemProvider(item: data as NSSecureCoding, typeIdentifier: uti)
+            NSItemProvider(item: data as NSData, typeIdentifier: uti)
         ]
-        return try await withUnsafeThrowingContinuation { cont in
+        return await withUnsafeContinuation { cont in
             context.completeRequest(returningItems: [reply]) { expired in
                 if expired {
-                    cont.resume(throwing: CError.requestExpired(message: "Expired"))
+                    cont.resume(returning: .failure(.requestExpired(message: "Expired")))
                 } else {
-                    cont.resume(returning: ())
+                    cont.resume(returning: .success(()))
                 }
             }
         }
     }
     
-    func sendError(error: Error) {
+    func sendError(error: CError) {
         context.cancelRequest(withError: error)
     }
 }
@@ -72,12 +80,14 @@ public class BoundIPCTransportIOS: BoundTransport {
     
     private func process() {
         Task {
-            do {
-                let (data, uti) = try await self.transport.rawRequest()
-                let result = try await self.processor.process(data: data)
-                try await self.transport.sendResponse(data: result, uti: uti)
-            } catch {
-                self.transport.sendError(error: error)
+            let result = await self.transport.rawRequest().asyncFlatMap { (data, uti) in
+                await self.processor.process(data: data).asyncFlatMap {
+                    await self.transport.sendResponse(data: $0, uti: uti)
+                }
+            }
+            switch result {
+            case .failure(let err): self.transport.sendError(error: err)
+            default: break
             }
         }
     }

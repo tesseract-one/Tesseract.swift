@@ -9,7 +9,7 @@ import Foundation
 import CTesseract
 @_exported import TesseractShared
 
-public class NativeTransportProcessor: TransportProcessor {
+public final class NativeTransportProcessor: TransportProcessor {
     public private(set) var processor: ServiceTransportProcessor
     
     public init(processor: ServiceTransportProcessor) {
@@ -20,13 +20,13 @@ public class NativeTransportProcessor: TransportProcessor {
         tesseract_service_transport_processor_free(&self.processor)
     }
     
-    public func process(data: Data) async throws -> Data {
+    public func process(data: Data) async -> CResult<Data> {
         let future = data.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) in
             tesseract_service_transport_processor_process(self.processor,
                                                           ptr.baseAddress,
                                                           UInt(ptr.count))
         }
-        return try await future.value
+        return await future.result
     }
 }
 
@@ -55,7 +55,7 @@ private func transport_bind(this: ServiceTransport,
                             processor: ServiceTransportProcessor) -> ServiceBoundTransport
 {
     var this = this
-    return (try! this.owned() as! Transport)
+    return try! this.owned(Transport.self).get()
         .bind(processor: NativeTransportProcessor(processor: processor))
         .asNative()
 }

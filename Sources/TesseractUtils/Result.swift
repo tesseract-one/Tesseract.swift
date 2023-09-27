@@ -92,3 +92,14 @@ public extension CResult {
         return .success(())
     }
 }
+
+public extension Result {
+    func asyncFlatMap<NewSuccess>(
+        _ transform: (Success) async -> Result<NewSuccess, Failure>
+    ) async -> Result<NewSuccess, Failure> {
+        switch self {
+        case .failure(let err): return .failure(err)
+        case .success(let val): return await transform(val)
+        }
+    }
+}

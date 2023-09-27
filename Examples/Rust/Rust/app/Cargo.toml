@@ -8,8 +8,8 @@ keywords = [ "Tesseract", "Cardano", "C" ]
 edition = "2021"
 
 [dependencies]
-tesseract-swift-utils = { path = "../../../Rust/utils" }
-tesseract-swift-transports = { path = "../../../Rust/transports", features = ["client"]}
+tesseract-swift-utils = { path = "../../../../Rust/utils" }
+tesseract-swift-transports = { path = "../../../../Rust/transports", features = ["client"]}
 tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["client"] }
 tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["client"] }
 async-trait = "0.1"

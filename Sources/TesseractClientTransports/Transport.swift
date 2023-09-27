@@ -15,8 +15,8 @@ public enum Status {
 }
 
 public protocol Connection: AnyObject {
-    func send(request: Data) async throws
-    func receive() async throws -> Data
+    func send(request: Data) async -> Result<(), CError>
+    func receive() async -> Result<Data, CError>
 }
 
 public protocol Transport: AnyObject {

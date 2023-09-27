@@ -24,7 +24,7 @@ extension CFutureValue_Nothing: CFutureValueValue {
     }
 }
 
-extension CFutureNothing: CFuturePtr {
+extension CFutureNothing: CFuturePtr {    
     public typealias CVal = CFutureValue_Nothing
     public typealias Val = Void
     

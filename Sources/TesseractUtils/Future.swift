@@ -95,7 +95,7 @@ public protocol CFuturePtr: CType {
     func onComplete(cb: @escaping (CResult<Val>) -> Void) throws -> CResult<Val>?
     
     // Frees unconsumed future. Call it only if you don't want to use the future
-    mutating func free() throws
+    mutating func free() -> CResult<Void>
     
     // Helpers for value converting
     static func convert(cvalue: inout CVal.Val) -> CResult<Val>
@@ -175,8 +175,8 @@ extension CFuturePtr {
     }
     
     // Call it only if you don't want to wait for the Future.
-    public mutating func free() throws {
-        try self.ptr.free()
+    public mutating func free() -> CResult<Void> {
+        self.ptr.free()
     }
 }
 
@@ -310,7 +310,7 @@ extension CFuturePtr {
         if value.isSome { // We have value already. Context is non needed
             var this = self
             let _ = CFutureContext<Self>.take(pointer)
-            try! this.free()
+            try! this.free().get()
         }
         return value
     }
@@ -321,7 +321,7 @@ extension CFuturePtr {
         _ error: UnsafeMutablePointer<CTesseract.CError>?
     ) {
         var ctx = CFutureContext<Self>.take(ctx)
-        defer { try! ctx.future.free() }
+        defer { try! ctx.future.free().get() }
         if let error = error {
             ctx.callback(.failure(error.pointee.owned()))
         } else {
@@ -370,7 +370,7 @@ extension CFuturePtr {
                          UnsafeMutablePointer<CVal.Val>?,
                          UnsafeMutablePointer<CTesseract.CError>?) -> Void
     ) -> CVal {
-        let context = try! this.pointee.ptr.unowned(CAsyncContext<CVal.Val>.self)
+        let context = try! this.pointee.ptr.unowned(CAsyncContext<CVal.Val>.self).get()
         
         let newCb = { (res: CResult<CVal.Val>) in
             switch res {
