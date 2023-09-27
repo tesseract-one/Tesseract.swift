@@ -1,13 +1,13 @@
 #!/bin/zsh
 set -e
 
-DIR="$(cd "$(dirname "$0")" && pwd -P)"
+DIR="$(cd "$(dirname "$0")" && pwd -P)/.."
 ZIP_PATH=$([ -n "$1" ] && echo "$DIR/$1" || echo "$DIR/Tesseract-Core.bin.zip")
 rm -f "$ZIP_PATH"
 cd "$DIR"
 
-./generate_headers.sh
-./generate_xcframework.sh
+Rust/generate_headers.sh
+Rust/generate_xcframework.sh
 
 TMPDIR=$(mktemp -d)
 

@@ -1,16 +1,15 @@
 extern crate async_trait;
 extern crate tesseract;
 extern crate tesseract_protocol_test;
-extern crate tesseract_swift_client;
+extern crate tesseract_swift_transports;
 extern crate tesseract_swift_utils;
 
 pub mod delegate;
 
 use delegate::{AlertProvider, TransportDelegate};
 use tesseract::client::Tesseract;
-pub use tesseract_swift_client::error::IntoCError;
-pub use tesseract_swift_client::transport::ClientTransport;
-pub use tesseract_swift_client::*;
+pub use tesseract_swift_transports::error::IntoCError;
+pub use tesseract_swift_transports::client::*;
 use tesseract_protocol_test::TestService;
 use tesseract_swift_utils::future_impls::CFutureString;
 use tesseract_swift_utils::string::CStringRef;

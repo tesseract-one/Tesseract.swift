@@ -1,4 +1,4 @@
-use crate::processor::ServiceTransportProcessor;
+use super::processor::ServiceTransportProcessor;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 use tesseract_swift_utils::ptr::CAnyDropPtr;

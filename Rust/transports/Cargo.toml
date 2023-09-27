@@ -1,0 +1,20 @@
+[package]
+name = "tesseract-swift-transports"
+version = "0.1.0"
+authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
+license = "Apache-2.0"
+description = "Tesseract transports for Swift"
+keywords = [ "Tesseract", "Swift", "Transport", "C" ]
+edition = "2021"
+
+[dependencies]
+tesseract-swift-utils = { path = "../utils" }
+async-trait = "0.1"
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master"}
+
+[features]
+client = ["tesseract/client"]
+service = ["tesseract/service"]
+
+[build-dependencies]
+cbindgen = "0.26"

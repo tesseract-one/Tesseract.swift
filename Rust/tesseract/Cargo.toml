@@ -3,22 +3,31 @@ name = "tesseract-swift"
 version = "0.1.0"
 authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
 license = "Apache-2.0"
-description = "Umbrella project for full Tesseract Swift binary"
+description = "Tesseract Swift wrapper implementation"
 keywords = [ "Tesseract", "Swift", "C" ]
 edition = "2021"
 
 [dependencies]
 tesseract-swift-utils = { path = "../utils" }
-tesseract-swift-shared = { path = "../shared" }
-tesseract-swift-client = { path = "../client" }
-tesseract-swift-service = { path = "../service" }
+tesseract-swift-transports = { path = "../transports" }
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master" }
+tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", optional = true }
+tesseract-protocol-substrate = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", optional = true }
+async-trait = "0.1"
 
 [build-dependencies]
 cbindgen = "0.26"
 
+[features]
+client = ["tesseract-swift-transports/client", "tesseract/client"]
+service = ["tesseract-swift-transports/service", "tesseract/service"]
+protocol-test-client = ["client", "tesseract-protocol-test/client"]
+protocol-test-service = ["service", "tesseract-protocol-test/service"]
+protocol-substrate-client = ["client", "tesseract-protocol-substrate/client"]
+protocol-substrate-service = ["service", "tesseract-protocol-substrate/service"]
+client-all = ["protocol-test-client", "protocol-substrate-client"]
+service-all = ["protocol-test-service", "protocol-substrate-service"]
+
 [lib]
 crate-type = ["staticlib"]
 
-[profile.release]
-strip = true
-lto = true

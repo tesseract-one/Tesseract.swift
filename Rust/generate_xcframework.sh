@@ -6,8 +6,8 @@ XCFRAMEWORK_NAME="${HEADERS_FRAMEWORK_NAME}Bin"
 LIBRARY_NAME="tesseract_swift"
 
 DIR="$(cd "$(dirname "$0")" && pwd -P)"
-SOURCES_DIR="${DIR}"
-OUTPUT_DIR="${DIR}"
+SOURCES_DIR="${DIR}/.."
+OUTPUT_DIR="${DIR}/.."
 
 # Removed tvOS targets for now. Should be added when tvOS will have Tier 2 support.
 #  'tvos::arm64:aarch64-apple-tvos'
@@ -183,7 +183,7 @@ for btarget in ${BUILD_TARGETS[@]}; do
 
   for target in ${targets[@]}; do
     echo "Building target: ${target}..."
-    cargo build --lib $RELEASE --target $target
+    cargo build --lib $RELEASE --target $target --all-features
     built_libs+=("${RUST_TARGET_DIR}/${target}/${CONFIGURATION}/lib${LIBRARY_NAME}.a")
   done
   

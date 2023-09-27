@@ -1,5 +1,5 @@
-use crate::connection::ClientConnection;
-use crate::status::ClientStatus;
+use super::connection::ClientConnection;
+use super::status::ClientStatus;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 use tesseract_swift_utils::future::CFuture;

@@ -9,7 +9,7 @@ edition = "2021"
 
 [dependencies]
 tesseract-swift-utils = { path = "../../../Rust/utils" }
-tesseract-swift-service = { path = "../../../Rust/service" }
+tesseract-swift-transports = { path = "../../../Rust/transports", features = ["service"]}
 tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
 tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
 async-trait = "0.1"

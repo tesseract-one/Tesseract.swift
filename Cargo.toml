@@ -2,9 +2,11 @@
 resolver = "2"
 
 members = [
-    "Rust/client",
-    "Rust/service",
-    "Rust/utils",
-    "Rust/shared",
-    "Rust/tesseract"
+    "Rust/tesseract",
+    "Rust/transports",
+    "Rust/utils"
 ]
+
+[profile.release]
+strip = true
+lto = true

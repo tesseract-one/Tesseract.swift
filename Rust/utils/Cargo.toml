@@ -3,7 +3,7 @@ name = "tesseract-swift-utils"
 version = "0.1.0"
 authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
 license = "Apache-2.0"
-description = "Tesseract helpers for Swift."
+description = "Tesseract interop helpers for Swift."
 keywords = [ "Tesseract", "Swift", "C" ]
 edition = "2021"
 
@@ -14,6 +14,5 @@ num-bigint = { version = "0.4", optional = true }
 cbindgen = "0.26"
 
 [features]
-default = ["bigint"]
 bigint = ["dep:num-bigint"]
 

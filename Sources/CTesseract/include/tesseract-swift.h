@@ -9,6 +9,89 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "tesseract-swift-utils.h"
-#include "tesseract-swift-shared.h"
-#include "tesseract-swift-client.h"
-#include "tesseract-swift-service.h"
+#include "tesseract-swift-transports.h"
+
+typedef enum SubstrateAccountType {
+  SubstrateAccountType_Ed25519,
+  SubstrateAccountType_Sr25519,
+  SubstrateAccountType_Ecdsa,
+} SubstrateAccountType;
+
+typedef struct ServiceTesseract {
+  SyncPtr_Void _0;
+} ServiceTesseract;
+
+typedef struct TestService {
+  CAnyDropPtr ptr;
+  CFutureString (*sign_transaction)(const struct TestService *this, CStringRef req);
+} TestService;
+
+typedef struct SubstrateGetAccountResponse {
+  CData public_key;
+  CString path;
+} SubstrateGetAccountResponse;
+
+typedef enum CFutureValue_SubstrateGetAccountResponse_Tag {
+  CFutureValue_SubstrateGetAccountResponse_None_SubstrateGetAccountResponse,
+  CFutureValue_SubstrateGetAccountResponse_Value_SubstrateGetAccountResponse,
+  CFutureValue_SubstrateGetAccountResponse_Error_SubstrateGetAccountResponse,
+} CFutureValue_SubstrateGetAccountResponse_Tag;
+
+typedef struct CFutureValue_SubstrateGetAccountResponse {
+  CFutureValue_SubstrateGetAccountResponse_Tag tag;
+  union {
+    struct {
+      struct SubstrateGetAccountResponse value;
+    };
+    struct {
+      CError error;
+    };
+  };
+} CFutureValue_SubstrateGetAccountResponse;
+
+typedef void (*CFutureOnCompleteCallback_SubstrateGetAccountResponse)(SyncPtr_Void context,
+                                                                      struct SubstrateGetAccountResponse *value,
+                                                                      CError *error);
+
+typedef struct CFuture_SubstrateGetAccountResponse {
+  CAnyDropPtr ptr;
+  struct CFutureValue_SubstrateGetAccountResponse (*set_on_complete)(const struct CFuture_SubstrateGetAccountResponse *future,
+                                                                     SyncPtr_Void context,
+                                                                     CFutureOnCompleteCallback_SubstrateGetAccountResponse cb);
+} CFuture_SubstrateGetAccountResponse;
+
+typedef struct SubstrateService {
+  CAnyDropPtr ptr;
+  struct CFuture_SubstrateGetAccountResponse (*get_account)(const struct SubstrateService *this,
+                                                            enum SubstrateAccountType account_type);
+  CFutureData (*sign_transaction)(const struct SubstrateService *this,
+                                  enum SubstrateAccountType account_type,
+                                  CStringRef account_path,
+                                  const uint8_t *extrinsic_data,
+                                  uintptr_t extrinsic_data_len,
+                                  const uint8_t *extrinsic_metadata,
+                                  uintptr_t extrinsic_metadata_len,
+                                  const uint8_t *extrinsic_types,
+                                  uintptr_t extrinsic_types_len);
+} SubstrateService;
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+struct ServiceTesseract tesseract_service_new(void);
+
+struct ServiceTesseract tesseract_service_add_transport(struct ServiceTesseract *tesseract,
+                                                        ServiceTransport transport);
+
+void tesseract_service_free(struct ServiceTesseract *tesseract);
+
+struct ServiceTesseract tesseract_service_add_test_service(struct ServiceTesseract *tesseract,
+                                                           struct TestService service);
+
+struct ServiceTesseract tesseract_service_add_substrate_service(struct ServiceTesseract *tesseract,
+                                                                struct SubstrateService service);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus

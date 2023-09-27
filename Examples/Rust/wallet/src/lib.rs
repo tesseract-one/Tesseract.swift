@@ -1,14 +1,14 @@
 extern crate async_trait;
 extern crate tesseract;
 extern crate tesseract_protocol_test;
-extern crate tesseract_swift_service;
+extern crate tesseract_swift_transports;
 extern crate tesseract_swift_utils;
 
 use async_trait::async_trait;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 use tesseract::service::Tesseract;
-use tesseract_swift_service::transport::ServiceTransport;
+use tesseract_swift_transports::service::ServiceTransport;
 use tesseract_swift_utils::future_impls::CFutureBool;
 use tesseract_swift_utils::ptr::{CAnyDropPtr, SyncPtr};
 use tesseract_swift_utils::string::{CString, CStringRef};

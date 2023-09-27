@@ -15,5 +15,11 @@ parse_deps = true
 include = ["tesseract-swift-utils"]
 
 [export]
-include = ["CErrorCodes"]
-#exclude = ["CError"]
+include = [
+    "ClientTransport", "ClientConnection", "ClientStatus", "CFutureClientStatus",
+    "ServiceTransport", "ServiceBoundTransport", "ServiceTransportProcessor", "CErrorCodes"
+]
+exclude = [
+    "CFuture_CData", "CFuture_Nothing", "CFuture_Void", "SyncPtr_Void",
+    "CAnyDropPtr", "CString", "CStringRef", "CError"
+]

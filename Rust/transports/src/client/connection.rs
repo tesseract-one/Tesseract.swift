@@ -1,6 +1,6 @@
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
-use tesseract_swift_shared::error::IntoTesseractError;
+use crate::error::IntoTesseractError;
 use tesseract_swift_utils::data::CData;
 use tesseract_swift_utils::future::CFuture;
 use tesseract_swift_utils::ptr::CAnyDropPtr;

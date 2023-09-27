@@ -9,7 +9,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "tesseract-swift-utils.h"
-#include "tesseract-swift-shared.h"
+
+enum CErrorCodes
+#ifdef __cplusplus
+  : uint32_t
+#endif // __cplusplus
+ {
+  CErrorCodes_EmptyRequest = 0,
+  CErrorCodes_EmptyResponse,
+  CErrorCodes_UnsupportedDataType,
+  CErrorCodes_RequestExpired,
+  CErrorCodes_WrongProtocolId,
+  CErrorCodes_WrongInternalState,
+  CErrorCodes_Serialization,
+  CErrorCodes_Nested,
+};
+#ifndef __cplusplus
+typedef uint32_t CErrorCodes;
+#endif // __cplusplus
+
+typedef struct ServiceTransportProcessor {
+  SyncPtr_Void _0;
+} ServiceTransportProcessor;
 
 typedef enum ClientStatus_Tag {
   ClientStatus_Ready,
@@ -74,3 +95,25 @@ typedef struct ClientTransport {
 } ClientTransport;
 
 typedef struct CFuture_ClientStatus CFutureClientStatus;
+
+typedef CAnyDropPtr ServiceBoundTransport;
+
+typedef struct ServiceTransport {
+  CAnyDropPtr ptr;
+  ServiceBoundTransport (*bind)(struct ServiceTransport transport,
+                                struct ServiceTransportProcessor processor);
+} ServiceTransport;
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+CFuture_CData tesseract_service_transport_processor_process(struct ServiceTransportProcessor processor,
+                                                            const uint8_t *data,
+                                                            uintptr_t len);
+
+void tesseract_service_transport_processor_free(struct ServiceTransportProcessor *processor);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
