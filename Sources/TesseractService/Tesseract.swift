@@ -6,11 +6,14 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractBin
 #if !COCOAPODS
 @_exported import TesseractServiceTransports
 #endif
 
+// Class is not thread safe.
+// Use mutex if you need multithreaded setup (but why?)
+// Services and transports are thread safe
 public final class Tesseract {
     public private(set) var tesseract: ServiceTesseract
     

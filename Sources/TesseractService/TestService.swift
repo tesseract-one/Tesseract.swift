@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractBin
 import TesseractShared
 
 extension CTesseract.TestService: NativeService {    

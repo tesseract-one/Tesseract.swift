@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CTesseractBin
 #if !COCOAPODS
 @_exported import TesseractClientTransports
 #endif

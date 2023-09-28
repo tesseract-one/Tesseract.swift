@@ -1,0 +1,46 @@
+name: Build & Tests
+on: [push, pull_request]
+env:
+  RUST_VERSION: nightly
+  RUST_TARGETS: aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+jobs:
+  apple:
+    strategy:
+      matrix:
+        tests: 
+          - xcode: '14.2'
+            machine: macos-12
+          - xcode: '14.3.1'
+            machine: macos-13
+    runs-on: ${{ matrix.tests.machine }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.tests.xcode }}.app
+      - name: Install Rust
+        uses: brndnmtthws/rust-action-rustup@v1
+        with:
+          toolchain: ${{env.RUST_VERSION}}
+          targets: ${{env.RUST_TARGETS}}
+          profile: minimal
+      - name: Build Core rust binary
+        run: Rust/generate_headers.sh && Rust/generate_xcframework.sh
+      - name: Patch Package.swift for testing
+        run: sed -i '' 's|let[[:blank:]]useLocalBinary[[:blank:]]=[[:blank:]]false|let useLocalBinary = true|g' Package.swift
+      - name: Build with SPM for iOS
+        run: xcodebuild build -scheme 'Tesseract-Package' --sdk iphoneos
+      - name: Build with SPM for iOS simulator
+        run: xcodebuild build -scheme 'Tesseract-Package' --sdk iphonesimulator
+      - name: Lint CocoaPods Tesseract-Core
+        run: |
+          pod lib lint --allow-warnings --fail-fast Tesseract-Core.posdpec
+          echo "LINTED_PODS=Tesseract-Core.posdpec" >> "$GITHUB_ENV"
+      - name: Lint CocoaPods Tesseract-Shared
+        run: |
+          pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Shared.posdpec
+          echo "LINTED_PODS=${LINTED_PODS},Tesseract-Shared.posdpec" >> "$GITHUB_ENV"
+      - name: Lint CocoaPods Tesseract-Client
+        run: pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Client.posdpec
+      - name: Lint CocoaPods Tesseract-Service
+        run: pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Service.posdpec
