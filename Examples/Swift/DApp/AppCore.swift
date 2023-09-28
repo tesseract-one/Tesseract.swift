@@ -13,7 +13,7 @@ class AppCore {
     private var rust: AppContextPtr
     
     init(alerts: AlertProvider) {
-        self.rust = app_init(alerts.asNative(), IPCTransportIOS().asNative())
+        self.rust = app_init(alerts.toCore(), IPCTransportIOS().toCore())
     }
     
     func signTx(tx: String) async throws -> String {

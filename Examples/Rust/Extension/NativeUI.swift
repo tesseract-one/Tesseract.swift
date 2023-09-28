@@ -10,7 +10,7 @@ import TesseractServiceTransports
 import CWallet
 
 protocol NativeUIDelegate: AnyObject {
-    func approveTx(tx: String) async throws -> Bool
+    func approveTx(tx: String) async -> CResult<Bool>
 }
 
 extension CWallet.UI: CSwiftDropPtr {
@@ -31,11 +31,11 @@ public class NativeUI {
         self.delegate = delegate
     }
     
-    func approveTx(tx: String) async throws -> Bool {
-        try await self.delegate.approveTx(tx: tx)
+    func approveTx(tx: String) async -> CResult<Bool> {
+        await self.delegate.approveTx(tx: tx)
     }
     
-    func asNative() -> CWallet.UI {
+    func toCore() -> CWallet.UI {
         CWallet.UI(ui: self)
     }
 }
@@ -43,6 +43,6 @@ public class NativeUI {
 private func native_ui_approve_tx(this: UnsafePointer<UI>!, tx: CStringRef!) -> CFutureBool {
     let tx = tx.copied()!
     return CFutureBool {
-        try await this.unowned().approveTx(tx: tx)
+        await this.unowned().asyncFlatMap { await $0.approveTx(tx: tx) }
     }
 }

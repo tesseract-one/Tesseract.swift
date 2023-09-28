@@ -1,5 +1,5 @@
 //
-//  NativeTransport.swift
+//  CoreTransport.swift
 //  TesseractService
 //
 //  Created by Yehor Popovych on 01.11.2022.
@@ -9,7 +9,7 @@ import Foundation
 import CTesseract
 @_exported import TesseractShared
 
-public final class NativeTransportProcessor: TransportProcessor {
+public final class CoreTransportProcessor: TransportProcessor {
     public private(set) var processor: ServiceTransportProcessor
     
     public init(processor: ServiceTransportProcessor) {
@@ -40,13 +40,13 @@ extension ServiceTransport {
 }
 
 extension Transport {
-    public func asNative() -> ServiceTransport {
+    public func toCore() -> ServiceTransport {
         ServiceTransport(transport: self)
     }
 }
 
 extension BoundTransport {
-    public func asNative() -> ServiceBoundTransport {
+    public func toCore() -> ServiceBoundTransport {
         ServiceBoundTransport(value: self)
     }
 }
@@ -56,6 +56,6 @@ private func transport_bind(this: ServiceTransport,
 {
     var this = this
     return try! this.owned(Transport.self).get()
-        .bind(processor: NativeTransportProcessor(processor: processor))
-        .asNative()
+        .bind(processor: CoreTransportProcessor(processor: processor))
+        .toCore()
 }

@@ -10,11 +10,11 @@ import CTesseractBin
 import TesseractShared
 
 public protocol Service: AnyObject {
-    associatedtype Native: NativeService
+    associatedtype Core: CoreService
     
-    func asNative() -> Native
+    func toCore() -> Core
 }
 
-public protocol NativeService: CSwiftAnyDropPtr {
+public protocol CoreService: CSwiftAnyDropPtr {
     func register(in tesseract: UnsafeMutablePointer<ServiceTesseract>) -> ServiceTesseract
 }

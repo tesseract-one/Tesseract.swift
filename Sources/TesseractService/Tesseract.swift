@@ -22,12 +22,12 @@ public final class Tesseract {
     }
     
     public func service<S: Service>(_ service: S) -> Self {
-        tesseract = service.asNative().register(in: &tesseract)
+        tesseract = service.toCore().register(in: &tesseract)
         return self
     }
     
     public func transport<T: Transport>(_ transport: T) -> Self {
-        tesseract = tesseract_service_add_transport(&tesseract, transport.asNative())
+        tesseract = tesseract_service_add_transport(&tesseract, transport.toCore())
         return self
     }
     

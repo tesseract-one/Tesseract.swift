@@ -15,41 +15,39 @@ class ActionViewController: UIViewController, NativeUIDelegate {
     @IBOutlet weak var textView: UILabel!
     
     var context: AppContextPtr!
-    var continuation: UnsafeContinuation<Bool, Error>?
+    var continuation: UnsafeContinuation<CResult<Bool>, Never>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let transport = IPCTransportIOS(self)
-        let native = transport.asNative()
-        
+        let transport = IPCTransportIOS(self).toCore()
         let data = WalletData()
-        let signature = data.signature
-        self.context = signature.withRef { signature in
-            wallet_extension_init(signature, NativeUI(delegate: self).asNative(), native)
-        }
+        
+        self.context = wallet_extension_init(data.signature,
+                                             NativeUI(delegate: self).toCore(),
+                                             transport)
     }
     
     @MainActor
-    func approveTx(tx: String) async throws -> Bool {
-        return try await withUnsafeThrowingContinuation { cont in
+    func approveTx(tx: String) async -> CResult<Bool> {
+        await withUnsafeContinuation { cont in
             self.continuation = cont
             self.textView.text = tx
         }
     }
 
     @IBAction func allow() {
-        self.continuation?.resume(returning: true)
+        self.continuation?.resume(returning: .success(true))
         self.continuation = nil
     }
     
     @IBAction func reject() {
-        self.continuation?.resume(returning: false)
+        self.continuation?.resume(returning: .success(false))
         self.continuation = nil
     }
     
     @IBAction func cancel() {
-        self.continuation?.resume(throwing: CError.canceled)
+        self.continuation?.resume(returning: .failure(.canceled))
         self.continuation = nil
     }
 

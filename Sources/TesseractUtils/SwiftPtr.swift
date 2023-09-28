@@ -85,7 +85,7 @@ extension CSwiftAnyDropPtr {
 }
 
 extension UnsafePointer where Pointee: CSwiftDropPtr {
-    public func unowned() throws -> CResult<Pointee.SObject> {
+    public func unowned() -> CResult<Pointee.SObject> {
         self.pointee.unowned()
     }
 }
@@ -95,7 +95,7 @@ extension UnsafeMutablePointer where Pointee: CSwiftDropPtr {
         self.pointee.unowned()
     }
     
-    public func owned() throws -> CResult<Pointee.SObject>  {
+    public func owned() -> CResult<Pointee.SObject>  {
         self.pointee.owned()
     }
 }
@@ -111,7 +111,7 @@ extension UnsafePointer where Pointee: CSwiftAnyDropPtr {
 }
 
 extension UnsafeMutablePointer where Pointee: CSwiftAnyDropPtr {
-    public func unowned() throws -> CResult<AnyObject>  {
+    public func unowned() -> CResult<AnyObject>  {
         self.pointee.unowned()
     }
     
@@ -119,7 +119,7 @@ extension UnsafeMutablePointer where Pointee: CSwiftAnyDropPtr {
         self.pointee.unowned(type)
     }
     
-    public func owned() throws -> CResult<AnyObject>  {
+    public func owned() -> CResult<AnyObject>  {
         self.pointee.owned()
     }
     

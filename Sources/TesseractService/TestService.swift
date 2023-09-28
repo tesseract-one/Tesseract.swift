@@ -9,7 +9,7 @@ import Foundation
 import CTesseractBin
 import TesseractShared
 
-extension CTesseract.TestService: NativeService {    
+extension CTesseract.TestService: CoreService {
     public func register(
         in tesseract: UnsafeMutablePointer<ServiceTesseract>
     ) -> ServiceTesseract {
@@ -17,13 +17,13 @@ extension CTesseract.TestService: NativeService {
     }
 }
 
-public protocol TestService: Service where Native == CTesseract.TestService {
+public protocol TestService: Service where Core == CTesseract.TestService {
     func signTransation(req: String) async -> CResult<String>
 }
 
 public extension TestService {
-    func asNative() -> Native {
-        var value = Native(value: self)
+    func toCore() -> Core {
+        var value = Core(value: self)
         value.sign_transaction = test_service_sign
         return value
     }

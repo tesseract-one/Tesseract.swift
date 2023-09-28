@@ -64,7 +64,7 @@ extension CFuture_SubstrateGetAccountResponse: CFuturePtr {
     }
 }
 
-extension CTesseract.SubstrateService: NativeService {
+extension CTesseract.SubstrateService: CoreService {
     public func register(
         in tesseract: UnsafeMutablePointer<ServiceTesseract>
     ) -> ServiceTesseract {
@@ -72,7 +72,7 @@ extension CTesseract.SubstrateService: NativeService {
     }
 }
 
-public protocol SubstrateService: Service where Native == CTesseract.SubstrateService {
+public protocol SubstrateService: Service where Core == CTesseract.SubstrateService {
     func getAccount(
         type: SubstrateAccountType
     ) async -> CResult<(pubKey: Data, path: String)>
@@ -84,8 +84,8 @@ public protocol SubstrateService: Service where Native == CTesseract.SubstrateSe
 }
 
 public extension SubstrateService {
-    func asNative() -> Native {
-        var value = Native(value: self)
+    func toCore() -> Core {
+        var value = Core(value: self)
         value.get_account = substrate_service_get_account
         value.sign_transaction = substrate_service_sign
         return value

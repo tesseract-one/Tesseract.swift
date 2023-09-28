@@ -1,5 +1,5 @@
 //
-//  NativeTransport.swift
+//  CoreTransport.swift
 //  TesseractClient
 //
 //  Created by Yehor Popovych on 07.10.2022.
@@ -88,7 +88,7 @@ private func transport_connect(
     self: UnsafePointer<ClientTransport>!,
     proto: CStringRef!
 ) -> ClientConnection {
-    try! self.unowned(Transport.self).get().connect(proto: proto.copied()).asNative()
+    try! self.unowned(Transport.self).get().connect(proto: proto.copied()).toCore()
 }
 
 private func connection_send(self: UnsafePointer<ClientConnection>!,
@@ -129,13 +129,13 @@ extension ClientConnection {
 }
 
 extension Transport {
-    public func asNative() -> ClientTransport {
+    public func toCore() -> ClientTransport {
         ClientTransport(transport: self)
     }
 }
 
 extension Connection {
-    public func asNative() -> ClientConnection {
+    public func toCore() -> ClientConnection {
         ClientConnection(connection: self)
     }
 }

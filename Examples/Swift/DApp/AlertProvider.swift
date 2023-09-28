@@ -22,7 +22,7 @@ public class AlertProvider: ObservableObject {
         self.alert = Alert(message: alert)
     }
     
-    func asNative() -> CApp.AlertProvider {
+    func toCore() -> CApp.AlertProvider {
         var provider = CApp.AlertProvider(value: self)
         provider.show_alert = alert_provider_show_alert
         return provider
