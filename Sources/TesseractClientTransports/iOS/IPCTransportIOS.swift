@@ -89,7 +89,8 @@ public class IPCTransportIOSConnection: Connection {
     @MainActor
     public func send(request: Data) async -> Result<(), CError> {
         let vc = UIActivityViewController(
-            activityItems: [ActivityItemSource(data: request, uti: uti)],
+            activityItems: [NSItemProvider(item: request as NSData,
+                                           typeIdentifier: uti)],
             applicationActivities: nil
         )
         

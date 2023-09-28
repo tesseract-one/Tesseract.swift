@@ -25,7 +25,7 @@ class TestSigningService: TestService {
         guard let delegate = self.delegate else {
             return .failure(.nullPtr)
         }
-        return await delegate.acceptTx(tx: req).asyncFlatMap {
+        return await delegate.acceptTx(tx: req).flatMap {
             $0 ? .success(req + self.signature) : .failure(.canceled)
         }
     }

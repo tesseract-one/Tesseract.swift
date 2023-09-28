@@ -32,7 +32,7 @@ public class AlertProvider: ObservableObject {
 private func alert_provider_show_alert(this: UnsafePointer<CApp.AlertProvider>!, message: CStringRef!) {
     let message = message!.copied()
     Task {
-        try! await this.unowned().showAlert(alert: message)
+        try! await this.unowned().get().showAlert(alert: message)
     }
 }
 
