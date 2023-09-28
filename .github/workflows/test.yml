@@ -29,9 +29,9 @@ jobs:
       - name: Patch Package.swift for testing
         run: sed -i '' 's|let[[:blank:]]useLocalBinary[[:blank:]]=[[:blank:]]false|let useLocalBinary = true|g' Package.swift
       - name: Build with SPM for iOS
-        run: xcodebuild build -scheme 'Tesseract-Package' --sdk iphoneos
+        run: xcodebuild build -scheme 'Tesseract-Package' -sdk iphoneos -destination "generic/platform=iOS"
       - name: Build with SPM for iOS simulator
-        run: xcodebuild build -scheme 'Tesseract-Package' --sdk iphonesimulator
+        run: xcodebuild build -scheme 'Tesseract-Package' -sdk iphonesimulator -destination "generic/platform=iOS Simulator"
       - name: Lint CocoaPods Tesseract-Core
         run: |
           pod lib lint --allow-warnings --fail-fast Tesseract-Core.posdpec
