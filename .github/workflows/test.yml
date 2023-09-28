@@ -34,13 +34,13 @@ jobs:
         run: xcodebuild build -scheme 'Tesseract-Package' -sdk iphonesimulator -destination "generic/platform=iOS Simulator"
       - name: Lint CocoaPods Tesseract-Core
         run: |
-          pod lib lint --allow-warnings --fail-fast Tesseract-Core.posdpec
-          echo "LINTED_PODS=Tesseract-Core.posdpec" >> "$GITHUB_ENV"
+          pod lib lint --allow-warnings --fail-fast Tesseract-Core.podspec
+          echo "LINTED_PODS=Tesseract-Core.podspec" >> "$GITHUB_ENV"
       - name: Lint CocoaPods Tesseract-Shared
         run: |
-          pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Shared.posdpec
-          echo "LINTED_PODS=${LINTED_PODS},Tesseract-Shared.posdpec" >> "$GITHUB_ENV"
+          pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Shared.podspec
+          echo "LINTED_PODS=${LINTED_PODS},Tesseract-Shared.podspec" >> "$GITHUB_ENV"
       - name: Lint CocoaPods Tesseract-Client
-        run: pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Client.posdpec
+        run: pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Client.podspec
       - name: Lint CocoaPods Tesseract-Service
-        run: pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Service.posdpec
+        run: pod lib lint --allow-warnings --fail-fast --include-podspecs="{${LINTED_PODS}}" Tesseract-Service.podspec

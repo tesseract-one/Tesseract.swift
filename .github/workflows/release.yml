@@ -1,0 +1,84 @@
+name: Publish new release
+env:
+  RUST_VERSION: nightly
+  RUST_TARGETS: aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+  ZIP_FILE_NAME: Tesseract-Core.bin.zip
+  CI_COMMIT_AUTHOR: Release Action
+  CI_COMMIT_MESSAGE: Package.swift binary update
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release Version'
+        required: true
+        type: string
+      name:
+        description: 'Release Name'
+        required: true
+        type: string
+      notes:
+        description: 'Release Notes'
+        required: true
+        type: string
+      prerelease:
+        description: 'Prerelease'
+        type: boolean
+        required: false
+      draft:
+        description: 'Draft release'
+        type: boolean
+        required: false
+jobs:
+  build-core-and-deploy:
+    runs-on: macOS-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_14.3.1.app
+      - name: Install Rust
+        uses: brndnmtthws/rust-action-rustup@v1
+        with:
+          toolchain: ${{env.RUST_VERSION}}
+          targets: ${{env.RUST_TARGETS}}
+          profile: minimal
+      - name: Build Core Zip
+        id: build-core-zip
+        env:
+          ZIP_NAME: ${{env.ZIP_FILE_NAME}}
+        run: |
+          Rust/generate_binary_zip.sh "${ZIP_NAME}"
+          SHA=$(shasum -a 256 --tag "${ZIP_NAME}")
+          echo "ZIP_SHA=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+      - name: Update Package.swift
+        env:
+          ZIP_NAME: ${{ steps.build-core-zip.outputs.ZIP_NAME }}
+          ZIP_SHA: ${{ steps.build-core-zip.outputs.ZIP_SHA }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          ZIP_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$VERSION/$ZIP_NAME"
+          sed -i '' "s|let[[:blank:]]*binaryUrl.*|let binaryUrl = \"${ZIP_URL}\"|g" Package.swift
+          sed -i '' "s|let[[:blank:]]*binaryChecksum.*|let binaryChecksum = \"${ZIP_SHA}\"|g" Package.swift
+      - name: Commit and create tag
+        env:
+          VERSION: ${{ inputs.version }}
+          RELEASE: ${{ inputs.name }}
+        run: |
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "ypopovych@users.noreply.github.com"
+          git add Package.swift
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push origin
+          git tag -a "${VERSION}" -m "${RELEASE}"
+          git push origin "${VERSION}"
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: refs/tags/${{ inputs.version }}
+          name: ${{ inputs.name }}
+          body: ${{ inputs.notes }}
+          prerelease: ${{ inputs.prerelease }}
+          draft: ${{ inputs.draft }}
+          files: ${{ steps.build-core-zip.outputs.ZIP_NAME }}
+      
