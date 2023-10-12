@@ -4,12 +4,16 @@ pub trait TryAsRef<T: ?Sized> {
     fn try_as_ref(&self) -> Result<&T, Self::Error>;
 }
 
+pub trait AsCRef<T> {
+    fn as_cref(&self) -> T;
+}
+
 pub trait QuickClone {
     fn quick_clone(&self) -> Self;
 }
 
-pub trait IntoC {
-    type CVal;
+// pub trait IntoC {
+//     type CVal;
 
-    fn into_c(self) -> Self::CVal;
-}
+//     fn into_c(self) -> Self::CVal;
+// }

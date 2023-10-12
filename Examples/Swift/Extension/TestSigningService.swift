@@ -9,7 +9,7 @@ import Foundation
 import TesseractService
 
 protocol TestSigningServiceDelegate: AnyObject {
-    func acceptTx(tx: String) async -> CResult<Bool>
+    func acceptTx(tx: String) async -> Result<Bool, TesseractError>
 }
 
 class TestSigningService: TestService {
@@ -21,12 +21,12 @@ class TestSigningService: TestService {
         self.signature = signature
     }
     
-    func signTransation(req: String) async -> CResult<String> {
+    func signTransation(req: String) async -> Result<String, TesseractError> {
         guard let delegate = self.delegate else {
-            return .failure(.nullPtr)
+            return .failure(.null(reason: "TestSigningService delegate is empty"))
         }
         return await delegate.acceptTx(tx: req).flatMap {
-            $0 ? .success(req + self.signature) : .failure(.canceled)
+            $0 ? .success(req + self.signature) : .failure(.cancelled)
         }
     }
 }

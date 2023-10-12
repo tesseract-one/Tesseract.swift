@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use async_trait::async_trait;
 
 use tesseract::client::{transport::Status, Delegate};
-use tesseract_swift_utils::{ptr::CAnyDropPtr, string::CString, string::CStringRef};
+use tesseract_swift_utils::{ptr::CAnyDropPtr, string::CString, string::CStringRef, traits::AsCRef};
 
 #[repr(C)]
 pub struct AlertProvider {
@@ -14,7 +14,7 @@ pub struct AlertProvider {
 impl AlertProvider {
     fn show_alert(&self, alert: &str) {
         let str: CString = alert.into();
-        unsafe { (self.show_alert)(self, str.as_ptr()) };
+        unsafe { (self.show_alert)(self, str.as_cref()) };
     }
 }
 

@@ -6,21 +6,26 @@
 //
 
 import Foundation
-import TesseractClientTransports
+import TesseractTransportsClient
 import CApp
 
 class AppCore {
     private var rust: AppContextPtr
     
     init(alerts: AlertProvider) {
-        self.rust = app_init(alerts.toCore(), IPCTransportIOS().toCore())
+        try! self.rust = TResult<AppContextPtr>.wrap { value, error in
+            app_init(alerts.toCore(), IPCTransportIOS().toCore(), value, error)
+        }.get()
     }
     
     func signTx(tx: String) async throws -> String {
-        try await tx.withRef { app_sign_data(self.rust, $0) }.value
+        try await app_sign_data(self.rust, tx)
+            .result.castError(TesseractError.self).get()
     }
     
     deinit {
         app_deinit(&self.rust)
     }
 }
+
+extension AppContextPtr: CType {}

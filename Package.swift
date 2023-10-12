@@ -18,17 +18,20 @@ let package = Package(
             name: "TesseractClient",
             targets: ["TesseractClient"]),
         .library(
-            name: "TesseractClientTransports",
-            targets: ["TesseractClientTransports"]),
-        .library(
             name: "TesseractService",
             targets: ["TesseractService"]),
         .library(
-            name: "TesseractServiceTransports",
-            targets: ["TesseractServiceTransports"]),
-        .library(
             name: "TesseractShared",
             targets: ["TesseractShared"]),
+        .library(
+            name: "TesseractTransportsClient",
+            targets: ["TesseractTransportsClient"]),
+        .library(
+            name: "TesseractTransportsService",
+            targets: ["TesseractTransportsService"]),
+        .library(
+            name: "TesseractTransportsShared",
+            targets: ["TesseractTransportsShared"]),
         .library(
             name: "TesseractUtils",
             targets: ["TesseractUtils"])
@@ -37,19 +40,22 @@ let package = Package(
     targets: [
         .target(
             name: "TesseractClient",
-            dependencies: ["TesseractClientTransports", "CTesseractBin"]),
+            dependencies: ["TesseractTransportsClient", "TesseractShared"]),
         .target(
             name: "TesseractService",
-            dependencies: ["TesseractServiceTransports", "CTesseractBin"]),
-        .target(
-            name: "TesseractClientTransports",
-            dependencies: ["TesseractUtils", "TesseractShared", "CTesseract"]),
-        .target(
-            name: "TesseractServiceTransports",
-            dependencies: ["TesseractUtils", "TesseractShared", "CTesseract"]),
+            dependencies: ["TesseractTransportsService", "TesseractShared"]),
         .target(
             name: "TesseractShared",
-            dependencies: ["TesseractUtils", "CTesseract"]),
+            dependencies: ["TesseractTransportsShared", "CTesseractBin"]),
+        .target(
+            name: "TesseractTransportsClient",
+            dependencies: ["TesseractTransportsShared"]),
+        .target(
+            name: "TesseractTransportsService",
+            dependencies: ["TesseractTransportsShared"]),
+        .target(
+            name: "TesseractTransportsShared",
+            dependencies: ["TesseractUtils"]),
         .target(
             name: "TesseractUtils",
             dependencies: ["CTesseract"]),

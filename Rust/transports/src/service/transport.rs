@@ -23,7 +23,7 @@ impl Transport for ServiceTransport {
     fn bind(
         self,
         processor: Arc<dyn TransportProcessor + Send + Sync>,
-    ) -> Box<dyn BoundTransport> {
+    ) -> Box<dyn BoundTransport + Send> {
         let proc = ManuallyDrop::new(ServiceTransportProcessor::new(processor));
         unsafe {
             let bound = (self.bind)(ManuallyDrop::new(self), proc);

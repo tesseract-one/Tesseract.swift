@@ -8,5 +8,6 @@
 import Foundation
 import CTesseractBin
 #if !COCOAPODS
-@_exported import TesseractClientTransports
+@_exported import TesseractTransportsClient
 #endif
+@_exported import TesseractShared

@@ -14,6 +14,13 @@ public protocol CType {
 }
 
 // Structure with pointers inside
+public protocol CPtrRef {
+    associatedtype RefVal
+    
+    func copied() -> RefVal
+}
+
+// Structure with pointers inside
 public protocol CPtr {
     associatedtype Val
     
@@ -44,9 +51,9 @@ public protocol AsCRef {
     func withRef<T>(_ fn: @escaping (Ref) throws -> T) rethrows -> T
 }
 
-// Swift value which can be referenced with CPtr value
+// Swift value which can be referenced with CPtrRef value
 public protocol AsCPtrRef {
-    associatedtype RefPtr: CPtr
+    associatedtype RefPtr: CPtrRef
     
     func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T
 }

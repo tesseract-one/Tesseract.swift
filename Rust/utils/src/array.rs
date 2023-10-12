@@ -1,14 +1,52 @@
 use super::error::CError;
 use super::ptr::SyncPtr;
 use super::result::Result;
-use super::traits::{QuickClone, TryAsRef};
-use std::collections::{BTreeMap, HashMap};
+use super::traits::{QuickClone, TryAsRef, AsCRef};
+use std::borrow::Borrow;
 use std::mem::ManuallyDrop;
 
 #[repr(C)]
+#[derive(Debug)]
+pub struct CArrayRef<'a, Value> {
+    pub ptr: SyncPtr<Value>,
+    pub len: usize,
+    _lifecycle: std::marker::PhantomData<&'a Value>
+}
+
+impl<'a, Value> CArrayRef<'a, Value> {
+    pub fn cloned(&self) -> Result<Vec<Value>> where Value: Clone {
+        Ok(self.try_as_ref()?.iter().map(|v| v.clone()).collect())
+    }
+
+    pub fn quick_cloned(&self) -> Result<Vec<Value>> where Value: Copy {
+        Ok(self.try_as_ref()?.to_owned())
+    } 
+}
+
+impl<'a, Value> TryAsRef<[Value]> for CArrayRef<'a, Value> {
+    type Error = CError;
+
+    fn try_as_ref(&self) -> std::result::Result<&'a [Value], Self::Error> {
+        if self.ptr.is_null() {
+            Err(CError::null::<Self>())
+        } else {
+            unsafe { Ok(std::slice::from_raw_parts(self.ptr.ptr(), self.len)) }
+        }
+    }
+}
+
+impl<'a, Value, T> From<T> for CArrayRef<'a, Value> where T: Borrow<[Value]> {
+    fn from(value: T) -> Self {
+        let bw: &[Value] = value.borrow();
+        Self{ ptr: bw.as_ptr().into(), len: bw.len(), _lifecycle: std::marker::PhantomData } 
+    }
+}
+
+#[repr(C)]
+#[derive(Debug)]
 pub struct CArray<Value> {
-    ptr: SyncPtr<Value>,
-    len: usize,
+    pub ptr: SyncPtr<Value>,
+    pub len: usize,
 }
 
 impl<Value: Clone> Clone for CArray<Value> {
@@ -36,12 +74,18 @@ impl<Value> Drop for CArray<Value> {
     }
 }
 
+impl<'a, V> AsCRef<CArrayRef<'a, V>> for CArray<V> {
+    fn as_cref(&self) -> CArrayRef<'a, V> {
+        CArrayRef { ptr: self.ptr.ptr().into(), len: self.len, _lifecycle: std::marker::PhantomData }
+    }
+}
+
 impl<Value> TryAsRef<[Value]> for CArray<Value> {
     type Error = CError;
 
     fn try_as_ref(&self) -> Result<&[Value]> {
         if self.ptr.is_null() {
-            Err(CError::NullPtr)
+            Err(CError::null::<Self>())
         } else {
             unsafe { Ok(std::slice::from_raw_parts(self.ptr.ptr(), self.len)) }
         }
@@ -61,7 +105,7 @@ impl<Value> TryFrom<CArray<Value>> for Vec<Value> {
 
     fn try_from(value: CArray<Value>) -> Result<Self> {
         if value.ptr.is_null() {
-            Err(CError::NullPtr)
+            Err(CError::null::<CArray<Value>>())
         } else {
             let value = ManuallyDrop::new(value); // This is safe. Memory will be owned by Vec
             unsafe {
@@ -88,98 +132,6 @@ impl<V1, V2: Into<V1>> From<Vec<V2>> for CArray<V1> {
         Self {
             ptr: mapped.as_mut_ptr().into(),
             len: mapped.len(),
-        }
-    }
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct CKeyValue<K, V> {
-    pub key: K,
-    pub val: V,
-}
-
-impl<K, V> From<(K, V)> for CKeyValue<K, V> {
-    fn from(tuple: (K, V)) -> Self {
-        Self {
-            key: tuple.0,
-            val: tuple.1,
-        }
-    }
-}
-
-impl<K, V> From<CKeyValue<K, V>> for (K, V) {
-    fn from(kv: CKeyValue<K, V>) -> Self {
-        (kv.key, kv.val)
-    }
-}
-
-pub trait AsHashMap {
-    type Key: std::hash::Hash + Eq + Clone;
-    type Value: Clone;
-
-    unsafe fn as_hash_map(&self) -> Result<HashMap<Self::Key, Self::Value>>;
-}
-
-pub trait AsBTreeMap {
-    type Key: Ord;
-    type Value;
-
-    unsafe fn as_btree_map(&self) -> Result<BTreeMap<Self::Key, Self::Value>>;
-}
-
-impl<K: Ord + Clone, V: Clone> AsBTreeMap for CArray<CKeyValue<K, V>> {
-    type Key = K;
-    type Value = V;
-
-    unsafe fn as_btree_map(&self) -> Result<BTreeMap<K, V>> {
-        self.try_as_ref()
-            .map(|sl| sl.into_iter().cloned().map(|kv| kv.into()).collect())
-    }
-}
-
-impl<K: std::hash::Hash + Eq + Clone, V: Clone> AsHashMap for CArray<CKeyValue<K, V>> {
-    type Key = K;
-    type Value = V;
-
-    unsafe fn as_hash_map(&self) -> Result<HashMap<K, V>> {
-        self.try_as_ref()
-            .map(|sl| sl.into_iter().cloned().map(|kv| kv.into()).collect())
-    }
-}
-
-impl<K1, K2, V1, V2> From<BTreeMap<K2, V2>> for CArray<CKeyValue<K1, V1>>
-where
-    K2: Into<K1>,
-    V2: Into<V1>,
-{
-    fn from(map: BTreeMap<K2, V2>) -> Self {
-        let kvs: Vec<CKeyValue<K1, V1>> = map
-            .into_iter()
-            .map(|(k, v)| (k.into(), v.into()).into())
-            .collect();
-        let mut kvs = ManuallyDrop::new(kvs.into_boxed_slice());
-        Self {
-            ptr: kvs.as_mut_ptr().into(),
-            len: kvs.len(),
-        }
-    }
-}
-
-impl<K1, K2, V1, V2> From<HashMap<K2, V2>> for CArray<CKeyValue<K1, V1>>
-where
-    K2: Into<K1>,
-    V2: Into<V1>,
-{
-    fn from(map: HashMap<K2, V2>) -> Self {
-        let kvs: Vec<CKeyValue<K1, V1>> = map
-            .into_iter()
-            .map(|(k, v)| (k.into(), v.into()).into())
-            .collect();
-        let mut kvs = ManuallyDrop::new(kvs.into_boxed_slice());
-        Self {
-            ptr: kvs.as_mut_ptr().into(),
-            len: kvs.len(),
         }
     }
 }

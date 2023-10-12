@@ -1,10 +1,11 @@
 use std::{mem::ManuallyDrop, sync::Arc};
 
 use async_trait::async_trait;
+use errorcon::convertible::ErrorContext;
 use tesseract::service::{Service, Executor};
 use tesseract_protocol_substrate::{service::SubstrateExecutor, AccountType, GetAccountResponse};
-use tesseract_swift_transports::error::IntoTesseractError;
-use tesseract_swift_utils::{ptr::CAnyDropPtr, string::{CStringRef, CString}, future_impls::CFutureData, future::CFuture};
+use tesseract_swift_transports::error::CTesseractError;
+use tesseract_swift_utils::{ptr::CAnyDropPtr, string::{CStringRef, CString}, future_impls::CFutureData, future::CFuture, traits::AsCRef, data::CDataRef};
 
 use crate::service::ServiceTesseract;
 
@@ -21,9 +22,9 @@ pub struct SubstrateService {
         this: &SubstrateService,
         account_type: SubstrateAccountType,
         account_path: CStringRef,
-        extrinsic_data: *const u8, extrinsic_data_len: usize,
-        extrinsic_metadata: *const u8, extrinsic_metadata_len: usize,
-        extrinsic_types: *const u8, extrinsic_types_len: usize
+        extrinsic_data: CDataRef,
+        extrinsic_metadata: CDataRef,
+        extrinsic_types: CDataRef
     ) -> ManuallyDrop<CFutureData>,
 }
 
@@ -45,14 +46,9 @@ impl tesseract_protocol_substrate::SubstrateService for SubstrateService {
         let future = unsafe {
             ManuallyDrop::into_inner((self.get_account)(&self, account_type.into()))
         };
-
-        let future = future
-            .try_into_future()
-            .map_err(|err| err.into_error())?;
-
-        future.await
-            .and_then(|res| res.try_into())
-            .map_err(|err| err.into_error())
+        CTesseractError::context_async(async || {
+            Ok(future.try_into_future()?.await?.try_into()?)
+        }).await
     }
 
     async fn sign_transaction(
@@ -63,23 +59,19 @@ impl tesseract_protocol_substrate::SubstrateService for SubstrateService {
         extrinsic_metadata: &[u8],
         extrinsic_types: &[u8],
     ) -> tesseract::Result<Vec<u8>> {
+        let cpath: CString = account_path.into();
         let future = unsafe {
-            let cpath: CString = account_path.into();
-            ManuallyDrop::into_inner((self.sign_transaction)(
-                &self, account_type.into(), cpath.as_ptr(),
-                extrinsic_data.as_ptr(), extrinsic_data.len(),
-                extrinsic_metadata.as_ptr(), extrinsic_metadata.len(),
-                extrinsic_types.as_ptr(), extrinsic_types.len()
-            ))
+            (self.sign_transaction)(
+                &self, account_type.into(), cpath.as_cref(),
+                extrinsic_data.into(),
+                extrinsic_metadata.into(),
+                extrinsic_types.into()
+            )
         };
-
-        let future = future
-            .try_into_future()
-            .map_err(|err| err.into_error())?;
-
-        future.await
-            .and_then(|res| res.try_into())
-            .map_err(|err| err.into_error())
+        let future = ManuallyDrop::into_inner(future);
+        CTesseractError::context_async(async || {
+            Ok(future.try_into_future()?.await?.try_into()?)
+        }).await
     }
 }
 

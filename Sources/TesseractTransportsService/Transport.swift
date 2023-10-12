@@ -6,10 +6,14 @@
 //
 
 import Foundation
+#if COCOAPODS
 import TesseractShared
+#else
+import TesseractTransportsShared
+#endif
 
 public protocol TransportProcessor: AnyObject {
-    func process(data: Data) async -> Result<Data, CError>
+    func process(data: Data) async -> Result<Data, TesseractError>
 }
 
 public protocol BoundTransport: AnyObject {}

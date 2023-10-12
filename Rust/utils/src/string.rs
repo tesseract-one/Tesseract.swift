@@ -1,20 +1,23 @@
+use crate::panic::PanicContext;
+use crate::traits::AsCRef;
+
 use super::error::CError;
-use super::panic::handle_exception_result;
-use super::response::{COptionResponseResult, CResponse};
+use super::response::CMoveResponse;
 use super::result::Result;
-use super::traits::{IntoC, TryAsRef};
+use super::traits::TryAsRef;
 use std::ffi::{CStr as FCStr, CString as FCString};
 use std::mem::ManuallyDrop;
 use std::os::raw::c_char;
+use std::borrow::Borrow;
 
 pub type CStringRef = *const c_char;
 
-#[repr(transparent)]
+#[repr(C)]
 #[derive(Debug)]
 pub struct CString(*const c_char);
 
-impl CString {
-    pub fn as_ptr(&self) -> CStringRef {
+impl AsCRef<CStringRef> for CString {
+    fn as_cref(&self) -> CStringRef {
         self.0
     }
 }
@@ -42,6 +45,13 @@ impl TryAsRef<str> for CStringRef {
     }
 }
 
+impl std::fmt::Display for CString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let string = self.try_as_ref().map_err(|_| std::fmt::Error)?;
+        write!(f, "{}", string)
+    }
+}
+
 impl TryAsRef<str> for CString {
     type Error = CError;
 
@@ -63,7 +73,7 @@ impl TryFrom<CString> for String {
 
     fn try_from(value: CString) -> Result<Self> {
         if value.0.is_null() {
-            Err(CError::NullPtr)
+            Err(CError::null::<CString>())
         } else {
             let value = ManuallyDrop::new(value); // This is safe. Memory will be consumed by rust CString
             unsafe {
@@ -75,131 +85,9 @@ impl TryFrom<CString> for String {
     }
 }
 
-impl From<&str> for CString {
-    fn from(string: &str) -> Self {
-        Self(FCString::new(string).unwrap().into_raw())
-    }
-}
-
-impl From<String> for CString {
-    fn from(string: String) -> Self {
-        Self(FCString::new(string).unwrap().into_raw())
-    }
-}
-
-impl From<&String> for CString {
-    fn from(string: &String) -> Self {
-        Self(FCString::new(string.as_bytes()).unwrap().into_raw())
-    }
-}
-
-impl IntoC for String {
-    type CVal = CString;
-
-    fn into_c(self) -> Self::CVal {
-        self.into()
-    }
-}
-
-impl IntoC for &str {
-    type CVal = CString;
-
-    fn into_c(self) -> Self::CVal {
-        self.into()
-    }
-}
-
-impl<E> CResponse<&mut ManuallyDrop<CString>, bool> for std::result::Result<String, E>
-where
-    E: IntoC<CVal = CError>,
-{
-    fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
-        match self {
-            Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
-                false
-            }
-            Ok(val) => {
-                *value = ManuallyDrop::new(val.into());
-                true
-            }
-        }
-    }
-}
-
-impl<E> CResponse<&mut ManuallyDrop<CString>, bool> for std::result::Result<&str, E>
-where
-    E: IntoC<CVal = CError>,
-{
-    fn response(self, value: &mut ManuallyDrop<CString>, error: &mut ManuallyDrop<CError>) -> bool {
-        match self {
-            Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
-                false
-            }
-            Ok(val) => {
-                *value = ManuallyDrop::new(val.into());
-                true
-            }
-        }
-    }
-}
-
-impl<E> CResponse<&mut ManuallyDrop<CString>, COptionResponseResult>
-    for std::result::Result<Option<String>, E>
-where
-    E: IntoC<CVal = CError>,
-{
-    fn response(
-        self,
-        value: &mut ManuallyDrop<CString>,
-        error: &mut ManuallyDrop<CError>,
-    ) -> COptionResponseResult {
-        match self {
-            Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
-                COptionResponseResult::Error
-            }
-            Ok(opt) => match opt {
-                None => {
-                    value.0 = std::ptr::null_mut();
-                    COptionResponseResult::None
-                }
-                Some(val) => {
-                    *value = ManuallyDrop::new(val.into());
-                    COptionResponseResult::Some
-                }
-            },
-        }
-    }
-}
-
-impl<E> CResponse<&mut ManuallyDrop<CString>, COptionResponseResult>
-    for std::result::Result<Option<&str>, E>
-where
-    E: IntoC<CVal = CError>,
-{
-    fn response(
-        self,
-        value: &mut ManuallyDrop<CString>,
-        error: &mut ManuallyDrop<CError>,
-    ) -> COptionResponseResult {
-        match self {
-            Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
-                COptionResponseResult::Error
-            }
-            Ok(opt) => match opt {
-                None => {
-                    value.0 = std::ptr::null_mut();
-                    COptionResponseResult::None
-                }
-                Some(val) => {
-                    *value = ManuallyDrop::new(val.into());
-                    COptionResponseResult::Some
-                }
-            },
-        }
+impl<T: Borrow<str>> From<T> for CString {
+    fn from(value: T) -> Self {
+        Self(FCString::new(value.borrow()).unwrap().into_raw())
     }
 }
 
@@ -209,7 +97,8 @@ pub unsafe extern "C" fn tesseract_utils_cstring_new(
     res: &mut ManuallyDrop<CString>,
     err: &mut ManuallyDrop<CError>,
 ) -> bool {
-    handle_exception_result(|| cstr.try_as_ref()).response(res, err)
+    let result: Result<&str> = CError::panic_context(|| cstr.try_as_ref());
+    result.response(res, err)
 }
 
 #[no_mangle]

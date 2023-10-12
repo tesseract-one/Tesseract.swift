@@ -8,11 +8,18 @@
 import Foundation
 import CTesseract
 
+public extension CStringRef {
+    func copied() -> String {
+        String(cString: self)
+    }
+}
+extension CString: CType {}
+
 extension CString: CPtr {
     public typealias Val = String
     
     public func copied() -> Val {
-        String(cString: self)
+        String(cString: self._0)
     }
     
     public mutating func owned() -> String {
@@ -30,6 +37,18 @@ extension String: AsCRef {
     
     public func withRef<T>(_ fn: @escaping (Ref) throws -> T) rethrows -> T {
         try withCString(fn)
+    }
+}
+
+extension String: AsCPtrRef {
+    public typealias RefPtr = UnsafePointer<CString>
+    
+    public func withPtrRef<T>(
+        _ fn: @escaping (UnsafePointer<CString>) throws -> T
+    ) rethrows -> T {
+        try withCString {
+            try withUnsafePointer(to: CString(_0: $0)) { try fn($0) }
+        }
     }
 }
 

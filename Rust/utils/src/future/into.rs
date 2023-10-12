@@ -1,5 +1,7 @@
 use crate::ptr::{CAnyDropPtr, SyncPtr};
+use crate::response::COptionResponseResult;
 use crate::result::Result;
+use crate::error::CError;
 use crate::Void;
 use std::future::Future;
 use std::mem::ManuallyDrop;
@@ -7,7 +9,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Wake};
 
-use super::{CFuture, CFutureOnCompleteCallback, CFutureValue};
+use super::{CFuture, CFutureOnCompleteCallback};
 
 enum State<V: 'static> {
     Value(Result<V>),
@@ -92,15 +94,17 @@ impl<V: Send + 'static, F: Future<Output = Result<V>> + Send + 'static> FutureWr
     unsafe extern "C" fn _set_on_complete(
         future: &CFuture<V>,
         context: SyncPtr<Void>,
-        cb: CFutureOnCompleteCallback<V>,
-    ) -> ManuallyDrop<CFutureValue<V>> {
+        value: *mut ManuallyDrop<V>,
+        error: *mut ManuallyDrop<CError>,
+        cb: CFutureOnCompleteCallback<V>
+    ) -> COptionResponseResult {
         let arc = Arc::clone(future.ptr().as_ref::<StateArc<V>>().unwrap());
         let mut state = arc.lock().unwrap();
 
         match state.take() {
             None => {
                 *state = Some(State::Callback(context, cb));
-                ManuallyDrop::new(CFutureValue::None)
+                COptionResponseResult::None
             }
             Some(current_state) => match current_state {
                 State::Callback(ctx, cb) => {
@@ -113,7 +117,16 @@ impl<V: Send + 'static, F: Future<Output = Result<V>> + Send + 'static> FutureWr
                 }
                 State::Value(response) => {
                     *state = Some(State::Resolved);
-                    ManuallyDrop::new(response.into())
+                    match response {
+                        Err(err) => {
+                            *error = ManuallyDrop::new(err);
+                            COptionResponseResult::Error
+                        },
+                        Ok(val) => {
+                            *value = ManuallyDrop::new(val);
+                            COptionResponseResult::Some
+                        }
+                    }
                 }
             },
         }

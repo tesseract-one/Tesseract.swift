@@ -11,6 +11,14 @@ extension Optional: CType {
     public init() { self = nil }
 }
 
+extension Optional: CPtrRef where Wrapped: CPtrRef {
+    public typealias RefVal = Optional<Wrapped.RefVal>
+
+    public func copied() -> RefVal {
+        map { $0.copied() }
+    }
+}
+
 extension Optional: CPtr where Wrapped: CPtr {
     public typealias Val = Optional<Wrapped.Val>
     

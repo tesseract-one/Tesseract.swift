@@ -8,27 +8,73 @@
 import Foundation
 import CTesseract
 
-public enum CError: Error {
-    case nullPtr
-    case canceled
-    case panic(reason: String)
-    case utf8(message: String)
-    case dynamicCast(reason: String)
-    case error(code: UInt32, message: String)
+//extension CTesseract.CError: Error {}
+
+public protocol CErrorConvertible: Error {
+    var cError: CError { get }
+}
+
+public protocol CErrorInitializable: Error {
+    init(cError: CError)
+}
+
+public struct CError: Error {
+    public let code: UInt32
+    public let reason: String
+    
+    public init(code: UInt32, reason: String) {
+        self.code = code
+        self.reason = reason
+    }
     
     public init(copying error: CTesseract.CError) {
-        switch error.tag {
-        case CError_NullPtr: self = .nullPtr
-        case CError_Canceled: self = .canceled
-        case CError_Panic: self = .panic(reason: error.panic.copied())
-        case CError_Utf8Error: self = .utf8(message: error.utf8_error.copied())
-        case CError_ErrorCode:
-            self = .error(code: error.error_code._0,
-                          message: error.error_code._1.copied())
-        case CError_DynamicCast:
-            self = .dynamicCast(reason: error.dynamic_cast_.copied())
-        default: fatalError("Unknown enum tag: \(error.tag)")
+        self.code = error.code
+        self.reason = error.reason.copied()
+    }
+    
+    public init(parsing error: NSError) {
+        guard error.userInfo[Self.NSErrorMarker] != nil else {
+            var error = CTesseract.CError(error: error)
+            self = error.owned()
+            return
         }
+        guard let code = UInt32(exactly: UInt(bitPattern: error.code)) else {
+            var error = CTesseract.CError(error: error)
+            self = error.owned()
+            return
+        }
+        self.init(code: code, reason: error.localizedDescription)
+    }
+}
+
+public extension CError {
+    static func null<T>(_ type: T.Type) -> Self {
+        CError(code: CErrorCode_Null.rawValue, reason: String(describing: type))
+    }
+    
+    static func panic(reason: String) -> Self {
+        CError(code: CErrorCode_Panic.rawValue, reason: reason)
+    }
+    
+    static func cast<F, T>(from: F.Type, to: T.Type) -> Self {
+        CError(code: CErrorCode_Cast.rawValue, reason: "Can't cast \(from) into \(to)")
+    }
+    
+    static func swift(error: Error) -> Self {
+        Self(parsing: error as NSError)
+    }
+    
+    var swiftError: NSError? {
+        withPtrRef { $0.swiftError }.map { err in
+            var err = err
+            return err.owned()
+        }
+    }
+}
+
+extension CError: CustomStringConvertible {
+    public var description: String {
+        withPtrRef { $0.pointee.description }
     }
 }
 
@@ -36,70 +82,55 @@ extension CError: AsCPtrCopy {
     public typealias CopyPtr = CTesseract.CError
     
     public func copiedPtr() -> CopyPtr {
-        var error = CTesseract.CError()
-        switch self {
-        case .nullPtr: error.tag = CError_NullPtr
-        case .canceled: error.tag = CError_Canceled
-        case .error(code: let code, message: let message):
-            error.tag = CError_ErrorCode
-            error.error_code._0 = code
-            error.error_code._1 = message.copiedPtr()
-        case .panic(reason: let panic):
-            error.tag = CError_Panic
-            error.panic = panic.copiedPtr()
-        case .utf8(message: let message):
-            error.tag = CError_Utf8Error
-            error.utf8_error = message.copiedPtr()
-        case .dynamicCast(reason: let reason):
-            error.tag = CError_DynamicCast
-            error.dynamic_cast_ = reason.copiedPtr()
-        }
-        return error
+        CTesseract.CError(code: code, reason: reason.copiedPtr())
     }
 }
 
 extension CError: AsCPtrRef {
-    public typealias RefPtr = CTesseract.CError
+    public typealias RefPtr = UnsafePointer<CTesseract.CError>
     
     public func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T {
-        var error = CTesseract.CError()
-        switch self {
-        case .nullPtr:
-            error.tag = CError_NullPtr
-            return try fn(error)
-        case .canceled:
-            error.tag = CError_Canceled
-            return try fn(error)
-        case .error(code: let code, message: let message):
-            error.tag = CError_ErrorCode
-            error.error_code._0 = code
-            return try message.withRef {
-                error.error_code._1 = $0
-                return try fn(error)
-            }
-        case .panic(reason: let reason):
-            error.tag = CError_Panic
-            return try reason.withRef {
-                error.panic = $0
-                return try fn(error)
-            }
-        case .utf8(message: let message):
-            error.tag = CError_Utf8Error
-            return try message.withRef {
-                error.utf8_error = $0
-                return try fn(error)
-            }
-        case .dynamicCast(reason: let reason):
-            error.tag = CError_Utf8Error
-            return try reason.withRef {
-                error.dynamic_cast_ = $0
-                return try fn(error)
-            }
+        try reason.withPtrRef { reason in
+            var error = CTesseract.CError(code: code, reason: reason.pointee)
+            return try fn(&error)
         }
     }
 }
 
-extension CTesseract.CError: CType {}
+extension NSError {
+    public convenience init(copying error: CTesseract.SwiftError) {
+        self.init(domain: error.domain.copied(), code: error.code,
+                  userInfo: [NSLocalizedDescriptionKey: error.description.copied()])
+    }
+}
+
+extension CTesseract.CError: CType, CustomStringConvertible {
+    public init(error: NSError) {
+        self = tesseract_utils_cerr_new_swift_error(error.code,
+                                                    error.domain,
+                                                    error.localizedDescription)
+    }
+    
+    public var description: String {
+        withUnsafePointer(to: self) { $0.description }
+    }
+    
+    public var swiftError: CTesseract.SwiftError? {
+        withUnsafePointer(to: self) { $0.swiftError }
+    }
+}
+
+extension UnsafePointer<CTesseract.CError> {
+    public var description: String {
+        var desc = tesseract_utils_cerr_get_description(self)
+        return desc.owned()
+    }
+    
+    public var swiftError: CTesseract.SwiftError? {
+        guard self.pointee.code == CErrorCode_Swift.rawValue else { return nil }
+        return tesseract_utils_cerr_get_swift_error(self)
+    }
+}
 
 extension CTesseract.CError: CPtr {
     public typealias Val = CError
@@ -114,7 +145,83 @@ extension CTesseract.CError: CPtr {
     }
     
     public mutating func free() {
-        tesseract_utils_error_free(&self)
-        self.tag = CError_Tag(UInt32.max)
+        tesseract_utils_cerror_free(&self)
+        self.code = UInt32.max
     }
+}
+
+extension CTesseract.SwiftError: CType {
+    public init(error: NSError) {
+        self = tesseract_utils_swift_error_new(error.code,
+                                               error.domain,
+                                               error.localizedDescription)
+    }
+}
+extension CTesseract.SwiftError: CPtr {
+    public typealias Val = NSError
+    
+    public func copied() -> NSError {
+        NSError(copying: self)
+    }
+    
+    public mutating func owned() -> NSError {
+        defer { self.free() }
+        return self.copied()
+    }
+    
+    public mutating func free() {
+        tesseract_utils_swift_error_free(&self)
+    }
+}
+
+extension NSError: AsCPtrRef {
+    public typealias RefPtr = UnsafePointer<CTesseract.SwiftError>
+    
+    public func withPtrRef<T>(
+        _ fn: @escaping (UnsafePointer<SwiftError>) throws -> T
+    ) rethrows -> T {
+        try domain.withPtrRef { domain in
+            try self.localizedDescription.withPtrRef { description in
+                try withUnsafePointer(
+                    to: CTesseract.SwiftError(code: self.code,
+                                              domain: domain.pointee,
+                                              description: description.pointee)
+                ) { try fn($0) }
+            }
+        }
+    }
+}
+
+extension NSError: AsCPtrCopy {
+    public typealias CopyPtr = CTesseract.SwiftError
+    
+    public func copiedPtr() -> CTesseract.SwiftError {
+        CTesseract.SwiftError(error: self)
+    }
+}
+
+extension NSError: CErrorConvertible {
+    public var cError: CError { .swift(error: self) }
+}
+
+extension CError: CustomNSError {
+    /// The domain of the error.
+    public static var errorDomain: String { "CError" }
+
+    /// The error code within the given domain.
+    public var errorCode: Int { Int(bitPattern: UInt(self.code)) }
+
+    /// The user-info dictionary.
+    public var errorUserInfo: [String : Any] {
+        if let err = swiftError {
+            return [NSLocalizedDescriptionKey: reason,
+                         NSUnderlyingErrorKey: err,
+                           Self.NSErrorMarker: true]
+        } else {
+            return [NSLocalizedDescriptionKey: reason,
+                           Self.NSErrorMarker: true]
+        }
+    }
+    
+    public static let NSErrorMarker = "__Tesseract.CError__"
 }

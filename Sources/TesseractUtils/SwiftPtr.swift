@@ -62,7 +62,7 @@ extension CSwiftAnyDropPtr {
     
     public func unowned() -> CResult<AnyObject> {
         guard let obj = self.ptr.unowned() else {
-            return .failure(.nullPtr)
+            return .failure(.null(Self.self))
         }
         return .success(obj)
     }

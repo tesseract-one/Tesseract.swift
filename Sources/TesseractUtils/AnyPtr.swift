@@ -30,34 +30,34 @@ extension CAnyDropPtr {
         return self.ptr.unowned()
     }
     
-    public func unowned<T>(_ type: T.Type) -> CResult<T> {
+    public func unowned<T>(_ t: T.Type) -> CResult<T> {
         guard let any = self.unowned() else {
-            return .failure(.nullPtr)
+            return .failure(.null(Self.self))
         }
         guard let typed = any as? T else {
-            return .failure(.dynamicCast(reason: "Bad type \(T.self)"))
+            return .failure(.cast(from: Self.self, to: t))
         }
         return .success(typed)
     }
     
     public mutating func owned() -> CResult<AnyObject> {
         guard let any = self.ptr.owned() else {
-            return .failure(.nullPtr)
+            return .failure(.null(Self.self))
         }
         return .success(any)
     }
     
-    public mutating func owned<T>(_ type: T.Type) -> CResult<T> {
+    public mutating func owned<T>(_ t: T.Type) -> CResult<T> {
         self.owned().flatMap {
             guard let typed = $0 as? T else {
-                return .failure(.dynamicCast(reason: "Bad type \(T.self)"))
+                return .failure(.cast(from: Self.self, to: t))
             }
             return .success(typed)
         }
     }
     
     public mutating func free() -> CResult<Void> {
-        guard !self.isNull else { return .failure(.nullPtr) }
+        guard !self.isNull else { return .failure(.null(Self.self)) }
         (self.drop)(&self)
         return .success(())
     }

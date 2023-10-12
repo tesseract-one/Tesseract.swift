@@ -7,56 +7,46 @@
 
 import Foundation
 import CTesseract
+#if COCOAPODS
 @_exported import TesseractShared
+#else
+@_exported import TesseractTransportsShared
+#endif
 
-extension CFutureValue_ClientStatus: CFutureValueValue {
-    public typealias Val = ClientStatus
-    
-    public static var valueTag: CFutureValue_ClientStatus_Tag {
-        CFutureValue_ClientStatus_Value_ClientStatus
-    }
-    
-    public static var errorTag: CFutureValue_ClientStatus_Tag {
-        CFutureValue_ClientStatus_Error_ClientStatus
-    }
-    
-    public static var noneTag: CFutureValue_ClientStatus_Tag {
-        CFutureValue_ClientStatus_None_ClientStatus
-    }
-}
+extension ClientStatus: CType {}
 
 extension CFutureClientStatus: CFuturePtr {
-    public typealias CVal = CFutureValue_ClientStatus
+    public typealias CVal = ClientStatus
     public typealias Val = Status
     
-    mutating public func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
-        _withOnCompleteContext(cb) { ctx in
-            self.set_on_complete(&self, ctx) { ctx, val, err in
+    mutating public func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
+        _withOnCompleteContext(cb) { ctx, value, error in
+            self.set_on_complete(&self, ctx, value, error) { ctx, val, err in
                 Self._onCompleteCallback(ctx, val, err)
             }
         }
     }
     
     mutating public func _setupSetOnCompleteFunc() {
-        self.set_on_complete = { this, ctx, cb in
-            Self._setOnCompleteFunc(this, ctx) { this, val, err in
+        self.set_on_complete = { this, ctx, value, error, cb in
+            Self._setOnCompleteFunc(this, ctx, value, error) { this, val, err in
                 cb?(this, val, err)
             }
         }
     }
     
-    public static func convert(cvalue: inout CVal.Val) -> CResult<Val> {
+    public static func convert(cvalue: inout CVal) -> CResult<Val> {
         CResult.failure(.panic(reason: "One way conversion only"))
     }
     
-    public static func convert(value: inout Val) -> CResult<CVal.Val> {
-        var cvalue = CVal.Val()
+    public static func convert(value: inout Val) -> CResult<CVal> {
+        var cvalue = CVal()
         switch value {
         case .ready:
             cvalue.tag = ClientStatus_Ready
         case .error(let err):
             cvalue.tag = ClientStatus_Error
-            cvalue.error = err.copiedPtr()
+            cvalue.error = err.cError.copiedPtr()
         case .unavailable(let str):
             cvalue.tag = ClientStatus_Unavailable
             cvalue.unavailable = str.copiedPtr()
@@ -68,7 +58,7 @@ extension CFutureClientStatus: CFuturePtr {
 extension ClientTransport: CSwiftAnyDropPtr {}
 extension ClientConnection: CSwiftAnyDropPtr {}
 
-private func transport_id(self: UnsafePointer<ClientTransport>!) -> CString? {
+private func transport_id(self: UnsafePointer<ClientTransport>!) -> CString {
     try! self.unowned(Transport.self).get().id.copiedPtr()
 }
 
@@ -76,7 +66,7 @@ private func transport_status(
     self: UnsafePointer<ClientTransport>!,
     proto: CStringRef!
 ) -> CFutureClientStatus {
-    let proto = proto!.copied()
+    let proto = proto.copied()
     return CFutureClientStatus {
         await self.unowned(Transport.self).asyncFlatMap {
             .success(await $0.status(proto: proto))
@@ -97,7 +87,7 @@ private func connection_send(self: UnsafePointer<ClientConnection>!,
 {
     let data = Data(bytes: UnsafeRawPointer(data), count: Int(len))
     return CFutureNothing {
-        await self.unowned(Connection.self).asyncFlatMap {
+        await self.unowned(Connection.self).castError().asyncFlatMap {
             await $0.send(request: data)
         }
     }
@@ -105,7 +95,7 @@ private func connection_send(self: UnsafePointer<ClientConnection>!,
 
 private func connection_receive(self: UnsafePointer<ClientConnection>!) -> CFutureData {
     return CFutureData {
-        await self.unowned(Connection.self).asyncFlatMap {
+        await self.unowned(Connection.self).castError().asyncFlatMap {
             await $0.receive()
         }
     }

@@ -22,7 +22,7 @@ impl<V> TryFrom<CFuture<V>> for CFutureWrapper<V> {
 
     fn try_from(future: CFuture<V>) -> Result<Self> {
         if future.ptr().is_null() {
-            return Err(CError::NullPtr);
+            return Err(CError::null::<CFuture<V>>());
         } else {
             Ok(Self {
                 state: Arc::new(Mutex::new(Some(State::Future(future)))),
@@ -38,7 +38,7 @@ impl<V> Future for CFutureWrapper<V> {
         let mut state = self.state.lock().unwrap();
 
         match state.take() {
-            None => Poll::Ready(Err(CError::NullPtr)),
+            None => Poll::Ready(Err(CError::null::<State<V>>())),
             Some(current_state) => {
                 match current_state {
                     State::Value(value) => {

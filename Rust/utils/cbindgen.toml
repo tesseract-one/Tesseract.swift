@@ -15,5 +15,5 @@ include = [
   "CFutureString", "CFutureInt128", "CFutureUInt128",
   "CFutureData", "CFutureBigInt", "CFutureAnyRustPtr",
   "CFutureAnyDropPtr", "CFutureBool", "SyncPtr_Void",
-  "COptionResponseResult"
+  "COptionResponseResult", "CErrorCode", "CDataRef"
 ]

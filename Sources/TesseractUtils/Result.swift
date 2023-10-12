@@ -24,26 +24,51 @@ public protocol CResultPtr: CType, CPtr where Val == CResult<SResVal> {
     static var err: CResTag { get }
 }
 
-
-public extension CResult {
-    static func wrap<S: CType>(
-        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<CTesseract.CError>) -> Bool
-    ) -> CResult<S> {
-        var error = CTesseract.CError()
+public extension Result {
+    static func wrap<S: CType, F: CType & Error>(
+        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<F>) -> Bool
+    ) -> Result<S, F> {
         var val = S()
-        if !ccall(&val, &error) {
-            return .failure(error.owned())
-        }
+        var error = F()
+        if !ccall(&val, &error) { return .failure(error) }
         return .success(val)
     }
 }
 
-public extension CResult {
-    static func wrap<S: CType>(
-        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<CTesseract.CError>) -> COptionResponseResult
-    ) -> CResult<S?> {
-        var error = CTesseract.CError()
+public extension Result {
+    static func wrap<S: CType, F: CType & CPtr>(
+        ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<F>) -> Bool
+    ) -> Result<S, F.Val> where F.Val: Error {
         var val = S()
+        var error = F()
+        if !ccall(&val, &error) { return .failure(error.owned()) }
+        return .success(val)
+    }
+}
+
+public extension Result {
+    static func wrap<S: CType, F: CType & Error>(
+        ccall: @escaping (UnsafeMutablePointer<S>,
+                          UnsafeMutablePointer<F>) -> COptionResponseResult
+    ) -> Result<S?, F> {
+        var val = S()
+        var error = F()
+        switch ccall(&val, &error) {
+        case COptionResponseResult_Error: return .failure(error)
+        case COptionResponseResult_None: return .success(nil)
+        case COptionResponseResult_Some: return .success(val)
+        default: fatalError("Unknown enum case!")
+        }
+    }
+}
+
+public extension Result {
+    static func wrap<S: CType, F: CType & CPtr>(
+        ccall: @escaping (UnsafeMutablePointer<S>,
+                          UnsafeMutablePointer<F>) -> COptionResponseResult
+    ) -> Result<S?, F.Val> where F.Val: Error {
+        var val = S()
+        var error = F()
         switch ccall(&val, &error) {
         case COptionResponseResult_Error: return .failure(error.owned())
         case COptionResponseResult_None: return .success(nil)
@@ -53,43 +78,39 @@ public extension CResult {
     }
 }
 
-extension CResult {
-    static func wrap(
-        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseract.CError>) -> Bool
-    ) -> CResult<CString> {
-        var error = CTesseract.CError()
-        var val: CString? = nil
-        if !ccall(&val, &error) {
-            return .failure(error.owned())
-        }
-        return .success(val!)
-    }
-}
-
-extension CResult {
-    static func wrap(
-        ccall: @escaping (UnsafeMutablePointer<CString?>, UnsafeMutablePointer<CTesseract.CError>) -> COptionResponseResult
-    ) -> CResult<CString?> {
-        var error = CTesseract.CError()
-        var val: CString? = nil
-        switch ccall(&val, &error) {
-        case COptionResponseResult_Error: return .failure(error.owned())
-        case COptionResponseResult_None: return .success(nil)
-        case COptionResponseResult_Some: return .success(val)
-        default: fatalError("Unknown enum case!")
-        }
-    }
-}
-
-public extension CResult {
-    static func wrap(
-        ccall: @escaping (UnsafeMutablePointer<CTesseract.CError>) -> Bool
-    ) -> CResult<Void> {
-        var error = CTesseract.CError()
-        if !ccall(&error) {
-            return .failure(error.owned())
-        }
+public extension Result {
+    static func wrap<F: CType & Error> (
+        ccall: @escaping (UnsafeMutablePointer<F>) -> Bool
+    ) -> Result<Void, F> {
+        var error = F()
+        if !ccall(&error) { return .failure(error) }
         return .success(())
+    }
+}
+
+public extension Result {
+    static func wrap<F: CType & CPtr> (
+        ccall: @escaping (UnsafeMutablePointer<F>) -> Bool
+    ) -> Result<Void, F.Val> where F.Val: Error {
+        var error = F()
+        if !ccall(&error) { return .failure(error.owned()) }
+        return .success(())
+    }
+}
+
+public extension Result where Failure == CError {
+    func castError<E: CErrorInitializable>() -> Result<Success, E> {
+        mapError { E(cError: $0) }
+    }
+    
+    func castError<E: CErrorInitializable>(_: E.Type) -> Result<Success, E> {
+        castError()
+    }
+}
+
+public extension Result where Failure: CErrorConvertible {
+    func castError() -> Result<Success, CError> {
+        mapError { $0.cError }
     }
 }
 

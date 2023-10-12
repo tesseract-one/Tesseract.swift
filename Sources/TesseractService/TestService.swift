@@ -18,7 +18,7 @@ extension CTesseract.TestService: CoreService {
 }
 
 public protocol TestService: Service where Core == CTesseract.TestService {
-    func signTransation(req: String) async -> CResult<String>
+    func signTransation(req: String) async -> Result<String, TesseractError>
 }
 
 public extension TestService {
@@ -32,9 +32,9 @@ public extension TestService {
 private func test_service_sign(this: UnsafePointer<CTesseract.TestService>!,
                                req: CStringRef!) -> CFutureString
 {
-    let req = req.copied()!
+    let req = req.copied()
     return CFutureString {
-        await this.unowned((any TestService).self).asyncFlatMap {
+        await this.unowned((any TestService).self).castError().asyncFlatMap {
             await $0.signTransation(req: req)
         }
     }

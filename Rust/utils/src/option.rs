@@ -1,5 +1,5 @@
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum COption<T> {
     Some(T),
     None,

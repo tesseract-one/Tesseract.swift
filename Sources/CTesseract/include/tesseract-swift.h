@@ -11,6 +11,15 @@
 #include "tesseract-swift-utils.h"
 #include "tesseract-swift-transports.h"
 
+typedef enum LogLevel {
+  LogLevel_Off,
+  LogLevel_Error,
+  LogLevel_Warn,
+  LogLevel_Info,
+  LogLevel_Debug,
+  LogLevel_Trace,
+} LogLevel;
+
 typedef enum SubstrateAccountType {
   SubstrateAccountType_Ed25519,
   SubstrateAccountType_Sr25519,
@@ -31,33 +40,17 @@ typedef struct SubstrateGetAccountResponse {
   CString path;
 } SubstrateGetAccountResponse;
 
-typedef enum CFutureValue_SubstrateGetAccountResponse_Tag {
-  CFutureValue_SubstrateGetAccountResponse_None_SubstrateGetAccountResponse,
-  CFutureValue_SubstrateGetAccountResponse_Value_SubstrateGetAccountResponse,
-  CFutureValue_SubstrateGetAccountResponse_Error_SubstrateGetAccountResponse,
-} CFutureValue_SubstrateGetAccountResponse_Tag;
-
-typedef struct CFutureValue_SubstrateGetAccountResponse {
-  CFutureValue_SubstrateGetAccountResponse_Tag tag;
-  union {
-    struct {
-      struct SubstrateGetAccountResponse value;
-    };
-    struct {
-      CError error;
-    };
-  };
-} CFutureValue_SubstrateGetAccountResponse;
-
 typedef void (*CFutureOnCompleteCallback_SubstrateGetAccountResponse)(SyncPtr_Void context,
                                                                       struct SubstrateGetAccountResponse *value,
                                                                       CError *error);
 
 typedef struct CFuture_SubstrateGetAccountResponse {
   CAnyDropPtr ptr;
-  struct CFutureValue_SubstrateGetAccountResponse (*set_on_complete)(const struct CFuture_SubstrateGetAccountResponse *future,
-                                                                     SyncPtr_Void context,
-                                                                     CFutureOnCompleteCallback_SubstrateGetAccountResponse cb);
+  COptionResponseResult (*set_on_complete)(const struct CFuture_SubstrateGetAccountResponse *future,
+                                           SyncPtr_Void context,
+                                           struct SubstrateGetAccountResponse *value,
+                                           CError *error,
+                                           CFutureOnCompleteCallback_SubstrateGetAccountResponse cb);
 } CFuture_SubstrateGetAccountResponse;
 
 typedef struct SubstrateService {
@@ -67,12 +60,9 @@ typedef struct SubstrateService {
   CFutureData (*sign_transaction)(const struct SubstrateService *this,
                                   enum SubstrateAccountType account_type,
                                   CStringRef account_path,
-                                  const uint8_t *extrinsic_data,
-                                  uintptr_t extrinsic_data_len,
-                                  const uint8_t *extrinsic_metadata,
-                                  uintptr_t extrinsic_metadata_len,
-                                  const uint8_t *extrinsic_types,
-                                  uintptr_t extrinsic_types_len);
+                                  CDataRef extrinsic_data,
+                                  CDataRef extrinsic_metadata,
+                                  CDataRef extrinsic_types);
 } SubstrateService;
 
 #ifdef __cplusplus
@@ -91,6 +81,8 @@ struct ServiceTesseract tesseract_service_add_test_service(struct ServiceTessera
 
 struct ServiceTesseract tesseract_service_add_substrate_service(struct ServiceTesseract *tesseract,
                                                                 struct SubstrateService service);
+
+bool tesseract_sdk_init(enum LogLevel log, CTesseractError *error);
 
 #ifdef __cplusplus
 } // extern "C"

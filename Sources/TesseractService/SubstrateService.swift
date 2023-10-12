@@ -13,38 +13,21 @@ extension SubstrateGetAccountResponse: CValue, CType {
     public typealias CVal = Self
 }
 
-extension CFutureValue_SubstrateGetAccountResponse: CFutureValueValue {
-    public typealias Val = SubstrateGetAccountResponse
-    public typealias Tag = CFutureValue_SubstrateGetAccountResponse_Tag
-    
-    public static var valueTag: CFutureValue_SubstrateGetAccountResponse_Tag {
-        CFutureValue_SubstrateGetAccountResponse_Value_SubstrateGetAccountResponse
-    }
-    
-    public static var errorTag: CFutureValue_SubstrateGetAccountResponse_Tag {
-        CFutureValue_SubstrateGetAccountResponse_Error_SubstrateGetAccountResponse
-    }
-    
-    public static var noneTag: CFutureValue_SubstrateGetAccountResponse_Tag {
-        CFutureValue_SubstrateGetAccountResponse_None_SubstrateGetAccountResponse
-    }
-}
-
 extension CFuture_SubstrateGetAccountResponse: CFuturePtr {
-    public typealias CVal = CFutureValue_SubstrateGetAccountResponse
+    public typealias CVal = SubstrateGetAccountResponse
     public typealias Val = (pubKey: Data, path: String)
     
-    public mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal {
-        _withOnCompleteContext(cb) { ctx in
-            self.set_on_complete(&self, ctx) { ctx, val, err in
+    public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
+        _withOnCompleteContext(cb) { ctx, value, error in
+            self.set_on_complete(&self, ctx, value, error) { ctx, val, err in
                 Self._onCompleteCallback(ctx, val, err)
             }
         }
     }
     
     public mutating func _setupSetOnCompleteFunc() {
-        self.set_on_complete = { this, ctx, cb in
-            Self._setOnCompleteFunc(this, ctx) { this, val, err in
+        self.set_on_complete = { this, ctx, value, error, cb in
+            Self._setOnCompleteFunc(this, ctx, value, error) { this, val, err in
                 cb?(this, val, err)
             }
         }
@@ -75,12 +58,12 @@ extension CTesseract.SubstrateService: CoreService {
 public protocol SubstrateService: Service where Core == CTesseract.SubstrateService {
     func getAccount(
         type: SubstrateAccountType
-    ) async -> CResult<(pubKey: Data, path: String)>
+    ) async -> Result<(pubKey: Data, path: String), TesseractShared.TesseractError>
     
     func signTransation(
         type: SubstrateAccountType, path: String,
         extrinsic: Data, metadata: Data, types: Data
-    ) async -> CResult<Data>
+    ) async -> Result<Data, TesseractShared.TesseractError>
 }
 
 public extension SubstrateService {
@@ -97,7 +80,7 @@ private func substrate_service_get_account(
     accountType: SubstrateAccountType
 ) -> CFuture_SubstrateGetAccountResponse {
     CFuture_SubstrateGetAccountResponse {
-        await this.unowned((any SubstrateService).self).asyncFlatMap {
+        await this.unowned((any SubstrateService).self).castError().asyncFlatMap {
             await $0.getAccount(type: accountType)
         }
     }
@@ -106,16 +89,14 @@ private func substrate_service_get_account(
 private func substrate_service_sign(
     this: UnsafePointer<CTesseract.SubstrateService>!,
     type: SubstrateAccountType, path: CStringRef!,
-    extrinsic: UnsafePointer<UInt8>!, extrinsicLen: UInt,
-    metadata: UnsafePointer<UInt8>!, metadataLen: UInt,
-    types: UnsafePointer<UInt8>!, typesLen: UInt
+    extrinsic: CDataRef, metadata: CDataRef, types: CDataRef
 ) -> CFutureData {
-    let path = path.copied()!
-    let extrinsic = Data(bytes: extrinsic, count: Int(extrinsicLen))
-    let metadata = Data(bytes: metadata, count: Int(metadataLen))
-    let types = Data(bytes: types, count: Int(typesLen))
+    let path = path.copied()
+    let extrinsic = extrinsic.copied()
+    let metadata = metadata.copied()
+    let types = types.copied()
     return CFutureData {
-        await this.unowned((any SubstrateService).self).asyncFlatMap {
+        await this.unowned((any SubstrateService).self).castError().asyncFlatMap {
             await $0.signTransation(type: type, path: path, extrinsic: extrinsic,
                                     metadata: metadata, types: types)
         }

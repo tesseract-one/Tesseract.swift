@@ -1,33 +1,34 @@
-use super::error::CError;
-use super::result::Result;
-use std::any::Any;
+use std::error::Error;
 use std::panic;
+use std::result::Result;
 
-fn string_from_panic_err(err: Box<dyn Any>) -> String {
-    if let Some(string) = err.downcast_ref::<String>() {
-        string.clone()
-    } else if let Some(string) = err.downcast_ref::<&'static str>() {
-        String::from(*string)
-    } else {
-        format!("Reason: {:?}", err)
+pub trait FromPanic {
+    fn from_panic(panic: &str) -> Self;
+}
+
+pub trait PanicContext<E: Error> where Self: Sized, Self: Into<E>, Self: FromPanic {
+    fn panic_context<T>(
+        fun: impl FnOnce() -> Result<T, Self> + panic::UnwindSafe
+    ) -> Result<T, E> {
+        panic::catch_unwind(fun)
+            .map_err(|err| {
+                let panic = if let Some(string) = err.downcast_ref::<String>() {
+                    string.clone()
+                } else if let Some(string) = err.downcast_ref::<&'static str>() {
+                    (*string).to_owned()
+                } else {
+                    format!("{:?}", err)
+                };
+                Self::from_panic(&panic).into()
+            }).and_then(|res| res.map_err(|e| e.into()))
+    }
+
+    fn panic_context_value<T>(fun: impl FnOnce() -> T + panic::UnwindSafe) -> Result<T, E> {
+        Self::panic_context(|| Ok(fun()))
     }
 }
 
-pub fn handle_exception<F, R>(func: F) -> Result<R>
-where
-    F: FnOnce() -> R + panic::UnwindSafe,
-{
-    handle_exception_result(|| Ok(func()))
-}
-
-pub fn handle_exception_result<F, R>(func: F) -> Result<R>
-where
-    F: FnOnce() -> Result<R> + panic::UnwindSafe,
-{
-    panic::catch_unwind(func)
-        .map_err(|err| CError::Panic(string_from_panic_err(err).into()))
-        .and_then(|res| res)
-}
+impl<EI, EO> PanicContext<EO> for EI where EI: Sized, EI: Into<EO>, EI: FromPanic, EO: Error {}
 
 #[allow(dead_code)]
 pub fn hide_exceptions() {

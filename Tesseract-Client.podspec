@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.swift_version    = '5.6'
   s.platforms        = { :ios => '13.0' }
 
-  s.source_files     = 'Sources/TesseractClient/**/*.swift', 'Sources/TesseractClientTransports/**/*.swift'
+  s.source_files     = 'Sources/TesseractClient/**/*.swift', 'Sources/TesseractTransportsClient/**/*.swift'
   s.static_framework = true
 
   s.dependency 'Tesseract-Shared', "#{s.version}"

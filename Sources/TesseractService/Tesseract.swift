@@ -8,16 +8,18 @@
 import Foundation
 import CTesseractBin
 #if !COCOAPODS
-@_exported import TesseractServiceTransports
+@_exported import TesseractTransportsService
 #endif
+@_exported import TesseractShared
 
 // Class is not thread safe.
 // Use mutex if you need multithreaded setup (but why?)
 // Services and transports are thread safe
-public final class Tesseract {
-    public private(set) var tesseract: ServiceTesseract
+public final class Tesseract: TesseractBase {
+    public private(set) var tesseract: ServiceTesseract!
     
-    public init() {
+    public override init() throws {
+        try super.init()
         tesseract = tesseract_service_new()
     }
     
@@ -33,5 +35,6 @@ public final class Tesseract {
     
     deinit {
         tesseract_service_free(&tesseract)
+        tesseract = nil
     }
 }

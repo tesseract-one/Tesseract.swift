@@ -6,17 +6,21 @@
 //
 
 import Foundation
+#if COCOAPODS
 import TesseractShared
+#else
+import TesseractTransportsShared
+#endif
 
 public enum Status {
     case ready
     case unavailable(String)
-    case error(CError)
+    case error(TesseractError)
 }
 
 public protocol Connection: AnyObject {
-    func send(request: Data) async -> Result<(), CError>
-    func receive() async -> Result<Data, CError>
+    func send(request: Data) async -> Result<(), TesseractError>
+    func receive() async -> Result<Data, TesseractError>
 }
 
 public protocol Transport: AnyObject {

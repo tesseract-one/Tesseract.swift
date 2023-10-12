@@ -2,7 +2,7 @@ use super::SyncPtr;
 use crate::error::CError;
 use crate::result::Result;
 use crate::Void;
-use std::any::{type_name, Any};
+use std::any::Any;
 
 #[repr(C)]
 pub struct CAnyDropPtr {
@@ -28,21 +28,17 @@ impl CAnyDropPtr {
 
     pub fn as_ref<T: Any>(&self) -> Result<&T> {
         unsafe { self.ptr.as_typed_ref::<Box<dyn Any>>() }
-            .ok_or_else(|| CError::NullPtr)
+            .ok_or_else(|| CError::null::<Self>())
             .and_then(|any| {
-                any.downcast_ref::<T>().ok_or_else(|| {
-                    CError::DynamicCast(format!("Bad type: {}", type_name::<T>()).into())
-                })
+                any.downcast_ref::<T>().ok_or_else(|| CError::cast::<Self, T>())
             })
     }
 
     pub fn as_mut<T: Any>(&mut self) -> Result<&mut T> {
         unsafe { self.ptr.as_typed_mut::<Box<dyn Any>>() }
-            .ok_or_else(|| CError::NullPtr)
+            .ok_or_else(|| CError::null::<Self>())
             .and_then(|any| {
-                any.downcast_mut::<T>().ok_or_else(|| {
-                    CError::DynamicCast(format!("Bad type: {}", type_name::<T>()).into())
-                })
+                any.downcast_mut::<T>().ok_or_else(|| CError::cast::<Self, T>())
             })
     }
 

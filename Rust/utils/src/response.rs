@@ -1,5 +1,3 @@
-use super::error::CError;
-use super::traits::IntoC;
 use std::mem::ManuallyDrop;
 use std::result::Result;
 
@@ -11,33 +9,35 @@ pub enum COptionResponseResult {
     Some,
 }
 
-pub trait CResponse<T, R> {
-    fn response(self, value: T, error: &mut ManuallyDrop<CError>) -> R;
+pub trait CVoidResponse<E> {
+    fn response(self, error: &mut ManuallyDrop<E>) -> bool;
 }
 
-impl<E> CResponse<(), bool> for Result<(), E>
-where
-    E: IntoC<CVal = CError>,
-{
-    fn response(self, _value: (), error: &mut ManuallyDrop<CError>) -> bool {
+pub trait CCopyResponse<T: Copy, E, R> {
+    fn response(self, value: &mut T, error: &mut ManuallyDrop<E>) -> R;
+}
+
+pub trait CMoveResponse<T, E, R> {
+    fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<E>) -> R;
+}
+
+impl <E, IE> CVoidResponse<E> for Result<(), IE> where IE: Into<E> {
+    fn response(self, error: &mut ManuallyDrop<E>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
+                *error = ManuallyDrop::new(err.into());
                 false
             }
-            Ok(_) => true,
+            Ok(_) => true
         }
     }
 }
 
-impl<T: Copy, E> CResponse<&mut T, bool> for Result<T, E>
-where
-    E: IntoC<CVal = CError>,
-{
-    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> bool {
+impl<T: Copy, E, IE> CCopyResponse<T, E, bool> for Result<T, IE> where IE: Into<E> {
+    fn response(self, value: &mut T, error: &mut ManuallyDrop<E>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
+                *error = ManuallyDrop::new(err.into());
                 false
             }
             Ok(val) => {
@@ -48,32 +48,29 @@ where
     }
 }
 
-impl<T, E> CResponse<&mut ManuallyDrop<T>, bool> for Result<T, E>
-where
-    E: IntoC<CVal = CError>,
-{
-    fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<CError>) -> bool {
+impl<T, IT, E, IE> CMoveResponse<T, E, bool> for Result<IT, IE> where IT: Into<T>, IE: Into<E> {
+    fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<E>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
+                *error = ManuallyDrop::new(err.into());
                 false
             }
             Ok(val) => {
-                *value = ManuallyDrop::new(val);
+                *value = ManuallyDrop::new(val.into());
                 true
             }
         }
     }
 }
 
-impl<T: Copy, E> CResponse<&mut T, COptionResponseResult> for Result<Option<T>, E>
+impl<T: Copy, E, IE> CCopyResponse<T, E, COptionResponseResult> for Result<Option<T>, IE>
 where
-    E: IntoC<CVal = CError>,
+    IE: Into<E>,
 {
-    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> COptionResponseResult {
+    fn response(self, value: &mut T, error: &mut ManuallyDrop<E>) -> COptionResponseResult {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
+                *error = ManuallyDrop::new(err.into());
                 COptionResponseResult::Error
             }
             Ok(opt) => match opt {
@@ -87,24 +84,24 @@ where
     }
 }
 
-impl<T, E> CResponse<&mut ManuallyDrop<T>, COptionResponseResult> for Result<Option<T>, E>
+impl<T, IT, E, IE> CMoveResponse<T, E, COptionResponseResult> for Result<Option<IT>, IE>
 where
-    E: IntoC<CVal = CError>,
+   IT: Into<T>, IE: Into<E>,
 {
     fn response(
         self,
         value: &mut ManuallyDrop<T>,
-        error: &mut ManuallyDrop<CError>,
+        error: &mut ManuallyDrop<E>,
     ) -> COptionResponseResult {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into_c());
+                *error = ManuallyDrop::new(err.into());
                 COptionResponseResult::Error
             }
             Ok(opt) => match opt {
                 None => COptionResponseResult::None,
                 Some(val) => {
-                    *value = ManuallyDrop::new(val);
+                    *value = ManuallyDrop::new(val.into());
                     COptionResponseResult::Some
                 }
             },

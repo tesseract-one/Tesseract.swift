@@ -7,7 +7,11 @@
 
 import Foundation
 import CTesseract
+#if COCOAPODS
 @_exported import TesseractShared
+#else
+@_exported import TesseractTransportsShared
+#endif
 
 public final class CoreTransportProcessor: TransportProcessor {
     public private(set) var processor: ServiceTransportProcessor
@@ -20,13 +24,13 @@ public final class CoreTransportProcessor: TransportProcessor {
         tesseract_service_transport_processor_free(&self.processor)
     }
     
-    public func process(data: Data) async -> CResult<Data> {
+    public func process(data: Data) async -> Result<Data, TesseractError> {
         let future = data.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) in
             tesseract_service_transport_processor_process(self.processor,
                                                           ptr.baseAddress,
                                                           UInt(ptr.count))
         }
-        return await future.result
+        return await future.result.castError()
     }
 }
 

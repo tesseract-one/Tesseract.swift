@@ -8,7 +8,16 @@
 import Foundation
 import CTesseract
 
+extension CDataRef: CType {}
 extension CData: CType {}
+
+extension CDataRef: CPtrRef {
+    public typealias Val = Data
+    
+    public func copied() -> Data {
+        Data(bytes: self.ptr, count: Int(self.len))
+    }
+}
 
 extension CData: CPtr {
     public typealias Val = Data
@@ -39,23 +48,23 @@ extension CData {
 }
 
 extension Data: AsCRef {
-    public typealias Ref = UnsafePointer<CData>
+    public typealias Ref = (UnsafePointer<UInt8>, UInt)
     
     public func withRef<T>(_ fn: @escaping (Ref) throws -> T) rethrows -> T {
-        try withPtrRef { ptr in
-            var ptr = ptr
-            return try fn(&ptr)
+        try withUnsafeBytes { (ptr: UnsafeRawBufferPointer) in
+            let bytesPtr = ptr.bindMemory(to: UInt8.self)
+            return try fn((bytesPtr.baseAddress!, UInt(bytesPtr.count)))
         }
     }
 }
 
 extension Data: AsCPtrRef {
-    public typealias RefPtr = CData
-    
+    public typealias RefPtr = CDataRef
+
     public func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T {
         try self.withUnsafeBytes { ptr in
             let bytesPtr = ptr.bindMemory(to: UInt8.self)
-            let cdata = CData(
+            let cdata = CDataRef(
                 ptr: bytesPtr.baseAddress,
                 len: UInt(bytesPtr.count)
             )
@@ -68,7 +77,7 @@ extension Data: AsCPtrCopy {
     public typealias CopyPtr = CData
     
     public func copiedPtr() -> CData {
-        try! withRef { cdata in
+        try! withPtrRef { cdata in
             try CResult<CData>.wrap { res, err in
                 tesseract_utils_data_clone(cdata, res, err)
             }.get()

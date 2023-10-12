@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		923ADAE22AC4127F001853DA /* TesseractClientTransports in Frameworks */ = {isa = PBXBuildFile; productRef = 923ADAE12AC4127F001853DA /* TesseractClientTransports */; };
-		923ADAE42AC4128E001853DA /* TesseractServiceTransports in Frameworks */ = {isa = PBXBuildFile; productRef = 923ADAE32AC4128E001853DA /* TesseractServiceTransports */; };
 		9244C7A929246C100055E6B6 /* DAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9244C7A829246C100055E6B6 /* DAppApp.swift */; };
 		9244C7AB29246C100055E6B6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9244C7AA29246C100055E6B6 /* ContentView.swift */; };
 		9244C7AD29246C120055E6B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9244C7AC29246C120055E6B6 /* Assets.xcassets */; };
@@ -25,6 +23,8 @@
 		929FF54F29246F0C00F79FD7 /* AppCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 929FF54D29246F0C00F79FD7 /* AppCore.swift */; };
 		929FF55F292510EB00F79FD7 /* NativeUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 929FF55E292510EB00F79FD7 /* NativeUI.swift */; };
 		92B2FB59292D4BCD00260349 /* AlertProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92B2FB58292D4BCD00260349 /* AlertProvider.swift */; };
+		92D79B1A2AD82B2400D22BDC /* TesseractTransportsClient in Frameworks */ = {isa = PBXBuildFile; productRef = 92D79B192AD82B2400D22BDC /* TesseractTransportsClient */; };
+		92D79B1C2AD82B2E00D22BDC /* TesseractTransportsService in Frameworks */ = {isa = PBXBuildFile; productRef = 92D79B1B2AD82B2E00D22BDC /* TesseractTransportsService */; };
 		BAED6AE8292C3AA000A9BA2D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED6AE7292C3AA000A9BA2D /* WalletData.swift */; };
 		BAED6AEA292C3AA600A9BA2D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED6AE7292C3AA000A9BA2D /* WalletData.swift */; };
 /* End PBXBuildFile section */
@@ -86,7 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				923ADAE22AC4127F001853DA /* TesseractClientTransports in Frameworks */,
+				92D79B1A2AD82B2400D22BDC /* TesseractTransportsClient in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,7 +102,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				929FF53A29246E0D00F79FD7 /* UniformTypeIdentifiers.framework in Frameworks */,
-				923ADAE42AC4128E001853DA /* TesseractServiceTransports in Frameworks */,
+				92D79B1C2AD82B2E00D22BDC /* TesseractTransportsService in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,7 +222,7 @@
 			);
 			name = RustDApp;
 			packageProductDependencies = (
-				923ADAE12AC4127F001853DA /* TesseractClientTransports */,
+				92D79B192AD82B2400D22BDC /* TesseractTransportsClient */,
 			);
 			productName = ExampleDapp;
 			productReference = 9244C7A529246C100055E6B6 /* DApp.app */;
@@ -262,7 +262,7 @@
 			);
 			name = Extension;
 			packageProductDependencies = (
-				923ADAE32AC4128E001853DA /* TesseractServiceTransports */,
+				92D79B1B2AD82B2E00D22BDC /* TesseractTransportsService */,
 			);
 			productName = Extension;
 			productReference = 929FF53729246E0D00F79FD7 /* Extension.appex */;
@@ -560,6 +560,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rust DApp";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -590,6 +591,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rust DApp";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -622,6 +624,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Wallet/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rust Wallet";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -654,6 +657,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Wallet/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rust Wallet";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -681,7 +685,7 @@
 				DEVELOPMENT_TEAM = 8S89PJHTSK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Extension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Wallet;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rust Wallet";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -707,7 +711,7 @@
 				DEVELOPMENT_TEAM = 8S89PJHTSK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Extension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Wallet;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rust Wallet";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -766,13 +770,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		923ADAE12AC4127F001853DA /* TesseractClientTransports */ = {
+		92D79B192AD82B2400D22BDC /* TesseractTransportsClient */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = TesseractClientTransports;
+			productName = TesseractTransportsClient;
 		};
-		923ADAE32AC4128E001853DA /* TesseractServiceTransports */ = {
+		92D79B1B2AD82B2E00D22BDC /* TesseractTransportsService */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = TesseractServiceTransports;
+			productName = TesseractTransportsService;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

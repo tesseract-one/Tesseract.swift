@@ -1,6 +1,7 @@
 use crate::Void;
 
 #[repr(transparent)]
+#[derive(Debug)]
 pub struct SyncPtr<T>(*const T);
 
 impl<T> SyncPtr<T> {

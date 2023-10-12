@@ -10,23 +10,71 @@
 #include <stdlib.h>
 #include "tesseract-swift-utils.h"
 
-enum CErrorCodes
+enum CTesseractErrorCode
 #ifdef __cplusplus
   : uint32_t
 #endif // __cplusplus
  {
-  CErrorCodes_EmptyRequest = 0,
-  CErrorCodes_EmptyResponse,
-  CErrorCodes_UnsupportedDataType,
-  CErrorCodes_RequestExpired,
-  CErrorCodes_WrongProtocolId,
-  CErrorCodes_WrongInternalState,
-  CErrorCodes_Serialization,
-  CErrorCodes_Nested,
+  CTesseractErrorCode_Cancelled = CErrorCode_Sentinel,
+  CTesseractErrorCode_Serialization,
+  CTesseractErrorCode_Weird,
+  /**
+   * Must be last for serialization purposes
+   */
+  CTesseractErrorCode_Sentinel,
 };
 #ifndef __cplusplus
-typedef uint32_t CErrorCodes;
+typedef uint32_t CTesseractErrorCode;
 #endif // __cplusplus
+
+typedef enum CTesseractError_Tag {
+  CTesseractError_Null,
+  CTesseractError_Panic,
+  CTesseractError_Logger,
+  CTesseractError_Utf8,
+  CTesseractError_Cast,
+  CTesseractError_Swift,
+  CTesseractError_Cancelled,
+  CTesseractError_Serialization,
+  CTesseractError_Weird,
+  CTesseractError_Custom,
+} CTesseractError_Tag;
+
+typedef struct CTesseractError_Custom_Body {
+  uint32_t _0;
+  CString _1;
+} CTesseractError_Custom_Body;
+
+typedef struct CTesseractError {
+  CTesseractError_Tag tag;
+  union {
+    struct {
+      CString null;
+    };
+    struct {
+      CString panic;
+    };
+    struct {
+      CString logger;
+    };
+    struct {
+      CString utf8;
+    };
+    struct {
+      CString cast;
+    };
+    struct {
+      SwiftError swift;
+    };
+    struct {
+      CString serialization;
+    };
+    struct {
+      CString weird;
+    };
+    CTesseractError_Custom_Body custom;
+  };
+} CTesseractError;
 
 typedef struct ServiceTransportProcessor {
   SyncPtr_Void _0;
@@ -50,33 +98,17 @@ typedef struct ClientStatus {
   };
 } ClientStatus;
 
-typedef enum CFutureValue_ClientStatus_Tag {
-  CFutureValue_ClientStatus_None_ClientStatus,
-  CFutureValue_ClientStatus_Value_ClientStatus,
-  CFutureValue_ClientStatus_Error_ClientStatus,
-} CFutureValue_ClientStatus_Tag;
-
-typedef struct CFutureValue_ClientStatus {
-  CFutureValue_ClientStatus_Tag tag;
-  union {
-    struct {
-      struct ClientStatus value;
-    };
-    struct {
-      CError error;
-    };
-  };
-} CFutureValue_ClientStatus;
-
 typedef void (*CFutureOnCompleteCallback_ClientStatus)(SyncPtr_Void context,
                                                        struct ClientStatus *value,
                                                        CError *error);
 
 typedef struct CFuture_ClientStatus {
   CAnyDropPtr ptr;
-  struct CFutureValue_ClientStatus (*set_on_complete)(const struct CFuture_ClientStatus *future,
-                                                      SyncPtr_Void context,
-                                                      CFutureOnCompleteCallback_ClientStatus cb);
+  COptionResponseResult (*set_on_complete)(const struct CFuture_ClientStatus *future,
+                                           SyncPtr_Void context,
+                                           struct ClientStatus *value,
+                                           CError *error,
+                                           CFutureOnCompleteCallback_ClientStatus cb);
 } CFuture_ClientStatus;
 
 typedef struct ClientConnection {
@@ -107,6 +139,14 @@ typedef struct ServiceTransport {
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
+
+struct CTesseractError tesseract_error_from_cerror(CError *cerr);
+
+CError tesseract_error_to_cerror(struct CTesseractError *core);
+
+CString tesseract_error_get_description(const struct CTesseractError *err);
+
+void tesseract_error_free(struct CTesseractError *core);
 
 CFuture_CData tesseract_service_transport_processor_process(struct ServiceTransportProcessor processor,
                                                             const uint8_t *data,

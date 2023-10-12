@@ -1,11 +1,11 @@
 use super::from::CFutureWrapper;
-use super::value::CFutureValue;
 use crate::error::CError;
 use crate::ptr::*;
+use crate::response::COptionResponseResult;
 use crate::result::Result;
 use crate::Void;
 use std::future::Future;
-use std::mem::ManuallyDrop;
+use std::mem::{ManuallyDrop, MaybeUninit};
 
 pub type CFutureOnCompleteCallback<V> = unsafe extern "C" fn(
     context: SyncPtr<Void>,
@@ -19,8 +19,10 @@ pub struct CFuture<V: 'static> {
     set_on_complete: unsafe extern "C" fn(
         future: &CFuture<V>,
         context: SyncPtr<Void>,
-        cb: CFutureOnCompleteCallback<V>,
-    ) -> ManuallyDrop<CFutureValue<V>>,
+        value: *mut ManuallyDrop<V>,
+        error: *mut ManuallyDrop<CError>,
+        cb: CFutureOnCompleteCallback<V>
+    ) -> COptionResponseResult,
 }
 
 struct CFutureContext<V: 'static> {
@@ -55,8 +57,10 @@ impl<V: 'static> CFuture<V> {
         set_on_complete: unsafe extern "C" fn(
             future: &CFuture<V>,
             context: SyncPtr<Void>,
-            cb: CFutureOnCompleteCallback<V>,
-        ) -> ManuallyDrop<CFutureValue<V>>,
+            value: *mut ManuallyDrop<V>,
+            error: *mut ManuallyDrop<CError>,
+            cb: CFutureOnCompleteCallback<V>
+        ) -> COptionResponseResult,
     ) -> Self {
         Self {
             ptr,
@@ -68,14 +72,25 @@ impl<V: 'static> CFuture<V> {
         let set_on_complete = self.set_on_complete;
         let reference = &self as *const Self; // this is ok. It passed as ref into set_on_complete call only
         let context = CFutureContext::new(self, cb).into_raw().ptr();
-        let value = unsafe {
+
+        let mut value: MaybeUninit<ManuallyDrop<V>> = MaybeUninit::uninit();
+        let mut error: MaybeUninit<ManuallyDrop<CError>> = MaybeUninit::uninit();
+        let result = unsafe {
             set_on_complete(
                 reference.as_ref().unwrap(),
                 SyncPtr::raw(context),
-                Self::on_complete_handler,
+                value.as_mut_ptr(), error.as_mut_ptr(),
+                Self::on_complete_handler
             )
         };
-        let value: Option<Result<V>> = ManuallyDrop::into_inner(value).into();
+
+        let value = unsafe { match result {
+            COptionResponseResult::None => None,
+            COptionResponseResult::Error =>
+                Some(Err(ManuallyDrop::into_inner(error.assume_init()))),
+            COptionResponseResult::Some =>
+                Some(Ok(ManuallyDrop::into_inner(value.assume_init())))
+        }};
         if value.is_some() {
             // Context is non-needed. Callback never will be called
             let _ = unsafe { CFutureContext::<V>::from_raw(SyncPtr::raw(context)) };

@@ -1,3 +1,6 @@
+#![feature(async_closure)]
+
+extern crate errorcon;
 extern crate tesseract_swift_utils;
 extern crate tesseract_swift_transports;
 
@@ -8,3 +11,4 @@ pub mod client;
 pub mod service;
 
 pub mod protocols;
+pub mod init;

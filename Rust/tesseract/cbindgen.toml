@@ -20,5 +20,6 @@ exclude = [
     "CFuture_CString", "CFutureString", "SyncPtr_Void",
     "CAnyDropPtr", "CString", "CStringRef", "CData", "CError", "CErrorCodes",
     "ServiceTransport", "ServiceBoundTransport", "ServiceTransportProcessor",
-    "ClientTransport", "ClientConnection", "ClientStatus", "CFutureClientStatus"
+    "ClientTransport", "ClientConnection", "ClientStatus", "CFutureClientStatus",
+    "COptionResponseResult", "CDataRef", "CTesseractError"
 ]

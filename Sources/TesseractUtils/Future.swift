@@ -8,101 +8,24 @@
 import Foundation
 import CTesseract
 
-public protocol CFutureValue: CType {
-    associatedtype Val
-    associatedtype Tag: Equatable
-    
-    var tag: Tag { get set }
-    var error: CTesseract.CError { get set }
-    
-    var _value: Val { get set }
-    
-    static var valueTag: Tag { get }
-    static var errorTag: Tag { get }
-    static var noneTag: Tag { get }
-}
-
-extension CFutureValue {
-    public var isNone: Bool {
-        self.tag == Self.noneTag
-    }
-    
-    public var isSome: Bool {
-        self.tag == Self.valueTag || self.tag == Self.errorTag
-    }
-    
-    public init(_ result: CResult<Val>) {
-        switch result {
-        case .failure(let err): self = Self.error(err.copiedPtr())
-        case .success(let val): self = Self.value(val)
-        }
-    }
-    
-    public mutating func asResult() -> CResult<Val>? {
-        switch self.tag {
-        case Self.valueTag: return .success(self._value)
-        case Self.errorTag: return .failure(self.error.owned())
-        default: return nil
-        }
-    }
-    
-    public static var none: Self {
-        var val = Self()
-        val.tag = Self.noneTag
-        return val
-    }
-    
-    public static func error(_ error: CTesseract.CError) -> Self {
-        var val = Self()
-        val.tag = Self.errorTag
-        val.error = error
-        return val
-    }
-    
-    public static func value(_ value: Val) -> Self {
-        var val = Self()
-        val.tag = Self.valueTag
-        val._value = value
-        return val
-    }
-}
-
-public protocol CFutureValueValue: CFutureValue {
-    var value: Val { get set }
-}
-
-extension CFutureValueValue {
-    public var _value: Val { get { value } set { value = newValue } }
-}
-
-public protocol CFutureValuePtr: CFutureValue where Val == PtrVal? {
-    associatedtype PtrVal
-    
-    var value: PtrVal! { get set }
-}
-
-extension CFutureValuePtr {
-    public var _value: Val { get { value } set { value = newValue } }
-}
-
 public protocol CFuturePtr: CType {
-    associatedtype CVal: CFutureValue
+    associatedtype CVal: CType
     associatedtype Val
     
     var ptr: CAnyDropPtr { get set }
     
     // Consumes future. Will call free automatically
-    func onComplete(cb: @escaping (CResult<Val>) -> Void) throws -> CResult<Val>?
+    func onComplete(cb: @escaping (CResult<Val>) -> Void) -> CResult<Val>?
     
     // Frees unconsumed future. Call it only if you don't want to use the future
     mutating func free() -> CResult<Void>
     
     // Helpers for value converting
-    static func convert(cvalue: inout CVal.Val) -> CResult<Val>
-    static func convert(value: inout Val) -> CResult<CVal.Val>
+    static func convert(cvalue: inout CVal) -> CResult<Val>
+    static func convert(value: inout Val) -> CResult<CVal>
     
     // Don't use this methods directly
-    mutating func _onComplete(cb: @escaping (CResult<CVal.Val>) -> Void) -> CVal
+    mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>?
     mutating func _setupSetOnCompleteFunc()
 }
 
@@ -113,8 +36,10 @@ extension CFuturePtr {
                 return .success(try await cb())
             } catch let err as CError {
                 return .failure(err)
+            } catch let err as CErrorConvertible {
+                return .failure(err.cError)
             } catch {
-                return .failure(.panic(reason: error.localizedDescription))
+                return .failure(.swift(error: error as NSError))
             }
         }
     }
@@ -122,16 +47,16 @@ extension CFuturePtr {
     public init(_ cb: @escaping @Sendable () async -> CResult<Val>) {
         self = Self._wrapAsync(cb)
     }
+    
+    public init<E: CErrorConvertible>(_ cb: @escaping @Sendable () async -> Result<Val, E>) {
+        self = Self._wrapAsync { await cb().mapError { $0.cError } }
+    }
 
     public var value: Val {
         get async throws {
             try await withUnsafeThrowingContinuation { cont in
-                do {
-                    if let value = try self.onComplete(cb: cont.resume) {
-                        cont.resume(with: value)
-                    }
-                } catch {
-                    cont.resume(with: .failure(error))
+                if let value = self.onComplete(cb: cont.resume) {
+                    cont.resume(with: value)
                 }
             }
         }
@@ -140,38 +65,29 @@ extension CFuturePtr {
     public var result: CResult<Val> {
         get async {
             await withUnsafeContinuation { cont in
-                do {
-                    if let value = try self.onComplete(cb: cont.resume) {
-                        cont.resume(with: .success(value))
-                    }
-                } catch let err as CError {
-                    cont.resume(returning: .failure(err))
-                } catch {
-                    cont.resume(returning:
-                            .failure(.panic(reason: error.localizedDescription))
-                    )
+                if let value = self.onComplete(cb: cont.resume) {
+                    cont.resume(returning: value)
                 }
             }
         }
     }
     
     // Should be mutating but has workaround for better API
-    public func onComplete(cb: @escaping (CResult<Val>) -> Void) throws -> CResult<Val>? {
-        guard !self.ptr.isNull else { throw CError.nullPtr }
+    public func onComplete(cb: @escaping (CResult<Val>) -> Void) -> CResult<Val>? {
+        guard !self.ptr.isNull else { return .failure(.null(Self.self)) }
         var this = self
         withUnsafePointer(to: self) { ptr in
             UnsafeMutablePointer(mutating: ptr)!.pointee.ptr.ptr = nil
         }
-        var value = this._onComplete {
+        return this._onComplete {
             cb($0.flatMap { val in
                 var val = val
                 return Self.convert(cvalue: &val)
             })
-        }
-        return value.asResult()?.flatMap { val in
+        }.map { $0.flatMap { val in
             var val = val
             return Self.convert(cvalue: &val)
-        }
+        }}
     }
     
     // Call it only if you don't want to wait for the Future.
@@ -180,84 +96,75 @@ extension CFuturePtr {
     }
 }
 
-//extension CFuturePtr where CVal == Val {
-//    static func convert(cvalue: inout CVal) -> CResult<Val> {
-//        .success(cvalue)
-//    }
-//    static func convert(value: inout Val) -> CResult<CVal> {
-//        .success(value)
-//    }
-//}
-
-extension CFuturePtr where CVal.Val: CPtr, Val == CVal.Val.Val {
-    public static func convert(cvalue: inout CVal.Val) -> CResult<Val> {
+extension CFuturePtr where CVal: CPtr, Val == CVal.Val {
+    public static func convert(cvalue: inout CVal) -> CResult<Val> {
         return .success(cvalue.owned())
     }
 }
 
 extension CFuturePtr
-    where CVal.Val: OptionProtocol,
-          CVal.Val.OWrapped: CPtr,
-          Val == CVal.Val.OWrapped.Val
+    where CVal: OptionProtocol,
+          CVal.OWrapped: CPtr,
+          Val == CVal.OWrapped.Val
 {
-    public static func convert(cvalue: inout CVal.Val) -> CResult<Val> {
+    public static func convert(cvalue: inout CVal) -> CResult<Val> {
         switch cvalue.option {
-        case .none: return .failure(.nullPtr)
+        case .none: return .failure(.null(Self.self))
         case .some(var val):
             let owned = val.owned()
-            cvalue = CVal.Val(val)
+            cvalue = CVal(val)
             return .success(owned)
         }
     }
 }
 
-extension CFuturePtr where Val: AsCPtrCopy, Val.CopyPtr == CVal.Val {
-    public static func convert(value: inout Val) -> CResult<CVal.Val> {
+extension CFuturePtr where Val: AsCPtrCopy, Val.CopyPtr == CVal {
+    public static func convert(value: inout Val) -> CResult<CVal> {
         .success(value.copiedPtr())
     }
 }
 
-extension CFuturePtr where Val: AsCPtrOwn, Val.OwnPtr == CVal.Val {
-    static func convert(value: inout Val) -> CResult<CVal.Val> {
+extension CFuturePtr where Val: AsCPtrOwn, Val.OwnPtr == CVal {
+    static func convert(value: inout Val) -> CResult<CVal> {
         .success(value.ownedPtr())
     }
 }
 
 extension CFuturePtr
     where Val: AsCPtrCopy,
-          CVal.Val: OptionProtocol,
-          Val.CopyPtr == CVal.Val.OWrapped
+          CVal: OptionProtocol,
+          Val.CopyPtr == CVal.OWrapped
 {
-    public static func convert(value: inout Val) -> CResult<CVal.Val> {
-        .success(CVal.Val(value.copiedPtr()))
+    public static func convert(value: inout Val) -> CResult<CVal> {
+        .success(CVal(value.copiedPtr()))
     }
 }
 
 extension CFuturePtr
     where Val: AsCPtrOwn,
-          CVal.Val: OptionProtocol,
-          Val.OwnPtr == CVal.Val.OWrapped
+          CVal: OptionProtocol,
+          Val.OwnPtr == CVal.OWrapped
 {
-    static func convert(value: inout Val) -> CResult<CVal.Val> {
-        .success(CVal.Val(value.ownedPtr()))
+    static func convert(value: inout Val) -> CResult<CVal> {
+        .success(CVal(value.ownedPtr()))
     }
 }
 
-extension CFuturePtr where Val: CValue, CVal.Val == Val.CVal {
-    public static func convert(cvalue: inout CVal.Val) -> CResult<Val> {
+extension CFuturePtr where Val: CValue, CVal == Val.CVal {
+    public static func convert(cvalue: inout CVal) -> CResult<Val> {
         return .success(Val(cvalue: cvalue))
     }
     
-    public static func convert(value: inout Val) -> CResult<CVal.Val> {
+    public static func convert(value: inout Val) -> CResult<CVal> {
         return .success(value.asCValue)
     }
 }
 
 private struct CFutureContext<F> where F: CFuturePtr {
     var future: F
-    let callback: (CResult<F.CVal.Val>) -> Void
+    let callback: (CResult<F.CVal>) -> Void
     
-    init(future: F, callback: @escaping (CResult<F.CVal.Val>) -> Void) {
+    init(future: F, callback: @escaping (CResult<F.CVal>) -> Void) {
         self.future = future
         self.callback = callback
     }
@@ -302,22 +209,35 @@ private class CAsyncContext<V> {
 
 extension CFuturePtr {
     public func _withOnCompleteContext(
-        _ cb: @escaping (CResult<CVal.Val>) -> Void,
-        _ fn: (UnsafeRawPointer) -> CVal
-    ) -> CVal {
+        _ cb: @escaping (CResult<CVal>) -> Void,
+        _ fn: (UnsafeRawPointer,
+               UnsafeMutablePointer<CVal>,
+               UnsafeMutablePointer<CTesseract.CError>) -> COptionResponseResult
+    ) -> CResult<CVal>? {
         let pointer = CFutureContext(future: self, callback: cb).ownedPtr()
-        let value = fn(pointer)
-        if value.isSome { // We have value already. Context is non needed
+        
+        var value = CVal()
+        var error = CTesseract.CError()
+        let result: CResult<CVal>?
+        
+        switch fn(pointer, &value, &error) {
+        case COptionResponseResult_None: result = nil
+        case COptionResponseResult_Error: result = .failure(error.owned())
+        case COptionResponseResult_Some: result = .success(value)
+        default: fatalError("unknown option result")
+        }
+        
+        if result != nil { // We have value already. Context is non needed
             var this = self
             let _ = CFutureContext<Self>.take(pointer)
             try! this.free().get()
         }
-        return value
+        return result
     }
     
     public static func _onCompleteCallback(
         _ ctx: UnsafeRawPointer!,
-        _ value: UnsafeMutablePointer<CVal.Val>?,
+        _ value: UnsafeMutablePointer<CVal>?,
         _ error: UnsafeMutablePointer<CTesseract.CError>?
     ) {
         var ctx = CFutureContext<Self>.take(ctx)
@@ -330,7 +250,7 @@ extension CFuturePtr {
     }
     
     public static func _wrapAsync(_ fn: @escaping @Sendable () async -> CResult<Val>) -> Self {
-        let context = CAsyncContext<CVal.Val>()
+        let context = CAsyncContext<CVal>()
         
         var future = Self()
         future.ptr = .wrapped(context)
@@ -338,7 +258,7 @@ extension CFuturePtr {
         
         // Will be detached anyway because there is no Task context.
         Task.detached {
-            let result = (await fn()).flatMap { (val) -> CResult<CVal.Val> in
+            let result = (await fn()).flatMap { (val) -> CResult<CVal> in
                 var val = val
                 return Self.convert(value: &val)
             }
@@ -366,13 +286,15 @@ extension CFuturePtr {
     public static func _setOnCompleteFunc(
         _ this: UnsafePointer<Self>!,
         _ ctx: UnsafeRawPointer?,
+        _ value: UnsafeMutablePointer<CVal>!,
+        _ error: UnsafeMutablePointer<CTesseract.CError>!,
         _ cb: @escaping (UnsafeRawPointer?,
-                         UnsafeMutablePointer<CVal.Val>?,
+                         UnsafeMutablePointer<CVal>?,
                          UnsafeMutablePointer<CTesseract.CError>?) -> Void
-    ) -> CVal {
-        let context = try! this.pointee.ptr.unowned(CAsyncContext<CVal.Val>.self).get()
+    ) -> COptionResponseResult {
+        let context = try! this.pointee.ptr.unowned(CAsyncContext<CVal>.self).get()
         
-        let newCb = { (res: CResult<CVal.Val>) in
+        let newCb = { (res: CResult<CVal>) in
             switch res {
             case .failure(let err):
                 var cerr = err.copiedPtr()
@@ -380,22 +302,24 @@ extension CFuturePtr {
             case .success(var val): cb(ctx, &val, nil)
             }
         }
-        context.lock()
+        
+        context.lock(); defer { context.unlock() }
         switch context.state {
-        case .resolved:
-            context.unlock()
-            fatalError("Future is already resolved!")
-        case .callback(_):
-            context.unlock()
-            fatalError("Future is already has callback!")
+        case .resolved: fatalError("Future is already resolved!")
+        case .callback(_): fatalError("Future is already has callback!")
         case .empty:
             context.state = .callback(newCb)
-            context.unlock()
-            return CVal.none
-        case .value(let value):
+            return COptionResponseResult_None
+        case .value(let stored):
             context.state = .resolved
-            context.unlock()
-            return CVal(value)
+            switch stored {
+            case .failure(let err):
+                error.pointee = err.copiedPtr()
+                return COptionResponseResult_Error
+            case .success(let val):
+                value.pointee = val
+                return COptionResponseResult_Some
+            }
         }
     }
 }

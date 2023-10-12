@@ -12,7 +12,7 @@ import TesseractService
 class ActionViewController: UIViewController, TestSigningServiceDelegate {
     @IBOutlet weak var textView: UILabel!
     
-    var continuation: UnsafeContinuation<CResult<Bool>, Never>?
+    var continuation: UnsafeContinuation<Result<Bool, TesseractError>, Never>?
     
     var tesseract: Tesseract!
 
@@ -22,13 +22,13 @@ class ActionViewController: UIViewController, TestSigningServiceDelegate {
         let data = WalletData()
         let service = TestSigningService(delegate: self, signature: data.signature)
         
-        tesseract = Tesseract()
+        tesseract = try! Tesseract()
             .transport(IPCTransportIOS(self))
             .service(service)
     }
     
     @MainActor
-    func acceptTx(tx: String) async -> CResult<Bool> {
+    func acceptTx(tx: String) async -> Result<Bool, TesseractError> {
         return await withUnsafeContinuation { cont in
             self.continuation = cont
             self.textView.text = tx
@@ -46,7 +46,7 @@ class ActionViewController: UIViewController, TestSigningServiceDelegate {
     }
     
     @IBAction func cancel() {
-        self.continuation?.resume(returning: .failure(.canceled))
+        self.continuation?.resume(returning: .failure(.cancelled))
         self.continuation = nil
     }
 }

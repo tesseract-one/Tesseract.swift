@@ -17,9 +17,10 @@ include = ["tesseract-swift-utils"]
 [export]
 include = [
     "ClientTransport", "ClientConnection", "ClientStatus", "CFutureClientStatus",
-    "ServiceTransport", "ServiceBoundTransport", "ServiceTransportProcessor", "CErrorCodes"
+    "ServiceTransport", "ServiceBoundTransport", "ServiceTransportProcessor", "CTesseractErrorCode",
 ]
 exclude = [
     "CFuture_CData", "CFuture_Nothing", "CFuture_Void", "SyncPtr_Void",
-    "CAnyDropPtr", "CString", "CStringRef", "CError"
+    "CAnyDropPtr", "CString", "CStringRef", "CError", "CErrorCode",
+    "COptionResponseResult", "SwiftError"
 ]

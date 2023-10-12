@@ -1,3 +1,6 @@
+#![feature(return_position_impl_trait_in_trait)]
+#![feature(async_closure)]
+
 pub mod array;
 pub mod data;
 pub mod error;
@@ -11,6 +14,7 @@ pub mod response;
 pub mod result;
 pub mod string;
 pub mod traits;
+pub mod map;
 
 #[cfg(feature = "bigint")]
 extern crate num_bigint;
@@ -22,8 +26,3 @@ pub mod bigint;
 pub struct Nothing(bool);
 
 pub type Void = std::ffi::c_void;
-
-#[no_mangle]
-pub unsafe extern "C" fn tesseract_utils_init() {
-    panic::hide_exceptions();
-}
