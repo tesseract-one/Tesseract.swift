@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.platforms        = { :ios => '13.0' }
 
   s.source_files     = 'Sources/TesseractShared/**/*.swift', 'Sources/TesseractTransportsShared/**/.swift',
-                       'Sources/TesseractUtils/**/*.swift',
+                       'Sources/TesseractUtils/**/*.swift'
 
   s.static_framework = true
 

@@ -11,10 +11,10 @@ edition = "2021"
 tesseract-swift-utils = { path = "../utils" }
 tesseract-swift-transports = { path = "../transports" }
 tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master" }
-errorcon = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master" }
 tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", optional = true }
 tesseract-protocol-substrate = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", optional = true }
 async-trait = "0.1"
+errorcon = "0.1"
 log = "0.3.9"
 log-panics = { version = "1.2", features = ["with-backtrace"]}
 stderrlog = "0.3"
