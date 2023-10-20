@@ -10,11 +10,12 @@ extern crate tesseract_swift_utils;
 use async_trait::async_trait;
 use errorcon::convertible::ErrorContext;
 use log::LogLevel;
-use tesseract_swift_transports::error::CTesseractError;
+use tesseract_swift_transports::error::TesseractSwiftError;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 use tesseract::service::Tesseract;
 use tesseract_swift_transports::service::ServiceTransport;
+use tesseract_swift_utils::error::CError;
 use tesseract_swift_utils::future_impls::CFutureBool;
 use tesseract_swift_utils::ptr::{CAnyDropPtr, SyncPtr};
 use tesseract_swift_utils::response::CMoveResponse;
@@ -73,17 +74,17 @@ impl tesseract_protocol_test::TestService for TestService {
         let future = unsafe {
             ManuallyDrop::into_inner((self.ui.approve_tx)(&self.ui, cstr.as_cref()))
         };
-        CTesseractError::context_async(async || {
+        TesseractSwiftError::context_async(async || {
             let allow = future.try_into_future()?.await?;
 
             if allow {
                 if req == "make_error" {
-                    Err(CTesseractError::Weird("intentional error for test".into()))
+                    Err(tesseract::Error::described(tesseract::ErrorKind::Weird, "intentional error for test").into())
                 } else {
                     Ok(format!("{}{}", req, self.signature))
                 }
             } else {
-                Err(CTesseractError::Cancelled)
+                Err(tesseract::Error::kinded(tesseract::ErrorKind::Cancelled).into())
             }
         }).await
     }
@@ -96,10 +97,12 @@ struct AppContext {
 #[no_mangle]
 pub unsafe extern "C" fn wallet_extension_init(
     signature: CStringRef, ui: UI, transport: ServiceTransport,
-    value: &mut ManuallyDrop<AppContextPtr>, error: &mut ManuallyDrop<CTesseractError>
+    value: &mut ManuallyDrop<AppContextPtr>, error: &mut ManuallyDrop<CError>
 ) -> bool {
     let log_level = if cfg!(debug_assertions) {LogLevel::Debug } else { LogLevel::Warn };
-    init::init(log_level).and_then(|_| {
+    TesseractSwiftError::context(|| {
+        init::init(log_level)?;
+
         let service = TestService::new(ui, signature.try_as_ref()?.into());
 
         let tesseract = Tesseract::new().transport(transport).service(service);

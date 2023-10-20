@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use errorcon::convertible::ErrorContext;
 use tesseract::service::{Executor, Service};
 use tesseract_protocol_test::service::TestExecutor;
-use tesseract_swift_transports::error::CTesseractError;
+use tesseract_swift_transports::error::TesseractSwiftError;
 use tesseract_swift_utils::string::{CString, CStringRef};
 use tesseract_swift_utils::traits::AsCRef;
 use tesseract_swift_utils::{ptr::CAnyDropPtr, future_impls::CFutureString};
@@ -40,7 +40,7 @@ impl tesseract_protocol_test::TestService for TestService {
         let future = unsafe { 
             ManuallyDrop::into_inner((self.sign_transaction)(&self, cstr.as_cref()))
         };
-        CTesseractError::context_async(async || {
+        TesseractSwiftError::context_async(async || {
             Ok(future.try_into_future()?.await?.try_into()?)
         }).await
     }

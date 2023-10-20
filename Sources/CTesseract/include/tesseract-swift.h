@@ -82,7 +82,7 @@ struct ServiceTesseract tesseract_service_add_test_service(struct ServiceTessera
 struct ServiceTesseract tesseract_service_add_substrate_service(struct ServiceTesseract *tesseract,
                                                                 struct SubstrateService service);
 
-bool tesseract_sdk_init(enum LogLevel log, CTesseractError *error);
+bool tesseract_sdk_init(enum LogLevel log, CError *error);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -11,7 +11,7 @@ use std::mem::ManuallyDrop;
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, Eq, Ord, PartialOrd, PartialEq)]
 pub enum CErrorCode {
-    Null = 0, Panic, Logger, Utf8, Cast, Swift
+    Null = 0, Panic, Utf8, Cast, Swift
 }
 
 pub trait ErrorCode: Copy {
@@ -58,10 +58,6 @@ impl CError {
         Self::new(CErrorCode::Swift as u32, reason.into())
     }
 
-    pub fn logger(reason: String) -> Self {
-        Self::new(CErrorCode::Logger as u32, reason.into())
-    }
-
     pub fn cast<F: ?Sized, T: ?Sized>() -> Self {
         Self::new(
             CErrorCode::Cast as u32, 
@@ -92,7 +88,6 @@ impl Display for CError {
             Some(code) => match code {
                 CErrorCode::Null => write!(f, "Error::Null"),
                 CErrorCode::Panic => write!(f, "Error::Panic"),
-                CErrorCode::Logger => write!(f, "Error::Logger"),
                 CErrorCode::Utf8 => write!(f, "Error::UTF8"),
                 CErrorCode::Cast => write!(f, "Error::Cast"),
                 CErrorCode::Swift => write!(f, "Error::Swift")

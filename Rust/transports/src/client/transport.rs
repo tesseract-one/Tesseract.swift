@@ -1,8 +1,9 @@
 use super::connection::ClientConnection;
 use super::status::ClientStatus;
-use crate::error::CTesseractError;
+use crate::error::TesseractSwiftError;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
+use tesseract_swift_utils::error::CError;
 use tesseract_swift_utils::future::CFuture;
 use tesseract_swift_utils::ptr::CAnyDropPtr;
 use tesseract_swift_utils::traits::AsCRef;
@@ -45,7 +46,7 @@ impl Transport for ClientTransport {
         let future = unsafe { 
             ManuallyDrop::into_inner((self.status)(self.as_ref(), protoid.as_cref()))
         };
-        let result: Result<Status, CTesseractError> =  CTesseractError::context_async(async || {
+        let result: Result<Status, CError> =  TesseractSwiftError::context_async(async || {
             let status = future.try_into_future()?.await?;
             Ok(status.into())
         }).await;

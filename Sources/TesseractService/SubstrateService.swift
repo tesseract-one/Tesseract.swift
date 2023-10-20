@@ -58,12 +58,12 @@ extension CTesseract.SubstrateService: CoreService {
 public protocol SubstrateService: Service where Core == CTesseract.SubstrateService {
     func getAccount(
         type: SubstrateAccountType
-    ) async -> Result<(pubKey: Data, path: String), TesseractShared.TesseractError>
+    ) async -> Result<(pubKey: Data, path: String), TesseractError>
     
     func signTransation(
         type: SubstrateAccountType, path: String,
         extrinsic: Data, metadata: Data, types: Data
-    ) async -> Result<Data, TesseractShared.TesseractError>
+    ) async -> Result<Data, TesseractError>
 }
 
 public extension SubstrateService {

@@ -1,5 +1,6 @@
 use std::mem::ManuallyDrop;
 use std::result::Result;
+use super::error::CError;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
@@ -9,23 +10,23 @@ pub enum COptionResponseResult {
     Some,
 }
 
-pub trait CVoidResponse<E> {
-    fn response(self, error: &mut ManuallyDrop<E>) -> bool;
+pub trait CVoidResponse {
+    fn response(self, error: &mut ManuallyDrop<CError>) -> bool;
 }
 
-pub trait CCopyResponse<T: Copy, E, R> {
-    fn response(self, value: &mut T, error: &mut ManuallyDrop<E>) -> R;
+pub trait CCopyResponse<T: Copy, R> {
+    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> R;
 }
 
-pub trait CMoveResponse<T, E, R> {
-    fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<E>) -> R;
+pub trait CMoveResponse<T, R> {
+    fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<CError>) -> R;
 }
 
-impl <E, IE> CVoidResponse<E> for Result<(), IE> where IE: Into<E> {
-    fn response(self, error: &mut ManuallyDrop<E>) -> bool {
+impl CVoidResponse for Result<(), CError> {
+    fn response(self, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into());
+                *error = ManuallyDrop::new(err);
                 false
             }
             Ok(_) => true
@@ -33,11 +34,11 @@ impl <E, IE> CVoidResponse<E> for Result<(), IE> where IE: Into<E> {
     }
 }
 
-impl<T: Copy, E, IE> CCopyResponse<T, E, bool> for Result<T, IE> where IE: Into<E> {
-    fn response(self, value: &mut T, error: &mut ManuallyDrop<E>) -> bool {
+impl<T: Copy> CCopyResponse<T, bool> for Result<T, CError> {
+    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into());
+                *error = ManuallyDrop::new(err);
                 false
             }
             Ok(val) => {
@@ -48,11 +49,11 @@ impl<T: Copy, E, IE> CCopyResponse<T, E, bool> for Result<T, IE> where IE: Into<
     }
 }
 
-impl<T, IT, E, IE> CMoveResponse<T, E, bool> for Result<IT, IE> where IT: Into<T>, IE: Into<E> {
-    fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<E>) -> bool {
+impl<T, IT> CMoveResponse<T, bool> for Result<IT, CError> where IT: Into<T> {
+    fn response(self, value: &mut ManuallyDrop<T>, error: &mut ManuallyDrop<CError>) -> bool {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into());
+                *error = ManuallyDrop::new(err);
                 false
             }
             Ok(val) => {
@@ -63,14 +64,11 @@ impl<T, IT, E, IE> CMoveResponse<T, E, bool> for Result<IT, IE> where IT: Into<T
     }
 }
 
-impl<T: Copy, E, IE> CCopyResponse<T, E, COptionResponseResult> for Result<Option<T>, IE>
-where
-    IE: Into<E>,
-{
-    fn response(self, value: &mut T, error: &mut ManuallyDrop<E>) -> COptionResponseResult {
+impl<T: Copy> CCopyResponse<T, COptionResponseResult> for Result<Option<T>, CError> {
+    fn response(self, value: &mut T, error: &mut ManuallyDrop<CError>) -> COptionResponseResult {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into());
+                *error = ManuallyDrop::new(err);
                 COptionResponseResult::Error
             }
             Ok(opt) => match opt {
@@ -84,18 +82,18 @@ where
     }
 }
 
-impl<T, IT, E, IE> CMoveResponse<T, E, COptionResponseResult> for Result<Option<IT>, IE>
+impl<T, IT> CMoveResponse<T, COptionResponseResult> for Result<Option<IT>, CError>
 where
-   IT: Into<T>, IE: Into<E>,
+   IT: Into<T>,
 {
     fn response(
         self,
         value: &mut ManuallyDrop<T>,
-        error: &mut ManuallyDrop<E>,
+        error: &mut ManuallyDrop<CError>,
     ) -> COptionResponseResult {
         match self {
             Err(err) => {
-                *error = ManuallyDrop::new(err.into());
+                *error = ManuallyDrop::new(err);
                 COptionResponseResult::Error
             }
             Ok(opt) => match opt {

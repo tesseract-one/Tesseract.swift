@@ -1,6 +1,6 @@
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
-use crate::error::CTesseractError;
+use crate::error::TesseractSwiftError;
 use tesseract_swift_utils::data::CData;
 use tesseract_swift_utils::future::CFuture;
 use tesseract_swift_utils::ptr::CAnyDropPtr;
@@ -30,7 +30,7 @@ impl Connection for ClientConnection {
             ManuallyDrop::into_inner((self.as_ref().send)(self.as_ref(), request.as_ptr(), request.len()))
         };
         
-        CTesseractError::context_async(async || {
+        TesseractSwiftError::context_async(async || {
             future.try_into_future()?.await?;
             Ok(())
         }).await
@@ -40,7 +40,7 @@ impl Connection for ClientConnection {
         let future = unsafe { 
             ManuallyDrop::into_inner((self.as_ref().receive)(self.as_ref()))
         };
-        CTesseractError::context_async(async || {
+        TesseractSwiftError::context_async(async || {
             let cdata = future.try_into_future()?.await?;
             Ok(cdata.try_into()?)
         }).await

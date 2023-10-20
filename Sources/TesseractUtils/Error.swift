@@ -8,8 +8,6 @@
 import Foundation
 import CTesseract
 
-//extension CTesseract.CError: Error {}
-
 public protocol CErrorConvertible: Error {
     var cError: CError { get }
 }

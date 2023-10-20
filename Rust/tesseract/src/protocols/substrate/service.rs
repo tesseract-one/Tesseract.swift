@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use errorcon::convertible::ErrorContext;
 use tesseract::service::{Service, Executor};
 use tesseract_protocol_substrate::{service::SubstrateExecutor, AccountType, GetAccountResponse};
-use tesseract_swift_transports::error::CTesseractError;
+use tesseract_swift_transports::error::TesseractSwiftError;
 use tesseract_swift_utils::{ptr::CAnyDropPtr, string::{CStringRef, CString}, future_impls::CFutureData, future::CFuture, traits::AsCRef, data::CDataRef};
 
 use crate::service::ServiceTesseract;
@@ -46,7 +46,7 @@ impl tesseract_protocol_substrate::SubstrateService for SubstrateService {
         let future = unsafe {
             ManuallyDrop::into_inner((self.get_account)(&self, account_type.into()))
         };
-        CTesseractError::context_async(async || {
+        TesseractSwiftError::context_async(async || {
             Ok(future.try_into_future()?.await?.try_into()?)
         }).await
     }
@@ -69,7 +69,7 @@ impl tesseract_protocol_substrate::SubstrateService for SubstrateService {
             )
         };
         let future = ManuallyDrop::into_inner(future);
-        CTesseractError::context_async(async || {
+        TesseractSwiftError::context_async(async || {
             Ok(future.try_into_future()?.await?.try_into()?)
         }).await
     }

@@ -16,9 +16,10 @@ use errorcon::convertible::ErrorContext;
 
 pub use tesseract_swift_transports::client::*;
 use tesseract_protocol_test::TestService;
-use tesseract_swift_transports::error::CTesseractError;
+use tesseract_swift_transports::error::TesseractSwiftError;
 use tesseract_swift_utils::future_impls::CFutureString;
 use tesseract_swift_utils::response::CMoveResponse;
+use tesseract_swift_utils::result::Result as CResult;
 use tesseract_swift_utils::string::CStringRef;
 use tesseract_swift_utils::traits::TryAsRef;
 use tesseract_swift_utils::ptr::SyncPtr;
@@ -52,26 +53,22 @@ struct AppContext {
 #[no_mangle]
 pub unsafe extern "C" fn app_init(
     alerts: AlertProvider, transport: ClientTransport,
-    value: &mut ManuallyDrop<AppContextPtr>, error: &mut ManuallyDrop<CTesseractError>
+    value: &mut ManuallyDrop<AppContextPtr>, error: &mut ManuallyDrop<CError>
 ) -> bool {
     let log_level = if cfg!(debug_assertions) { LogLevel::Debug } else { LogLevel::Warn };
-    stderrlog::new()
-        .verbosity(log_level as usize)
-        .module("DApp")
-        .init()
-        .map_err(|_| CTesseractError::Logger("logger init failed".into()))
-        .map(|_| {
-            log_panics::init();
+    TesseractSwiftError::context(|| {
+        stderrlog::new().verbosity(log_level as usize).module("DApp").init()?;
+        log_panics::init();
 
-            let tesseract = Tesseract::new(TransportDelegate::arc(alerts))
+        let tesseract = Tesseract::new(TransportDelegate::arc(alerts))
                 .transport(transport);
 
-            let service = tesseract.service(tesseract_protocol_test::Test::Protocol);
+        let service = tesseract.service(tesseract_protocol_test::Test::Protocol);
 
-            let context = AppContext { service };
+        let context = AppContext { service };
 
-            AppContextPtr::new(context)
-        }).response(value, error)
+        Ok(AppContextPtr::new(context))
+    }).response(value, error)
 }
 
 #[no_mangle]
@@ -82,7 +79,7 @@ pub unsafe extern "C" fn app_sign_data(
     let service = Arc::clone(&app.unowned().service);
     let data_str: Result<String, CError> = data.try_as_ref().map(|s| s.into());
 
-    let tx = CTesseractError::context_async(async || {
+    let tx = TesseractSwiftError::context_async(async || {
         Ok(service.sign_transaction(&data_str?).await?.into())
     });
 

@@ -97,8 +97,7 @@ pub unsafe extern "C" fn tesseract_utils_cstring_new(
     res: &mut ManuallyDrop<CString>,
     err: &mut ManuallyDrop<CError>,
 ) -> bool {
-    let result: Result<&str> = CError::panic_context(|| cstr.try_as_ref());
-    result.response(res, err)
+    CError::panic_context(|| cstr.try_as_ref()).response(res, err)
 }
 
 #[no_mangle]

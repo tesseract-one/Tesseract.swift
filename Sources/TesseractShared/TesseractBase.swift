@@ -24,9 +24,9 @@ open class TesseractBase {
 #endif
     
     // One time call
-    static var initialize: Result<(), TesseractError> = {
-        TResult<Void>.wrap { error in
+    static var initialize: TResult<()> = {
+        CResult<Void>.wrap { error in
             tesseract_sdk_init(TesseractBase.logLevel.cLevel, error)
-        }
+        }.castError()
     }()
 }

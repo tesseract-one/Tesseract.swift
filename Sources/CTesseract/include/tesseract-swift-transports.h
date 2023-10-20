@@ -15,7 +15,8 @@ enum CTesseractErrorCode
   : uint32_t
 #endif // __cplusplus
  {
-  CTesseractErrorCode_Cancelled = CErrorCode_Sentinel,
+  CTesseractErrorCode_Logger = CErrorCode_Sentinel,
+  CTesseractErrorCode_Cancelled,
   CTesseractErrorCode_Serialization,
   CTesseractErrorCode_Weird,
   /**
@@ -26,55 +27,6 @@ enum CTesseractErrorCode
 #ifndef __cplusplus
 typedef uint32_t CTesseractErrorCode;
 #endif // __cplusplus
-
-typedef enum CTesseractError_Tag {
-  CTesseractError_Null,
-  CTesseractError_Panic,
-  CTesseractError_Logger,
-  CTesseractError_Utf8,
-  CTesseractError_Cast,
-  CTesseractError_Swift,
-  CTesseractError_Cancelled,
-  CTesseractError_Serialization,
-  CTesseractError_Weird,
-  CTesseractError_Custom,
-} CTesseractError_Tag;
-
-typedef struct CTesseractError_Custom_Body {
-  uint32_t _0;
-  CString _1;
-} CTesseractError_Custom_Body;
-
-typedef struct CTesseractError {
-  CTesseractError_Tag tag;
-  union {
-    struct {
-      CString null;
-    };
-    struct {
-      CString panic;
-    };
-    struct {
-      CString logger;
-    };
-    struct {
-      CString utf8;
-    };
-    struct {
-      CString cast;
-    };
-    struct {
-      SwiftError swift;
-    };
-    struct {
-      CString serialization;
-    };
-    struct {
-      CString weird;
-    };
-    CTesseractError_Custom_Body custom;
-  };
-} CTesseractError;
 
 typedef struct ServiceTransportProcessor {
   SyncPtr_Void _0;
@@ -140,13 +92,7 @@ typedef struct ServiceTransport {
 extern "C" {
 #endif // __cplusplus
 
-struct CTesseractError tesseract_error_from_cerror(CError *cerr);
-
-CError tesseract_error_to_cerror(struct CTesseractError *core);
-
-CString tesseract_error_get_description(const struct CTesseractError *err);
-
-void tesseract_error_free(struct CTesseractError *core);
+CString tesseract_error_get_description(const CError *err);
 
 CFuture_CData tesseract_service_transport_processor_process(struct ServiceTransportProcessor processor,
                                                             const uint8_t *data,

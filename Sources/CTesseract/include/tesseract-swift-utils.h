@@ -22,7 +22,6 @@ enum CErrorCode
  {
   CErrorCode_Null = 0,
   CErrorCode_Panic,
-  CErrorCode_Logger,
   CErrorCode_Utf8,
   CErrorCode_Cast,
   CErrorCode_Swift,

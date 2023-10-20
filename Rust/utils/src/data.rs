@@ -14,8 +14,7 @@ pub unsafe extern "C" fn tesseract_utils_data_clone(
     res: &mut ManuallyDrop<CData>,
     err: &mut ManuallyDrop<CError>,
 ) -> bool {
-    let result: Result<&[u8], CError> = CError::panic_context(|| data.try_as_ref());
-    result.response(res, err)
+    CError::panic_context(|| data.try_as_ref()).response(res, err)
 }
 
 #[no_mangle]
