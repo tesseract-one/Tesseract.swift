@@ -9,7 +9,7 @@ extern crate tesseract_swift_utils;
 
 use async_trait::async_trait;
 use errorcon::convertible::ErrorContext;
-use log::LogLevel;
+use stderrlog::LogLevelNum;
 use tesseract_swift_transports::error::TesseractSwiftError;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
@@ -99,7 +99,7 @@ pub unsafe extern "C" fn wallet_extension_init(
     signature: CStringRef, ui: UI, transport: ServiceTransport,
     value: &mut ManuallyDrop<AppContextPtr>, error: &mut ManuallyDrop<CError>
 ) -> bool {
-    let log_level = if cfg!(debug_assertions) {LogLevel::Debug } else { LogLevel::Warn };
+    let log_level = if cfg!(debug_assertions) {LogLevelNum::Debug } else { LogLevelNum::Warn };
     TesseractSwiftError::context(|| {
         init::init(log_level)?;
 

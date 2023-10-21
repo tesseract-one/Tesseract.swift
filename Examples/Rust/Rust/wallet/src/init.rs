@@ -1,13 +1,13 @@
 use std::sync::atomic::{AtomicBool, Ordering};
-use log::LogLevel;
+use stderrlog::LogLevelNum;
 use tesseract_swift_transports::error::TesseractSwiftError;
 
 static INITIALIZED: AtomicBool = AtomicBool::new(false);
 
-pub (super) fn init(level: LogLevel) -> Result<(), TesseractSwiftError> {
+pub (super) fn init(level: LogLevelNum) -> Result<(), TesseractSwiftError> {
     if !INITIALIZED.swap(true, Ordering::Relaxed) {
         stderrlog::new()
-            .verbosity(level as usize)
+            .verbosity(level)
             .module("Wallet")
             .init()?;
         log_panics::init();

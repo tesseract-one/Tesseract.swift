@@ -10,7 +10,7 @@ extern crate errorcon;
 pub mod delegate;
 
 use delegate::{AlertProvider, TransportDelegate};
-use log::LogLevel;
+use stderrlog::LogLevelNum;
 use tesseract::client::Tesseract;
 use errorcon::convertible::ErrorContext;
 
@@ -19,7 +19,6 @@ use tesseract_protocol_test::TestService;
 use tesseract_swift_transports::error::TesseractSwiftError;
 use tesseract_swift_utils::future_impls::CFutureString;
 use tesseract_swift_utils::response::CMoveResponse;
-use tesseract_swift_utils::result::Result as CResult;
 use tesseract_swift_utils::string::CStringRef;
 use tesseract_swift_utils::traits::TryAsRef;
 use tesseract_swift_utils::ptr::SyncPtr;
@@ -55,9 +54,9 @@ pub unsafe extern "C" fn app_init(
     alerts: AlertProvider, transport: ClientTransport,
     value: &mut ManuallyDrop<AppContextPtr>, error: &mut ManuallyDrop<CError>
 ) -> bool {
-    let log_level = if cfg!(debug_assertions) { LogLevel::Debug } else { LogLevel::Warn };
+    let log_level = if cfg!(debug_assertions) { LogLevelNum::Debug } else { LogLevelNum::Warn };
     TesseractSwiftError::context(|| {
-        stderrlog::new().verbosity(log_level as usize).module("DApp").init()?;
+        stderrlog::new().verbosity(log_level).module("DApp").show_module_names(true).init()?;
         log_panics::init();
 
         let tesseract = Tesseract::new(TransportDelegate::arc(alerts))
