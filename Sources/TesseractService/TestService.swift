@@ -17,9 +17,8 @@ extension CTesseract.TestService: CoreService {
     }
 }
 
-public protocol TestService: Service where Core == CTesseract.TestService {
-    func signTransation(req: String) async -> Result<String, TesseractError>
-}
+public protocol TestService: TesseractShared.TestService, Service
+    where Core == CTesseract.TestService {}
 
 public extension TestService {
     func toCore() -> Core {

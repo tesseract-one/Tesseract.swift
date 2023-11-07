@@ -79,6 +79,8 @@ void tesseract_service_free(struct ServiceTesseract *tesseract);
 struct ServiceTesseract tesseract_service_add_test_service(struct ServiceTesseract *tesseract,
                                                            struct TestService service);
 
+void tesseract_substrate_get_account_response_free(struct SubstrateGetAccountResponse *res);
+
 struct ServiceTesseract tesseract_service_add_substrate_service(struct ServiceTesseract *tesseract,
                                                                 struct SubstrateService service);
 

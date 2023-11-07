@@ -9,43 +9,8 @@ import Foundation
 import CTesseractBin
 import TesseractShared
 
-extension SubstrateGetAccountResponse: CValue, CType {
-    public typealias CVal = Self
-}
-
-extension CFuture_SubstrateGetAccountResponse: CFuturePtr {
-    public typealias CVal = SubstrateGetAccountResponse
-    public typealias Val = (pubKey: Data, path: String)
-    
-    public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
-        _withOnCompleteContext(cb) { ctx, value, error in
-            self.set_on_complete(&self, ctx, value, error) { ctx, val, err in
-                Self._onCompleteCallback(ctx, val, err)
-            }
-        }
-    }
-    
-    public mutating func _setupSetOnCompleteFunc() {
-        self.set_on_complete = { this, ctx, value, error, cb in
-            Self._setOnCompleteFunc(this, ctx, value, error) { this, val, err in
-                cb?(this, val, err)
-            }
-        }
-    }
-    
-    public static func convert(
-        cvalue: inout SubstrateGetAccountResponse
-    ) -> CResult<(pubKey: Data, path: String)> {
-        .success((pubKey: cvalue.public_key.owned(), path: cvalue.path.owned()))
-    }
-    
-    public static func convert(
-        value: inout (pubKey: Data, path: String)
-    ) -> CResult<SubstrateGetAccountResponse> {
-        .success(SubstrateGetAccountResponse(public_key: value.pubKey.copiedPtr(),
-                                             path: value.path.copiedPtr()))
-    }
-}
+@_exported import enum TesseractShared.SubstrateAccountType
+@_exported import struct TesseractShared.SubstrateGetAccountResponse
 
 extension CTesseract.SubstrateService: CoreService {
     public func register(
@@ -55,16 +20,8 @@ extension CTesseract.SubstrateService: CoreService {
     }
 }
 
-public protocol SubstrateService: Service where Core == CTesseract.SubstrateService {
-    func getAccount(
-        type: SubstrateAccountType
-    ) async -> Result<(pubKey: Data, path: String), TesseractError>
-    
-    func signTransation(
-        type: SubstrateAccountType, path: String,
-        extrinsic: Data, metadata: Data, types: Data
-    ) async -> Result<Data, TesseractError>
-}
+public protocol SubstrateService: TesseractShared.SubstrateService, Service
+    where Core == CTesseract.SubstrateService {}
 
 public extension SubstrateService {
     func toCore() -> Core {
@@ -77,18 +34,20 @@ public extension SubstrateService {
 
 private func substrate_service_get_account(
     this: UnsafePointer<CTesseract.SubstrateService>!,
-    accountType: SubstrateAccountType
+    accountType: CTesseract.SubstrateAccountType
 ) -> CFuture_SubstrateGetAccountResponse {
     CFuture_SubstrateGetAccountResponse {
         await this.unowned((any SubstrateService).self).castError().asyncFlatMap {
-            await $0.getAccount(type: accountType)
+            await $0.getAccount(
+                type: TesseractShared.SubstrateAccountType(cvalue: accountType)
+            )
         }
     }
 }
 
 private func substrate_service_sign(
     this: UnsafePointer<CTesseract.SubstrateService>!,
-    type: SubstrateAccountType, path: CStringRef!,
+    type: CTesseract.SubstrateAccountType, path: CStringRef!,
     extrinsic: CDataRef, metadata: CDataRef, types: CDataRef
 ) -> CFutureData {
     let path = path.copied()
@@ -97,7 +56,8 @@ private func substrate_service_sign(
     let types = types.copied()
     return CFutureData {
         await this.unowned((any SubstrateService).self).castError().asyncFlatMap {
-            await $0.signTransation(type: type, path: path, extrinsic: extrinsic,
+            await $0.signTransation(type: TesseractShared.SubstrateAccountType(cvalue: type),
+                                    path: path, extrinsic: extrinsic,
                                     metadata: metadata, types: types)
         }
     }

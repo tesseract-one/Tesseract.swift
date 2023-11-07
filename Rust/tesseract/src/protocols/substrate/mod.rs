@@ -1,5 +1,6 @@
 use tesseract_protocol_substrate::{AccountType, GetAccountResponse};
 use tesseract_swift_utils::{data::CData, string::CString, error::CError};
+use std::mem::ManuallyDrop;
 
 #[cfg(feature="protocol-substrate-service")]
 pub mod service;
@@ -43,4 +44,11 @@ impl TryFrom<SubstrateGetAccountResponse> for GetAccountResponse {
             .and_then(|pk| value.path.try_into().map(|pt| (pk, pt)))
             .map(|(pk, pt)|Self{ public_key: pk, path: pt })
     }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn tesseract_substrate_get_account_response_free(
+    res: &mut ManuallyDrop<SubstrateGetAccountResponse>
+) {
+    ManuallyDrop::drop(res);
 }
