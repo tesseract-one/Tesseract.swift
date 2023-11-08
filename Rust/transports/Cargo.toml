@@ -9,7 +9,7 @@ edition = "2021"
 
 [dependencies]
 tesseract-swift-utils = { path = "../utils" }
-tesseract = { path = "../../../Tesseract.rs/tesseract" }
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "master" }
 async-trait = "0.1"
 errorcon = "0.1"
 log = "0.4"

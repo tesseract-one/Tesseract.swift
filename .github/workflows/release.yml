@@ -6,6 +6,7 @@ env:
   CI_COMMIT_AUTHOR: Release Action
   CI_COMMIT_MESSAGE: Package.swift binary update
 on:
+  push: {}
   workflow_dispatch:
     inputs:
       version:
@@ -35,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_14.3.1.app
+        run: sudo xcode-select -s /Applications/Xcode_14.3.1.app && exit 1
       - name: Install Rust
         uses: brndnmtthws/rust-action-rustup@v1
         with:
