@@ -3,11 +3,11 @@
 import PackageDescription
 
 // Set it to true to use local binary (for development)
-let useLocalBinary = true
+let useLocalBinary = false
 
 // URL and checksum of prebuilt rust Core
-let binaryUrl = "https://github.com/tesseract-one/Tesseract.swift/releases/download/latest/Tesseract-Core.bin.zip"
-let binaryChecksum = "abacaba"
+let binaryUrl = "https://github.com/tesseract-one/Tesseract.swift/releases/download/0.5.0/Tesseract-Core.bin.zip"
+let binaryChecksum = "SHA256 (Tesseract-Core.bin.zip) = 6d8d08b74c5266a616afaec7cb86bb93db4da4b1bb59a5eafc3306ddc96869fa"
 
 // Package description
 let package = Package(
