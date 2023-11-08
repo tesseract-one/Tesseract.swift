@@ -29,7 +29,6 @@ impl From<LogLevel> for LogLevelNum {
 
 pub fn init(level: LogLevel) -> Result<(), TesseractSwiftError> {
     stderrlog::new()
-        .module("TesseractSDK")
         .verbosity(level)
         .show_module_names(true)
         .init()?;
