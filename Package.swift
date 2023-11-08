@@ -7,7 +7,7 @@ let useLocalBinary = false
 
 // URL and checksum of prebuilt rust Core
 let binaryUrl = "https://github.com/tesseract-one/Tesseract.swift/releases/download/0.5.0/Tesseract-Core.bin.zip"
-let binaryChecksum = "SHA256 (Tesseract-Core.bin.zip) = 6d8d08b74c5266a616afaec7cb86bb93db4da4b1bb59a5eafc3306ddc96869fa"
+let binaryChecksum = "4ef2b72c5332598e13d0877617f0a73fde6854497ce6e9e30a826dbfd52230cd"
 
 // Package description
 let package = Package(
