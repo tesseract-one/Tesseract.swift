@@ -48,7 +48,7 @@ jobs:
           ZIP_NAME: ${{env.ZIP_FILE_NAME}}
         run: |
           Rust/generate_binary_zip.sh "${ZIP_NAME}"
-          SHA=$(shasum -a 256 --tag "${ZIP_NAME}")
+          SHA=$(swift package compute-checksum "${ZIP_NAME}")
           echo "ZIP_SHA=${SHA}" >> "$GITHUB_OUTPUT"
           echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
       - name: Update Package.swift
