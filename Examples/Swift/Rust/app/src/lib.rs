@@ -56,7 +56,7 @@ pub unsafe extern "C" fn app_init(
 ) -> bool {
     let log_level = if cfg!(debug_assertions) { LogLevelNum::Debug } else { LogLevelNum::Warn };
     TesseractSwiftError::context(|| {
-        stderrlog::new().verbosity(log_level).module("DApp").show_module_names(true).init()?;
+        stderrlog::new().verbosity(log_level).show_module_names(true).init()?;
         log_panics::init();
 
         let tesseract = Tesseract::new(TransportDelegate::arc(alerts))

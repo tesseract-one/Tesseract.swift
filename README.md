@@ -4,147 +4,92 @@
 	</a>
 </p>
 
-### **Tesseract.swift** is an implementation of [Tesseract](https://github.com/tesseract-one/) protocol for iOS. [Tesseract](https://github.com/tesseract-one/) seamlessly integrates dApps and wallets, regardless of the blockchain protocol.
+# Tesseract Swift
 
-#### **Tesseract** aims to improve the usability of the dApps without compromising security or decentralization.
+**Tesseract.swift** provides Swift APIs for [Tesseract](https://github.com/tesseract-one/), a dApp-Wallet bridge designed to make dApp/wallet communication on mobile devices simple and natural without compromising decentralization and security
 
-This page is about specifics of running Tesseract on Android. If you need general info or Tesseract for another platform, please consider one of the following:
+If you are looking for Tesseract docs for another language/OS, please, consider one of the following:
+
 * [General info](https://github.com/tesseract-one/)
 * [Tesseract for Android](https://github.com/tesseract-one/Tesseract.android)
 * [Tesseract shared Core (Rust)](https://github.com/tesseract-one/Tesseract.rs)
 
-
 ## Getting started
 
-**Tesseract** is implemented in Rust and currently doesn't provide the Swift wrappers, thus requiring some Rust coding. In the future, we aim to change it by offering wrappers, eliminating the need for any Rust code.
+Tesseract provides two sets of APIs, one for a dApp that wants to connect to the wallets and one for the wallets that want to serve the dApps.
 
-### Set up Rust
+Here is how a typical Tesseract workflow looks like:
 
-To add Rust, to your dApp or Wallet, please consider going through our guide [Setting up Rust](./RUST.MD). It contains the steps required to add Rust support to an iOS app + some useful interop utils description we've built.
-
-### Initialize Tesseract Client
-
-Once the Rust part is set up, you can proceed to setting up Tesseract:
-
-```rust
-use tesseract_utils::*;
-use tesseract_client;
-
-let tesseract = tesseract_client::Tesseract::new(
-	tesseract_client::delegate::SingleTransportDelegate::arc(),
-).transport(ipc_transport);
-```
-
-The initialization of Tesseract is essentially the same as it is described in the [Tesseract shared Core](tesseract-one/Tesseract.rs) except that to connect to a wallet via Tesseract, we need to specify the IPCTransport:
-
-```rust
-.transport(ipc_transport)
-```
-
-where `ipc_transport` is `transport::NativeTransport` passed to us from Swift.
-
-#### Passing data from Swift:
-
-The easiest way to call Rust from Swift is to create a C function and use `cbindgen` for the export.
-
-#### On the Swift side:
+<table>
+<tr>
+<th> dApp </th>
+<th> Wallet </th>
+</tr>
+<tr>
+<td>
 
 ```swift
-import TesseractClient
-import CApp
+//initialize Tesseract with default config
+let tesseract = Tesseract.default
 
-let rustAppContext: AppContextPtr! = app_init(IPCTransportIOS().asNative())
+//indicate what blockchain are we gonna use
+let substrateService = tesseract.service(SubstrateService.self)
+
+//at this point Tesseract connects to the
+//wallet and the wallet presents the user
+//with its screen, asking if the user
+//wants to share their public key to a dApp
+let account = try await substrateService.getAccount(.sr25519)
 ```
 
-#### On the Rust side:
+</td>
+<td>
 
-```rust
-use tesseract_utils::*;
-
-// Pointer to our App Context (will be saved in the Swift for calls). Returns it as a struct with void* inside.
-#[repr(C)]
-pub struct AppContextPtr(SyncPtr<Void>);
-
-#[no_mangle]
-pub unsafe extern "C" fn app_init(transport: transport::NativeTransport) -> ManuallyDrop<AppContextPtr> {
-	tesseract_utils_init();
-	//your initialization here
-}
+```swift
+//Inside the Wallet Tesseract serves requests
+//from the dApps as long as the reference is kept alive
+//save it somewhere in the Extension instance
+let tesseract = Tesseract()
+    .transport(IPCTransportIOS(self)) //add iOS IPC transport
+    .service(MySubstrateService())
+//MySubstrateService instance methods
+//will be called when a dApp asks for something
 ```
 
-The rest of Tesseract APIs stay exacly the same everywhere. Please, consider to go through the docs in our [Tesseract shared Core](https://github.com/tesseract-one/Tesseract.rs) repo.
+</td>
+</tr>
+</table>
 
-## Usage
+## Details
 
-* [Main Rust API documentation](https://github.com/tesseract-one/Tesseract.rs)
-* [Wallet developers documentation](./WALLET.MD)
+Because using Tesseract in Tesseract in a dApp and in a wallet is very different by nature (essentially communicating as a client and a service), the detailed documentation is split into two documents:
 
-Once we publish the Swift wrappers, the doc will appear here.
+* [Tesseract for dApp developers](./DAPP.MD)
+* [Tesseract for Wallet developers](./WALLET.MD)
 
 ## Examples
 
-You can find the examples (**Demo Wallet** and a **Demo dApp**) in this repo [HERE](./examples).
+If you'd like to see examples of Tesseract integration, please, check:
 
-## Installation
+* [dev-wallet.swift](https://github.com/tesseract-one/dev-wallet.swift) - for wallets
+* polkachat.swift - for dApps, TBD
 
-### Prerequisites
-* Install your Rust environment: https://www.rust-lang.org/tools/install
-* Install Xcode from the App Store
-* For Rust we suggest VS Code: https://code.visualstudio.com/
+## More
 
-### On the Rust side you might need:
+Just in case, you'd like to use Tesseract on iOS via Rust APIs. It's also possible. Consider checking one of the following:
 
-```toml
-tesseract_utils = { git = "https://github.com/tesseract-one/Tesseract.swift", branch="master" } # utils for interop with Swift
-tesseract_client = { git = "https://github.com/tesseract-one/Tesseract.swift", branch="master" } # iOS client integrations
-tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch="master", features=["client"] } # Tesseract Core
-```
-
-### On the Swift side:
-
-```swift
-// Dependency
-Package (
-	dependencies: [
-	 	.package(url: "https://github.com/tesseract-one/Tesseract.swift.git", .branch("master")),
-	]
-)
-
-Target(
-	dependencies: [ "TesseractClient" ]
-)
-```
-
-### Setting up Rust interop:
-
-Please, consider the guide [HERE](./RUST.MD).
-
-### Add needed protocols queries
-You have to add needed network protocols to the URL queries of your iOS application. Add them to the `Info.plist`. In the example below `test` network is added
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>tesseract+test</string>
-	</array>
-</dict>
-</plist>
-```
+* [Using Tesseract on iOS in Rust](./RUST.MD)
+* [Developer Wallet in Rust](https://github.com/tesseract-one/dev-wallet)
 
 ## Roadmap
 
-- [x] v0.1 - IPC transport for iOS - connect dApp/Wallet on the same device
-- [x] v0.2 - demo dApp and Wallet
-- [ ] v1.0 - iOS wrapper for Rust
-
-## Changelog
-
-* v0.2 - Created demo dApp and Wallet
-* v0.1 - Created transport to connect dApp and Wallet
+* [x] v0.1 - IPC transport for iOS - connect dApp/Wallet on the same device
+* [x] v0.2 - demo dApp and Wallet
+* [x] v0.3 - Susbtrate protocol support
+* [x] v0.4 - [dev-wallet.swift](https://github.com/tesseract-one/dev-wallet.swift) test implementation
+* [x] v0.5 - first Swift libraries release version
+* [ ] v1.0 - support of everything mobile dApps need
 
 ## License
 
-Tesseract.android can be used, distributed and modified under [the Apache 2.0 license](LICENSE).
+Tesseract.swift can be used, distributed and modified under [the Apache 2.0 license](LICENSE).

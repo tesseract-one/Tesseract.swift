@@ -8,7 +8,7 @@ pub (super) fn init(level: LogLevelNum) -> Result<(), TesseractSwiftError> {
     if !INITIALIZED.swap(true, Ordering::Relaxed) {
         stderrlog::new()
             .verbosity(level)
-            .module("Wallet")
+            .show_module_names(true)
             .init()?;
         log_panics::init();
         Ok(())

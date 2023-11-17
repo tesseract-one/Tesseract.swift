@@ -14,55 +14,20 @@ Getting **Tesseract** to work in iOS wallet is different from everywhere else on
 
 Currently we provide IPC transport, which allows the wallets to present their screens on top of iOS applications on request and sign the transactions.
 
+## Installation
+
 ### Add Extension target
 
-Add new Action Extension target to the project. This will be your Wallet interface for the dApps.
+Add new Action Extension target to the your Wallet project. This will be your Wallet interface for the dApps.
 
-### Set up Rust
+### Add Tesseract.swift dependency
 
-To add Rust, to your Wallet, please consider going through our guide [Setting up Rust](./RUST.MD). It contains the steps required to add Rust support to an iOS app + some useful interop utils description we've built.
+1. Add `Tesseract.swift` repository dependency through `File` -> `Add Package` menu in Xcode.
+2. Add `TesseractService` framework dependency to your Extension target.
 
-Integrate Rust into your Action Extension target.
+### Add supported network protocols to your targets
 
-### Initialize transport and tesseract in Swift
-
-```swift
-import CWallet
-import TesseractService
-
-class ActionViewController: UIViewController {
-    var context: ExtensionContextPtr!
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        let transport = IPCTransportIOS(self)
-
-        self.context = wallet_extension_init(transport.asNative())
-    }
-```
-where `wallet_extension_init` is exported from Rust as
-
-```rust
-use tesseract_utils::*;
-use tesseract_service::*;
-
-// Pointer to our Rust Context (will be saved in the Swift for calls). Returns it as a struct with void* inside.
-#[repr(C)]
-pub struct ExtensionContextPtr(SyncPtr<Void>);
-
-#[no_mangle]
-pub unsafe extern "C" fn wallet_extension_init(transport: transport::Transport) -> ManuallyDrop<ExtensionContextPtr> {
-  tesseract_utils_init();
-  // your initialization code
-}
-```
-
-The rest stays exactly the same as it is described in the main repo of Tesseract ([THIS ONE](https://github.com/tesseract-one/Tesseract.rs/)) on this page [HERE](https://github.com/tesseract-one/Tesseract.rs/blob/master/docs/SERVICE.MD).
-
-### Add supported network protocols
-
-* Edit Action Extension attributes in its `Info.plist` and add supported ptorocols (in this example `test` protocol. UTI is `one.tesseract.test`)
+* Edit Extension target attributes in its `Info.plist` and add supported ptorocols (in this example `test` and `substrate-v1` protocol.)
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -75,7 +40,18 @@ The rest stays exactly the same as it is described in the main repo of Tesseract
 			<key>NSExtensionServiceRoleType</key>
 			<string>NSExtensionServiceRoleTypeEditor</string>
 			<key>NSExtensionActivationRule</key>
-			<string>SUBQUERY(extensionItems, $item, SUBQUERY($item.attachments, $att, ANY $att.registeredTypeIdentifiers UTI-CONFORMS-TO "one.tesseract.test").@count == $item.attachments.@count).@count == 1</string>
+			<string>
+				SUBQUERY(
+					extensionItems, 
+					$item,
+					SUBQUERY(
+						$item.attachments,
+						$att,
+						ANY $att.registeredTypeIdentifiers UTI-CONFORMS-TO "one.tesseract.test"
+						OR ANY $att.registeredTypeIdentifiers UTI-CONFORMS-TO "one.tesseract.substrate-v1"
+					).@count == $item.attachments.@count
+				).@count == 1
+			</string>
 			<key>NSExtensionServiceAllowsFinderPreviewItem</key>
 			<true/>
 			<key>NSExtensionServiceAllowsTouchBarItem</key>
@@ -95,7 +71,7 @@ The rest stays exactly the same as it is described in the main repo of Tesseract
 </dict>
 </plist>
 ```
-* Add URL scheme to your `Info.plist` of the Wallet target
+* Add URL schemes to your `Info.plist` of the Wallet target
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -107,10 +83,11 @@ The rest stays exactly the same as it is described in the main repo of Tesseract
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>one.tesseract.test</string>
+			<string>one.tesseract</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>tesseract+test</string>
+				<string>tesseract+substrate-v1</string>
 			</array>
 		</dict>
 	</array>
@@ -118,13 +95,91 @@ The rest stays exactly the same as it is described in the main repo of Tesseract
 </plist>
 ```
 
-## Usage
+## Services
 
-* [Main Rust API documentation](https://github.com/tesseract-one/Tesseract.rs)
-* [dApp developers documentation](./README.MD)
+Through Tesseract, wallets serve the dApps by providing services accessible from the outside. A service implementation is responsible for understanding requests, providing the user with confirmation UI and replying back.
 
-Once we publish the iOS wrappers, the doc will appear here.
+To make Tesseract work in your wallet, you need to describe, how exactly the wallet wants to react when a dApp needs something.
 
-## Examples
+In Tesseract this is done via services. One service per blockchain protocol. The way the wallet signs transactions i.e. for Subsrate and for Ethereum is very different, thus every service has its own API to implement.
 
-You can find the examples (**Demo Wallet** and a **Demo dApp**) in this repo [HERE](./examples).
+Let's take a look at the `TestService` implementation example from [Examples](./Examples/Swift/Extension
+/TestSigningService.swift).:
+
+```swift
+import TesseractService
+
+protocol TestSigningServiceDelegate: AnyObject {
+    func acceptTx(tx: String) async throws -> Bool
+}
+
+class TestSigningService: TestService {
+    var signature: String
+    weak var delegate: TestSigningServiceDelegate?
+    
+    init(delegate: TestSigningServiceDelegate, signature: String) {
+        self.delegate = delegate
+        self.signature = signature
+    }
+    
+    func signTransation(req: String) async throws -> String {
+        guard let delegate = self.delegate else {
+			throw TesseractError.null(TestSigningServiceDelegate.self)
+        }
+		guard try await delegate.acceptTx(tx: req) else {
+			throw TesseractError.cancelled
+		}
+		return req + signature
+    }
+}
+```
+
+The wallet is responsible to present the user with the relevant UI and reply with a response in case the user agrees to proced. Otherwise just throw `TesseractError.cancelled`. Or any other error if, in example, the request data is malformed.
+
+## Transport
+
+For now Tesseract supports only iOS IPC transport which called `IPCTransportIOS`.
+
+Transport should be created and provided to the `Tesseract` instance. See example bellow.
+
+Full documentation on Transports development can be found here: [Transports How To](./TRANSPORTS.MD)
+
+### Initialization
+
+Here is a typical Tesseract initialization snippet (the example is taken from [Example](./Examples/Swift/Extension
+/ActionViewController.swift)):
+
+`ActionViewController` is a root ViewController provided in Extension `Info.plist` file.
+
+```swift
+import TesseractService
+
+class ActionViewController: UIViewController, TestSigningServiceDelegate {
+    var tesseract: Tesseract!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let data = WalletData()
+        let service = TestSigningService(delegate: self, signature: data.signature)
+        
+        self.tesseract = try! Tesseract()
+            .transport(IPCTransportIOS(self))
+            .service(service)
+			// add all supported services through .service() calls
+    }
+
+	@MainActor
+    func acceptTx(tx: String) async throws -> Bool {
+        // Show UI
+    }
+}
+```
+
+## Conclusion
+
+We tried our best to present an API as easy for the wallet developer as we could and handled all the edge cases we know of inside the library. At least we improved it to the point that it satisfied us while building the [dev-wallet.swift](https://github.com/tesseract-one/dev-wallet.swift).
+
+If you have any suggestions, please, create an issue or submit a PR.
+
+Thanks!
