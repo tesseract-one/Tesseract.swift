@@ -30,6 +30,7 @@ on:
         required: false
 jobs:
   build-core-and-deploy:
+    name: Build Core
     runs-on: macOS-13
     steps:
       - name: Checkout
@@ -82,4 +83,11 @@ jobs:
           prerelease: ${{ inputs.prerelease }}
           draft: ${{ inputs.draft }}
           files: ${{ steps.build-core-zip.outputs.ZIP_NAME }}
-      
+  publish-pod:
+    name: Publish to Cocoa Pods
+    needs: build-core-and-deploy
+    uses: "./.github/workflows/publish_pod.yml"
+    with:
+      version: ${{ inputs.version }}
+    secrets:
+      trunk-token: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}

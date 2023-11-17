@@ -1,0 +1,11 @@
+name: On new release
+on:
+  release:
+    types: [created]
+jobs:
+  publish_pod:
+    uses: "./.github/workflows/publish_pod.yml"
+    with:
+        version: ${{ github.event.release.tag_name }}
+    secrets:
+        trunk-token: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
