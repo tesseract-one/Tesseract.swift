@@ -23,7 +23,7 @@ jobs:
         env: 
           VERSION: ${{ inputs.version }}
       - name: Set Core binary URL
-        run:
+        run: |
           FILE_URL=$(sed -n 's|let[[:blank:]]*binaryUrl[[:blank:]]*=[[:blank:]]*"\(.*\)"|\1|p' Package.swift)
           SHA=$(sed -n 's|let[[:blank:]]*binaryChecksum[[:blank:]]*=[[:blank:]]*"\(.*\)"|\1|p' Package.swift)
           POD_SOURCE="s.source = { :http => '${FILE_URL}', :sha256 => '${SHA}' }"
