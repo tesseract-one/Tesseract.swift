@@ -22,7 +22,7 @@ Add new Action Extension target to the your Wallet project. This will be your Wa
 
 ### Add Tesseract.swift dependency
 
-1. Add `Tesseract.swift` repository dependency through `File` -> `Add Package` menu in Xcode.
+1. Add [Tesseract.swift](https://github.com/tesseract-one/Tesseract.swift) repository dependency through `File` -> `Add Package` menu in Xcode.
 2. Add `TesseractService` framework dependency to your Extension target.
 
 ### Add supported network protocols to your targets
@@ -103,8 +103,7 @@ To make Tesseract work in your wallet, you need to describe, how exactly the wal
 
 In Tesseract this is done via services. One service per blockchain protocol. The way the wallet signs transactions i.e. for Subsrate and for Ethereum is very different, thus every service has its own API to implement.
 
-Let's take a look at the `TestService` implementation example from [Examples](./Examples/Swift/Extension
-/TestSigningService.swift).:
+Let's take a look at the `TestService` implementation example from [Examples](./Examples/Swift/Extension/TestSigningService.swift).:
 
 ```swift
 import TesseractService
@@ -124,12 +123,12 @@ class TestSigningService: TestService {
     
     func signTransation(req: String) async throws -> String {
         guard let delegate = self.delegate else {
-			throw TesseractError.null(TestSigningServiceDelegate.self)
+            throw TesseractError.null(TestSigningServiceDelegate.self)
         }
-		guard try await delegate.acceptTx(tx: req) else {
-			throw TesseractError.cancelled
-		}
-		return req + signature
+        guard try await delegate.acceptTx(tx: req) else {
+            throw TesseractError.cancelled
+        }
+        return req + signature
     }
 }
 ```
@@ -146,8 +145,7 @@ Full documentation on Transports development can be found here: [Transports How 
 
 ### Initialization
 
-Here is a typical Tesseract initialization snippet (the example is taken from [Example](./Examples/Swift/Extension
-/ActionViewController.swift)):
+Here is a typical Tesseract initialization snippet (the example is taken from [Example](./Examples/Swift/Extension/ActionViewController.swift)):
 
 `ActionViewController` is a root ViewController provided in Extension `Info.plist` file.
 
@@ -166,10 +164,10 @@ class ActionViewController: UIViewController, TestSigningServiceDelegate {
         self.tesseract = try! Tesseract()
             .transport(IPCTransportIOS(self))
             .service(service)
-			// add all supported services through .service() calls
+            // add all supported services through .service() calls
     }
 
-	@MainActor
+    @MainActor
     func acceptTx(tx: String) async throws -> Bool {
         // Show UI
     }
