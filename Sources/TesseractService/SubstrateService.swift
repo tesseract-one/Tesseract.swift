@@ -20,10 +20,12 @@ extension CTesseract.SubstrateService: CoreService {
     }
 }
 
-public protocol SubstrateService: TesseractShared.SubstrateService, Service
+public protocol SubstrateServiceResult: TesseractShared.SubstrateServiceResult, Service
     where Core == CTesseract.SubstrateService {}
 
-public extension SubstrateService {
+public protocol SubstrateService: SubstrateServiceResult, TesseractShared.SubstrateService {}
+
+public extension SubstrateServiceResult {
     func toCore() -> Core {
         var value = Core(value: self)
         value.get_account = substrate_service_get_account
@@ -37,7 +39,7 @@ private func substrate_service_get_account(
     accountType: CTesseract.SubstrateAccountType
 ) -> CFuture_SubstrateGetAccountResponse {
     CFuture_SubstrateGetAccountResponse {
-        await this.unowned((any SubstrateService).self).castError().asyncFlatMap {
+        await this.unowned((any SubstrateServiceResult).self).castError().asyncFlatMap {
             await $0.getAccount(
                 type: TesseractShared.SubstrateAccountType(cvalue: accountType)
             )
@@ -55,7 +57,7 @@ private func substrate_service_sign(
     let metadata = metadata.copied()
     let types = types.copied()
     return CFutureData {
-        await this.unowned((any SubstrateService).self).castError().asyncFlatMap {
+        await this.unowned((any SubstrateServiceResult).self).castError().asyncFlatMap {
             await $0.signTransation(type: TesseractShared.SubstrateAccountType(cvalue: type),
                                     path: path, extrinsic: extrinsic,
                                     metadata: metadata, types: types)
