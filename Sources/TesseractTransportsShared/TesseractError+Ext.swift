@@ -26,6 +26,18 @@ public extension Result where Failure: TesseractErrorConvertible {
 }
 
 public extension Result where Failure == TesseractError {
+    init(tesseract fn: () async throws -> Success) async {
+        do {
+            self = await .success(try fn())
+        } catch let err as TesseractErrorConvertible {
+            self = .failure(err.tesseract)
+        } catch let err as CErrorConvertible {
+            self = .failure(TesseractError(cError: err.cError))
+        } catch {
+            self = .failure(TesseractError(parsing: error as NSError))
+        }
+    }
+    
     func castError<E: TesseractErrorInitializable>() -> Result<Success, E> {
         mapError { E(tesseract: $0) }
     }
@@ -36,8 +48,20 @@ public extension Result where Failure == TesseractError {
 }
 
 public extension TesseractError {
-    init(parsing error: NSError) {
-        self.init(cError: InteropError(parsing: error))
+    @inlinable init(parsing error: NSError) {
+        self.init(cError: .init(parsing: error))
+    }
+    
+    @inlinable static func null<T>(_ type: T.Type) -> Self {
+        .init(cError: .null(type))
+    }
+    
+    @inlinable static func panic(reason: String) -> Self {
+        .init(cError: .panic(reason: reason))
+    }
+    
+    @inlinable static func cast<F, T>(from: F.Type, to: T.Type) -> Self {
+        .init(cError: .cast(from: from, to: to))
     }
 }
 
