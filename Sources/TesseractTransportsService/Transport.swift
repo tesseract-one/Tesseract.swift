@@ -18,6 +18,6 @@ public protocol TransportProcessor: AnyObject {
 
 public protocol BoundTransport: AnyObject {}
 
-public protocol Transport: AnyObject {
+public protocol Transport: CoreTransportConvertible, AnyObject {
     func bind(processor: TransportProcessor) -> BoundTransport
 }

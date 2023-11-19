@@ -34,6 +34,10 @@ public final class CoreTransportProcessor: TransportProcessor {
     }
 }
 
+public protocol CoreTransportConvertible {
+    func toCore() -> ServiceTransport
+}
+
 extension ServiceTransport: CSwiftAnyDropPtr {}
 
 extension ServiceTransport {
@@ -41,6 +45,10 @@ extension ServiceTransport {
         self = ServiceTransport(value: transport)
         self.bind = transport_bind
     }
+}
+
+extension ServiceTransport: CoreTransportConvertible {
+    public func toCore() -> ServiceTransport { self }
 }
 
 extension Transport {

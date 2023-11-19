@@ -28,7 +28,7 @@ public final class Tesseract: TesseractBase {
         return self
     }
     
-    public func transport<T: Transport>(_ transport: T) -> Self {
+    public func transport<T: CoreTransportConvertible>(_ transport: T) -> Self {
         tesseract = tesseract_service_add_transport(&tesseract, transport.toCore())
         return self
     }
