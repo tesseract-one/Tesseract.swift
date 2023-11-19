@@ -13,7 +13,7 @@ TMPDIR=$(mktemp -d)
 
 cp LICENSE "$TMPDIR/"
 mkdir "$TMPDIR/Sources"
-cp -r Sources/CTesseract "$TMPDIR/Sources/"
+cp -r Sources/CTesseractShared "$TMPDIR/Sources/"
 cp -r *.xcframework "$TMPDIR/"
 
 cd "$TMPDIR"

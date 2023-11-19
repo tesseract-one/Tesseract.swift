@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 
 public protocol CErrorConvertible: Error {
     var cError: CError { get }
@@ -25,19 +25,19 @@ public struct CError: Error {
         self.reason = reason
     }
     
-    public init(copying error: CTesseract.CError) {
+    public init(copying error: CTesseractShared.CError) {
         self.code = error.code
         self.reason = error.reason.copied()
     }
     
     public init(parsing error: NSError) {
         guard error.userInfo[Self.NSErrorMarker] != nil else {
-            var error = CTesseract.CError(error: error)
+            var error = CTesseractShared.CError(error: error)
             self = error.owned()
             return
         }
         guard let code = UInt32(exactly: UInt(bitPattern: error.code)) else {
-            var error = CTesseract.CError(error: error)
+            var error = CTesseractShared.CError(error: error)
             self = error.owned()
             return
         }
@@ -77,32 +77,32 @@ extension CError: CustomStringConvertible {
 }
 
 extension CError: AsCPtrCopy {
-    public typealias CopyPtr = CTesseract.CError
+    public typealias CopyPtr = CTesseractShared.CError
     
     public func copiedPtr() -> CopyPtr {
-        CTesseract.CError(code: code, reason: reason.copiedPtr())
+        CTesseractShared.CError(code: code, reason: reason.copiedPtr())
     }
 }
 
 extension CError: AsCPtrRef {
-    public typealias RefPtr = UnsafePointer<CTesseract.CError>
+    public typealias RefPtr = UnsafePointer<CTesseractShared.CError>
     
     public func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T {
         try reason.withPtrRef { reason in
-            var error = CTesseract.CError(code: code, reason: reason.pointee)
+            var error = CTesseractShared.CError(code: code, reason: reason.pointee)
             return try fn(&error)
         }
     }
 }
 
 extension NSError {
-    public convenience init(copying error: CTesseract.SwiftError) {
+    public convenience init(copying error: CTesseractShared.SwiftError) {
         self.init(domain: error.domain.copied(), code: error.code,
                   userInfo: [NSLocalizedDescriptionKey: error.description.copied()])
     }
 }
 
-extension CTesseract.CError: CType, CustomStringConvertible {
+extension CTesseractShared.CError: CType, CustomStringConvertible {
     public init(error: NSError) {
         self = tesseract_utils_cerr_new_swift_error(error.code,
                                                     error.domain,
@@ -113,24 +113,24 @@ extension CTesseract.CError: CType, CustomStringConvertible {
         withUnsafePointer(to: self) { $0.description }
     }
     
-    public var swiftError: CTesseract.SwiftError? {
+    public var swiftError: CTesseractShared.SwiftError? {
         withUnsafePointer(to: self) { $0.swiftError }
     }
 }
 
-extension UnsafePointer<CTesseract.CError> {
+extension UnsafePointer<CTesseractShared.CError> {
     public var description: String {
         var desc = tesseract_utils_cerr_get_description(self)
         return desc.owned()
     }
     
-    public var swiftError: CTesseract.SwiftError? {
+    public var swiftError: CTesseractShared.SwiftError? {
         guard self.pointee.code == CErrorCode_Swift.rawValue else { return nil }
         return tesseract_utils_cerr_get_swift_error(self)
     }
 }
 
-extension CTesseract.CError: CPtr {
+extension CTesseractShared.CError: CPtr {
     public typealias Val = CError
     
     public func copied() -> CError {
@@ -148,14 +148,14 @@ extension CTesseract.CError: CPtr {
     }
 }
 
-extension CTesseract.SwiftError: CType {
+extension CTesseractShared.SwiftError: CType {
     public init(error: NSError) {
         self = tesseract_utils_swift_error_new(error.code,
                                                error.domain,
                                                error.localizedDescription)
     }
 }
-extension CTesseract.SwiftError: CPtr {
+extension CTesseractShared.SwiftError: CPtr {
     public typealias Val = NSError
     
     public func copied() -> NSError {
@@ -173,7 +173,7 @@ extension CTesseract.SwiftError: CPtr {
 }
 
 extension NSError: AsCPtrRef {
-    public typealias RefPtr = UnsafePointer<CTesseract.SwiftError>
+    public typealias RefPtr = UnsafePointer<CTesseractShared.SwiftError>
     
     public func withPtrRef<T>(
         _ fn: @escaping (UnsafePointer<SwiftError>) throws -> T
@@ -181,9 +181,9 @@ extension NSError: AsCPtrRef {
         try domain.withPtrRef { domain in
             try self.localizedDescription.withPtrRef { description in
                 try withUnsafePointer(
-                    to: CTesseract.SwiftError(code: self.code,
-                                              domain: domain.pointee,
-                                              description: description.pointee)
+                    to: CTesseractShared.SwiftError(code: self.code,
+                                                    domain: domain.pointee,
+                                                    description: description.pointee)
                 ) { try fn($0) }
             }
         }
@@ -191,10 +191,10 @@ extension NSError: AsCPtrRef {
 }
 
 extension NSError: AsCPtrCopy {
-    public typealias CopyPtr = CTesseract.SwiftError
+    public typealias CopyPtr = CTesseractShared.SwiftError
     
-    public func copiedPtr() -> CTesseract.SwiftError {
-        CTesseract.SwiftError(error: self)
+    public func copiedPtr() -> CTesseractShared.SwiftError {
+        CTesseractShared.SwiftError(error: self)
     }
 }
 

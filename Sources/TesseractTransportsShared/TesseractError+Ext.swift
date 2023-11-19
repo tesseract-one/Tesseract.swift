@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 #if !COCOAPODS
 import TesseractUtils
 #endif

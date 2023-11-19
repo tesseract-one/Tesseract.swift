@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 #if COCOAPODS
 public typealias InteropError = CError
 #else

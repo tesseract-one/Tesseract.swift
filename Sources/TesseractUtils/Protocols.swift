@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 
 // Basic type returned from C
 public protocol CType {

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseractBin
+import CTesseract
 import TesseractShared
 
 public protocol Service: AnyObject {

@@ -1,8 +1,9 @@
 #!/bin/zsh
 set -e
 
-MODULE_NAME="CTesseract"
-MAIN_CRATE="tesseract-swift"
+MODULE_NAME="CTesseractShared"
+MAIN_CRATE="tesseract-swift-transports"
+HEADERS=("tesseract-swift-utils.h" "tesseract-swift-transports.h")
 HEADERS_DIR="target/release/include"
 OUTPUT_DIR="Sources/$MODULE_NAME/include"
 
@@ -11,7 +12,11 @@ cd "$DIR"
 
 cargo build -p "$MAIN_CRATE" --release --all-features
 
-rm -f "$OUTPUT_DIR"/*
-cp $HEADERS_DIR/*.h "$OUTPUT_DIR/"
+rm -rf "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR"
+
+for header in "${HEADERS[@]}"; do
+  cp "$HEADERS_DIR/$header" "$OUTPUT_DIR/"
+done
 
 exit 0

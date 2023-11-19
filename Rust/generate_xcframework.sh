@@ -1,9 +1,7 @@
 #!/bin/zsh
 set -e
 
-HEADERS_FRAMEWORK_NAME="CTesseract"
-XCFRAMEWORK_NAME="${HEADERS_FRAMEWORK_NAME}Bin"
-LIBRARY_NAME="tesseract_swift"
+CRATE="tesseract-swift"
 
 DIR="$(cd "$(dirname "$0")" && pwd -P)"
 SOURCES_DIR="${DIR}/.."
@@ -62,14 +60,6 @@ function generate_modulemap() {
   echo -e "\tlink \"${lib}\"" >> "$path"
   echo -e "\texport *" >> "$path"
   echo "}" >> "$path"
-}
-
-function generate_umbrella_header() {
-  local path="$1/$3.h"
-  local module=$2 
-  echo "#pragma once" > "$path"
-  echo "// reimporting headers framework" >> "$path"
-  echo "@import ${module};" >> "$path"
 }
 
 function print_xcframework_header() {
@@ -152,6 +142,9 @@ else
   CONFIGURATION="release"
 fi
 
+# generate name for xcframework
+XCFRAMEWORK_NAME="C${${${(C)CRATE}//-}//Swift}"
+
 # output xcframework path
 XCFRAMEWORK_PATH="${OUTPUT_DIR}/${XCFRAMEWORK_NAME}.xcframework"
 
@@ -161,6 +154,7 @@ mkdir -p "${XCFRAMEWORK_PATH}"
 
 cd "${SOURCES_DIR}"
 
+LIBRARY_NAME="${CRATE//-/_}" # replace - with _
 RUST_TARGET_DIR="${SOURCES_DIR}/target"
 HEADERS_DIR="${RUST_TARGET_DIR}/universal/include"
 OUT_LIB_PATH="${RUST_TARGET_DIR}/universal/lib${LIBRARY_NAME}.a"
@@ -183,14 +177,15 @@ for btarget in ${BUILD_TARGETS[@]}; do
 
   for target in ${targets[@]}; do
     echo "Building target: ${target}..."
-    cargo build --lib $RELEASE --target $target --all-features
+    cargo build -p $CRATE --lib $RELEASE --target $target --all-features
     built_libs+=("${RUST_TARGET_DIR}/${target}/${CONFIGURATION}/lib${LIBRARY_NAME}.a")
   done
   
   lipo ${built_libs} -create -output "${OUT_LIB_PATH}"
 
   generate_modulemap "${HEADERS_DIR}" "${XCFRAMEWORK_NAME}" "${LIBRARY_NAME}"
-  generate_umbrella_header "${HEADERS_DIR}" "${HEADERS_FRAMEWORK_NAME}" "${LIBRARY_NAME}"
+  
+  cp -f "${RUST_TARGET_DIR}/${CONFIGURATION}/include/${CRATE}.h" "${HEADERS_DIR}/${LIBRARY_NAME}.h"
   
   add_library_to_xcframework "${XCFRAMEWORK_PATH}" \
     "${HEADERS_DIR}/" "${OUT_LIB_PATH}" \

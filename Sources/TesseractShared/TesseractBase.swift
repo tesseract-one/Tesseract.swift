@@ -1,12 +1,12 @@
 //
-//  File.swift
+//  TesseractBase.swift
 //  
 //
 //  Created by Yehor Popovych on 06/10/2023.
 //
 
 import Foundation
-import CTesseractBin
+import CTesseract
 #if !COCOAPODS
 @_exported import TesseractTransportsShared
 @_exported import TesseractUtils

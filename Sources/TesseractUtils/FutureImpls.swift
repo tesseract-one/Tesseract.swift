@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 
 extension CFutureNothing: CFuturePtr {    
     public typealias CVal = Nothing

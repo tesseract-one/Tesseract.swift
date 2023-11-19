@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 
 public protocol CSwiftDropPtr: CType {
     associatedtype SObject: AnyObject

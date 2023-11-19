@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 
 public typealias CResult<T> = Result<T, CError>
 
@@ -17,7 +17,7 @@ public protocol CResultPtr: CType, CPtr where Val == CResult<SResVal> {
     associatedtype SResVal
     
     var tag: CResTag { get set }
-    var err: CTesseract.CError { get set }
+    var err: CTesseractShared.CError { get set }
     var ok: CResVal { get set }
     
     static var ok: CResTag { get }

@@ -7,11 +7,11 @@ Pod::Spec.new do |s|
   s.author           = { 'Tesseract Systems, Inc.' => 'info@tesseract.one' }
   s.source           = { :http => "file://#{File.dirname(__FILE__)}/Tesseract-Core.bin.zip" }
   
-  s.module_name      = 'CTesseract'
+  s.module_name      = 'CTesseractShared'
   s.platforms        = { :ios => '13.0' }
 
-  s.source_files      = 'Sources/CTesseract/**/*.{h,c}'
+  s.source_files      = 'Sources/CTesseractShared/**/*.{h,c}'
   s.static_framework  = true
 
-  s.vendored_frameworks = 'CTesseractBin.xcframework'
+  s.vendored_frameworks = 'CTesseract.xcframework'
 end

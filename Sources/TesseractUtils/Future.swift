@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 
 public protocol CFuturePtr: CType {
     associatedtype CVal: CType
@@ -212,12 +212,12 @@ extension CFuturePtr {
         _ cb: @escaping (CResult<CVal>) -> Void,
         _ fn: (UnsafeRawPointer,
                UnsafeMutablePointer<CVal>,
-               UnsafeMutablePointer<CTesseract.CError>) -> COptionResponseResult
+               UnsafeMutablePointer<CTesseractShared.CError>) -> COptionResponseResult
     ) -> CResult<CVal>? {
         let pointer = CFutureContext(future: self, callback: cb).ownedPtr()
         
         var value = CVal()
-        var error = CTesseract.CError()
+        var error = CTesseractShared.CError()
         let result: CResult<CVal>?
         
         switch fn(pointer, &value, &error) {
@@ -238,7 +238,7 @@ extension CFuturePtr {
     public static func _onCompleteCallback(
         _ ctx: UnsafeRawPointer!,
         _ value: UnsafeMutablePointer<CVal>?,
-        _ error: UnsafeMutablePointer<CTesseract.CError>?
+        _ error: UnsafeMutablePointer<CTesseractShared.CError>?
     ) {
         var ctx = CFutureContext<Self>.take(ctx)
         defer { try! ctx.future.free().get() }
@@ -287,10 +287,10 @@ extension CFuturePtr {
         _ this: UnsafePointer<Self>!,
         _ ctx: UnsafeRawPointer?,
         _ value: UnsafeMutablePointer<CVal>!,
-        _ error: UnsafeMutablePointer<CTesseract.CError>!,
+        _ error: UnsafeMutablePointer<CTesseractShared.CError>!,
         _ cb: @escaping (UnsafeRawPointer?,
                          UnsafeMutablePointer<CVal>?,
-                         UnsafeMutablePointer<CTesseract.CError>?) -> Void
+                         UnsafeMutablePointer<CTesseractShared.CError>?) -> Void
     ) -> COptionResponseResult {
         let context = try! this.pointee.ptr.unowned(CAsyncContext<CVal>.self).get()
         
