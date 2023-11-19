@@ -82,7 +82,7 @@ language = "C"
 documentation_style = "doxy"
 pragma_once = true
 cpp_compat = true
-after_includes = "@import CTesseract;"
+after_includes = "@import CTesseractShared;"
 
 [enum]
 prefix_with_name = true
@@ -243,7 +243,7 @@ language = "C"
 documentation_style = "doxy"
 pragma_once = true
 cpp_compat = true
-after_includes = "@import CTesseract;"
+after_includes = "@import CTesseractShared;"
 
 [enum]
 prefix_with_name = true
