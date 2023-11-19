@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CTesseract
+import CTesseractShared
 #if COCOAPODS
 @_exported import TesseractShared
 #else
