@@ -27,7 +27,6 @@ final class TesseractTransportDelegate: TesseractDelegate {
             await alerts.showAlert(alert: "Transport '\(transport.key)' is not available because the transport produced an error: \(err)")
             return nil
         }
-        
     }
 }
 
