@@ -1,6 +1,12 @@
 use tesseract_protocol_substrate::{AccountType, GetAccountResponse};
-use tesseract_swift_utils::{data::CData, string::CString, error::CError};
+use tesseract_swift_utils::{
+    data::{CData, CDataRef}, string::{CString, CStringRef}, 
+    error::CError, ptr::CAnyDropPtr, future::CFuture, future_impls::CFutureData
+};
 use std::mem::ManuallyDrop;
+
+#[cfg(feature="protocol-substrate-client")]
+pub mod client;
 
 #[cfg(feature="protocol-substrate-service")]
 pub mod service;
@@ -44,6 +50,30 @@ impl TryFrom<SubstrateGetAccountResponse> for GetAccountResponse {
             .and_then(|pk| value.path.try_into().map(|pt| (pk, pt)))
             .map(|(pk, pt)|Self{ public_key: pk, path: pt })
     }
+}
+
+impl From<GetAccountResponse> for SubstrateGetAccountResponse {
+    fn from(response: GetAccountResponse) -> Self {
+        Self { public_key: response.public_key.into(), path: response.path.into() }
+    }
+}
+
+
+#[repr(C)]
+pub struct SubstrateService {
+    ptr: CAnyDropPtr,
+    get_account: unsafe extern "C" fn(
+        this: &SubstrateService,
+        account_type: SubstrateAccountType,
+    ) -> ManuallyDrop<CFuture<SubstrateGetAccountResponse>>,
+    sign_transaction: unsafe extern "C" fn(
+        this: &SubstrateService,
+        account_type: SubstrateAccountType,
+        account_path: CStringRef,
+        extrinsic_data: CDataRef,
+        extrinsic_metadata: CDataRef,
+        extrinsic_types: CDataRef
+    ) -> ManuallyDrop<CFutureData>,
 }
 
 #[no_mangle]

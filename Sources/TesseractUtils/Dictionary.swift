@@ -43,6 +43,30 @@ public protocol FromKeyValueArray {
     init<KV: SKeyValue>(kv: Array<KV>) where KV.Key == TKey, KV.Value == TValue
 }
 
+public protocol CDictionaryPtrRef: CArrayPtrRef
+    where CElement: CKeyValue, SElement == CElement.SVal
+{
+    func copiedDictionary<D: FromKeyValueArray>() -> D
+        where D.TKey == SElement.Key, D.TValue == SElement.Value
+
+    func copiedDictionary<D: FromKeyValueArray>(_ type: D.Type) -> D
+        where D.TKey == SElement.Key, D.TValue == SElement.Value
+}
+
+public extension CDictionaryPtrRef {
+    func copiedDictionary<D: FromKeyValueArray>() -> D
+        where D.TKey == SElement.Key, D.TValue == SElement.Value
+    {
+        self.copiedDictionary(D.self)
+    }
+
+    func copiedDictionary<D: FromKeyValueArray>(_ type: D.Type) -> D
+        where D.TKey == SElement.Key, D.TValue == SElement.Value
+    {
+        type.init(kv: self.copied())
+    }
+}
+
 public protocol CDictionaryPtr: CArrayPtr
     where CElement: CKeyValue, SElement == CElement.SVal
 {
@@ -85,10 +109,13 @@ public extension CDictionaryPtr {
     }
 }
 
+public protocol CCopyDictionaryPtrRef: CDictionaryPtrRef, CCopyArrayPtrRef {}
 public protocol CCopyDictionaryPtr: CDictionaryPtr, CCopyArrayPtr {}
 
+public protocol CCopyConvertDictionaryPtrRef: CDictionaryPtrRef, CCopyConvertArrayPtrRef {}
 public protocol CCopyConvertDictionaryPtr: CDictionaryPtr, CCopyConvertArrayPtr {}
 
+public protocol CPtrDictionaryPtrRef: CDictionaryPtrRef, CPtrArrayPtrRef {}
 public protocol CPtrDictionaryPtr: CDictionaryPtr, CPtrArrayPtr {}
 
 extension Dictionary: FromKeyValueArray {

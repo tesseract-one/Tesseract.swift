@@ -12,7 +12,7 @@ protocol TestSigningServiceDelegate: AnyObject {
     func acceptTx(tx: String) async throws -> Bool
 }
 
-class TestSigningService: TestService {
+class TestSigningService: TestService {    
     var signature: String
     weak var delegate: TestSigningServiceDelegate?
     
@@ -21,7 +21,7 @@ class TestSigningService: TestService {
         self.signature = signature
     }
     
-    func signTransation(req: String) async throws -> String {
+    func signTransaction(req: String) async throws -> String {
         guard let delegate = self.delegate else {
             throw TesseractError.null(TestSigningService.self)
         }

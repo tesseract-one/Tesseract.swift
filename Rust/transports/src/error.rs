@@ -35,6 +35,18 @@ pub enum TesseractSwiftError {
     Custom(u32, String)
 }
 
+impl TesseractSwiftError {
+    pub fn is_cancelled(&self) -> bool {
+        match self {
+            Self::Tesseract(terror) => match terror.kind {
+                ErrorKind::Cancelled => true,
+                _ => false
+            },
+            _ => false
+        }
+    }
+}
+
 impl From<CError> for TesseractSwiftError {
     fn from(value: CError) -> Self {
         match CErrorCode::from_u32(value.code) {

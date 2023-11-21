@@ -18,12 +18,21 @@ public enum Status {
     case error(TesseractError)
 }
 
+public extension Status {
+    var isReady: Bool {
+        switch self {
+        case .ready: return true
+        default: return false
+        }
+    }
+}
+
 public protocol Connection: AnyObject {
     func send(request: Data) async -> Result<(), TesseractError>
     func receive() async -> Result<Data, TesseractError>
 }
 
-public protocol Transport: AnyObject {
+public protocol Transport: AnyObject, CoreTransportConvertible {
     var id: String { get }
     func status(proto: String) async -> Status
     func connect(proto: String) -> Connection

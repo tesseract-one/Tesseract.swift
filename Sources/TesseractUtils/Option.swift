@@ -56,7 +56,7 @@ extension Optional: CValue where Wrapped: CValue {
 extension Optional: AsCRef where Wrapped: AsCRef {
     public typealias Ref = Optional<Wrapped.Ref>
     
-    public func withRef<T>(_ fn: @escaping (Ref) throws -> T) rethrows -> T {
+    public func withRef<T>(_ fn: (Ref) throws -> T) rethrows -> T {
         switch self {
         case .none: return try fn(nil)
         case .some(let val): return try val.withRef(fn)
@@ -67,7 +67,7 @@ extension Optional: AsCRef where Wrapped: AsCRef {
 extension Optional: AsCPtrRef where Wrapped: AsCPtrRef {
     public typealias RefPtr = Optional<Wrapped.RefPtr>
     
-    public func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T {
+    public func withPtrRef<T>(_ fn: (RefPtr) throws -> T) rethrows -> T {
         switch self {
         case .none: return try fn(nil)
         case .some(let val): return try val.withPtrRef(fn)
@@ -105,22 +105,22 @@ public protocol COption: CType, OptionProtocol where OWrapped == COpVal {
     var tag: CTag { get set }
     var some: COpVal { get set }
     
-    static var some: CTag { get }
-    static var none: CTag { get }
+    static var someTag: CTag { get }
+    static var noneTag: CTag { get }
 }
 
 extension COption {
     public init(_ val: Optional<COpVal>) {
         self.init()
         switch val {
-        case .none: self.tag = Self.none
+        case .none: self.tag = Self.noneTag
         case .some(let v):
-            self.tag = Self.some
+            self.tag = Self.someTag
             self.some = v
         }
     }
     
-    public var option: Optional<COpVal> { tag == Self.some ? self.some : nil }
+    public var option: Optional<COpVal> { tag == Self.someTag ? self.some : nil }
 }
 
 extension COption where SOpVal: CValue, COpVal == SOpVal.CVal {
@@ -135,18 +135,18 @@ extension COption where COpVal: CPtr, SOpVal == COpVal.Val {
     }
     
     public mutating func owned() -> SOpVal? {
-        if tag == Self.some {
+        if tag == Self.someTag {
             let value = self.some.owned()
-            self.tag = Self.none
+            self.tag = Self.noneTag
             return value
         }
         return nil
     }
     
     public mutating func free() {
-        if tag == Self.some {
+        if tag == Self.someTag {
             self.some.free()
-            self.tag = Self.none
+            self.tag = Self.noneTag
         }
     }
 }

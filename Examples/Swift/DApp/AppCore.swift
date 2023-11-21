@@ -6,26 +6,41 @@
 //
 
 import Foundation
-import TesseractTransportsClient
-import CApp
+import TesseractClient
 
-class AppCore {
-    private var rust: AppContextPtr
+final class TesseractTransportDelegate: TesseractDelegate {
+    private let alerts: AlertProvider
     
     init(alerts: AlertProvider) {
-        try! self.rust = TResult<AppContextPtr>.wrap { value, error in
-            app_init(alerts.toCore(), IPCTransportIOS().toCore(), value, error)
-        }.get()
+        self.alerts = alerts
     }
     
-    func signTx(tx: String) async throws -> String {
-        try await app_sign_data(self.rust, tx)
-            .result.castError(TesseractError.self).get()
-    }
-    
-    deinit {
-        app_deinit(&self.rust)
+    func select(transports: Dictionary<String, TesseractTransportsClient.Status>) async -> String? {
+        assert(transports.count == 1, "How the heck do we have more than one transport here?")
+        let transport = transports.first!
+        switch transport.value {
+        case .ready: return transport.key
+        case .unavailable(let why):
+            await alerts.showAlert(alert: "Transport '\(transport.key)' is not available because of the following reason: \(why)")
+            return nil
+        case .error(let err):
+            await alerts.showAlert(alert: "Transport '\(transport.key)' is not available because the transport produced an error: \(err)")
+            return nil
+        }
+        
     }
 }
 
-extension AppContextPtr: CType {}
+struct AppCore {
+    private let service: TestService
+    
+    init(alerts: AlertProvider) {
+        service = try! Tesseract
+            .default(delegate: TesseractTransportDelegate(alerts: alerts))
+            .service(TestService.self)
+    }
+    
+    func signTx(tx: String) async throws -> String {
+        try await service.signTransaction(req: tx)
+    }
+}

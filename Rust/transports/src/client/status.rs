@@ -4,6 +4,8 @@ use tesseract_swift_utils::string::CString;
 
 use tesseract::client::transport::Status;
 
+use crate::error::TesseractSwiftError;
+
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub enum ClientStatus {
@@ -17,7 +19,18 @@ impl From<ClientStatus> for Status {
         match status {
             ClientStatus::Ready => Status::Ready,
             ClientStatus::Unavailable(str) => Status::Unavailable(str.try_into().unwrap()),
-            ClientStatus::Error(err) => Status::Error(Box::new(err)),
+            ClientStatus::Error(err) => Status::Error(TesseractSwiftError::from(err).into()),
+        }
+    }
+}
+
+impl From<Status> for ClientStatus {
+    fn from(status: Status) -> Self {
+        match status {
+            Status::Ready => Self::Ready,
+            Status::Unavailable(str) => Self::Unavailable(str.into()),
+            Status::Error(err) =>
+                Self::Error(TesseractSwiftError::from(err).into())
         }
     }
 }

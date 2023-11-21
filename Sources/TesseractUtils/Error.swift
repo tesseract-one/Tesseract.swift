@@ -87,7 +87,7 @@ extension CError: AsCPtrCopy {
 extension CError: AsCPtrRef {
     public typealias RefPtr = UnsafePointer<CTesseractShared.CError>
     
-    public func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T {
+    public func withPtrRef<T>(_ fn: (RefPtr) throws -> T) rethrows -> T {
         try reason.withPtrRef { reason in
             var error = CTesseractShared.CError(code: code, reason: reason.pointee)
             return try fn(&error)
@@ -176,7 +176,7 @@ extension NSError: AsCPtrRef {
     public typealias RefPtr = UnsafePointer<CTesseractShared.SwiftError>
     
     public func withPtrRef<T>(
-        _ fn: @escaping (UnsafePointer<SwiftError>) throws -> T
+        _ fn: (UnsafePointer<SwiftError>) throws -> T
     ) rethrows -> T {
         try domain.withPtrRef { domain in
             try self.localizedDescription.withPtrRef { description in

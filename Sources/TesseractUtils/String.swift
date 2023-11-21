@@ -35,7 +35,7 @@ extension CString: CPtr {
 extension String: AsCRef {
     public typealias Ref = CStringRef
     
-    public func withRef<T>(_ fn: @escaping (Ref) throws -> T) rethrows -> T {
+    public func withRef<T>(_ fn: (Ref) throws -> T) rethrows -> T {
         try withCString(fn)
     }
 }
@@ -44,7 +44,7 @@ extension String: AsCPtrRef {
     public typealias RefPtr = UnsafePointer<CString>
     
     public func withPtrRef<T>(
-        _ fn: @escaping (UnsafePointer<CString>) throws -> T
+        _ fn: (UnsafePointer<CString>) throws -> T
     ) rethrows -> T {
         try withCString {
             try withUnsafePointer(to: CString(_0: $0)) { try fn($0) }

@@ -5,28 +5,11 @@ use errorcon::convertible::ErrorContext;
 use tesseract::service::{Service, Executor};
 use tesseract_protocol_substrate::{service::SubstrateExecutor, AccountType, GetAccountResponse};
 use tesseract_swift_transports::error::TesseractSwiftError;
-use tesseract_swift_utils::{ptr::CAnyDropPtr, string::{CStringRef, CString}, future_impls::CFutureData, future::CFuture, traits::AsCRef, data::CDataRef};
+use tesseract_swift_utils::{string:: CString, traits::AsCRef};
 
 use crate::service::ServiceTesseract;
 
-use super::{SubstrateAccountType, SubstrateGetAccountResponse};
-
-#[repr(C)]
-pub struct SubstrateService {
-    ptr: CAnyDropPtr,
-    get_account: unsafe extern "C" fn(
-        this: &SubstrateService,
-        account_type: SubstrateAccountType,
-    ) -> ManuallyDrop<CFuture<SubstrateGetAccountResponse>>,
-    sign_transaction: unsafe extern "C" fn(
-        this: &SubstrateService,
-        account_type: SubstrateAccountType,
-        account_path: CStringRef,
-        extrinsic_data: CDataRef,
-        extrinsic_metadata: CDataRef,
-        extrinsic_types: CDataRef
-    ) -> ManuallyDrop<CFutureData>,
-}
+use super::SubstrateService;
 
 impl Service for SubstrateService {
     type Protocol = tesseract_protocol_substrate::Substrate;

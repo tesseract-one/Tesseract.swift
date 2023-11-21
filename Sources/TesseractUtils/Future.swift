@@ -141,12 +141,40 @@ extension CFuturePtr
 }
 
 extension CFuturePtr
+    where Val: OptionProtocol,
+          Val.OWrapped: AsCPtrCopy,
+          CVal: OptionProtocol,
+          Val.OWrapped.CopyPtr == CVal.OWrapped
+{
+    public static func convert(value: inout Val) -> CResult<CVal> {
+        .success(CVal(value.option?.copiedPtr()))
+    }
+}
+
+extension CFuturePtr
     where Val: AsCPtrOwn,
           CVal: OptionProtocol,
           Val.OwnPtr == CVal.OWrapped
 {
     static func convert(value: inout Val) -> CResult<CVal> {
         .success(CVal(value.ownedPtr()))
+    }
+}
+
+extension CFuturePtr
+    where Val: OptionProtocol,
+          Val.OWrapped: AsCPtrOwn,
+          CVal: OptionProtocol,
+          Val.OWrapped.OwnPtr == CVal.OWrapped
+{
+    static func convert(value: inout Val) -> CResult<CVal> {
+        switch value.option {
+        case .none: return .success(CVal(nil))
+        case .some(var val):
+            let owned = val.ownedPtr()
+            value = Val(val)
+            return .success(CVal(owned))
+        }
     }
 }
 

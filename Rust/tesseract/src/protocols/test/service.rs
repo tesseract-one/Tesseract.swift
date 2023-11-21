@@ -3,23 +3,14 @@ use errorcon::convertible::ErrorContext;
 use tesseract::service::{Executor, Service};
 use tesseract_protocol_test::service::TestExecutor;
 use tesseract_swift_transports::error::TesseractSwiftError;
-use tesseract_swift_utils::string::{CString, CStringRef};
+use tesseract_swift_utils::string::CString;
 use tesseract_swift_utils::traits::AsCRef;
-use tesseract_swift_utils::{ptr::CAnyDropPtr, future_impls::CFutureString};
 
+use super::TestService;
 use crate::service::ServiceTesseract;
 
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
-
-#[repr(C)]
-pub struct TestService {
-    ptr: CAnyDropPtr,
-    sign_transaction: unsafe extern "C" fn(
-        this: &TestService,
-        req: CStringRef,
-    ) -> ManuallyDrop<CFutureString>,
-}
 
 impl Service for TestService {
     type Protocol = tesseract_protocol_test::Test;

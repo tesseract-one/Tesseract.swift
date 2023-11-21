@@ -50,7 +50,7 @@ extension CData {
 extension Data: AsCRef {
     public typealias Ref = (UnsafePointer<UInt8>, UInt)
     
-    public func withRef<T>(_ fn: @escaping (Ref) throws -> T) rethrows -> T {
+    public func withRef<T>(_ fn: (Ref) throws -> T) rethrows -> T {
         try withUnsafeBytes { (ptr: UnsafeRawBufferPointer) in
             let bytesPtr = ptr.bindMemory(to: UInt8.self)
             return try fn((bytesPtr.baseAddress!, UInt(bytesPtr.count)))
@@ -61,7 +61,7 @@ extension Data: AsCRef {
 extension Data: AsCPtrRef {
     public typealias RefPtr = CDataRef
 
-    public func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T {
+    public func withPtrRef<T>(_ fn: (RefPtr) throws -> T) rethrows -> T {
         try self.withUnsafeBytes { ptr in
             let bytesPtr = ptr.bindMemory(to: UInt8.self)
             let cdata = CDataRef(

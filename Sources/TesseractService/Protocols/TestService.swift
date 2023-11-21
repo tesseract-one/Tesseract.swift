@@ -36,7 +36,7 @@ private func test_service_sign(this: UnsafePointer<CTesseract.TestService>!,
     let req = req.copied()
     return CFutureString {
         await this.unowned((any TestServiceResult).self).castError().asyncFlatMap {
-            await $0.signTransation(req: req)
+            await $0.signTransaction(req: req)
         }
     }
 }

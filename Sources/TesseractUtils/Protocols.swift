@@ -48,14 +48,14 @@ public extension CValue where CVal == Self {
 public protocol AsCRef {
     associatedtype Ref
     
-    func withRef<T>(_ fn: @escaping (Ref) throws -> T) rethrows -> T
+    func withRef<T>(_ fn: (Ref) throws -> T) rethrows -> T
 }
 
 // Swift value which can be referenced with CPtrRef value
 public protocol AsCPtrRef {
     associatedtype RefPtr: CPtrRef
     
-    func withPtrRef<T>(_ fn: @escaping (RefPtr) throws -> T) rethrows -> T
+    func withPtrRef<T>(_ fn: (RefPtr) throws -> T) rethrows -> T
 }
 
 // Swift value which can be copied to CPtr value
@@ -76,19 +76,19 @@ public protocol AsCPtrOwn {
 public protocol CollectionAsCRefRef {
     associatedtype Elem: AsCRef
     
-    func withRefRef<T>(_ fn: @escaping (UnsafeBufferPointer<Elem.Ref>) throws -> T) rethrows -> T
+    func withRefRef<T>(_ fn: (UnsafeBufferPointer<Elem.Ref>) throws -> T) rethrows -> T
 }
 
 // Swift collection value which holds CPtrRef values
 public protocol CollectionAsCPtrRefRef {
     associatedtype Elem: AsCPtrRef
     
-    func withPtrRefRef<T>(_ fn: @escaping (UnsafeBufferPointer<Elem.RefPtr>) throws -> T) rethrows -> T
+    func withPtrRefRef<T>(_ fn: (UnsafeBufferPointer<Elem.RefPtr>) throws -> T) rethrows -> T
 }
 
 // Swift collection value which holds CPtrRef values
 public protocol CollectionAsCPtrCopyRef {
     associatedtype Elem: AsCPtrCopy
     
-    func withPtrCopyRef<T>(_ fn: @escaping (UnsafeBufferPointer<Elem.CopyPtr>) throws -> T) rethrows -> T
+    func withPtrCopyRef<T>(_ fn: (UnsafeBufferPointer<Elem.CopyPtr>) throws -> T) rethrows -> T
 }

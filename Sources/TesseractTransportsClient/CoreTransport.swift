@@ -13,7 +13,62 @@ import CTesseractShared
 @_exported import TesseractTransportsShared
 #endif
 
-extension ClientStatus: CType {}
+public protocol CoreTransportConvertible {
+    func toCore() -> ClientTransport
+}
+
+extension ClientStatus: CPtr, CType {
+    public typealias Val = Status
+    
+    public func copied() -> Status {
+        switch tag {
+        case ClientStatus_Ready: return .ready
+        case ClientStatus_Error:
+            return .error(TesseractError(cError: self.error.copied()))
+        case ClientStatus_Unavailable:
+            return .unavailable(self.unavailable.copied())
+        default: fatalError("Unknown tag: \(tag)")
+        }
+    }
+    
+    public mutating func owned() -> Status {
+        switch tag {
+        case ClientStatus_Ready: return .ready
+        case ClientStatus_Error:
+            return .error(TesseractError(cError: self.error.owned()))
+        case ClientStatus_Unavailable:
+            return .unavailable(self.unavailable.owned())
+        default: fatalError("Unknown tag: \(tag)")
+        }
+    }
+    
+    public mutating func free() {
+        switch tag {
+        case ClientStatus_Error: self.error.free()
+        case ClientStatus_Unavailable: self.unavailable.free()
+        default: break
+        }
+    }
+}
+
+extension Status: AsCPtrCopy {
+    public typealias CopyPtr = ClientStatus
+    
+    public func copiedPtr() -> CopyPtr {
+        var cvalue = CopyPtr()
+        switch self {
+        case .ready:
+            cvalue.tag = ClientStatus_Ready
+        case .error(let err):
+            cvalue.tag = ClientStatus_Error
+            cvalue.error = err.cError.copiedPtr()
+        case .unavailable(let str):
+            cvalue.tag = ClientStatus_Unavailable
+            cvalue.unavailable = str.copiedPtr()
+        }
+        return cvalue
+    }
+}
 
 extension CFutureClientStatus: CFuturePtr {
     public typealias CVal = ClientStatus
@@ -33,25 +88,6 @@ extension CFutureClientStatus: CFuturePtr {
                 cb?(this, val, err)
             }
         }
-    }
-    
-    public static func convert(cvalue: inout CVal) -> CResult<Val> {
-        CResult.failure(.panic(reason: "One way conversion only"))
-    }
-    
-    public static func convert(value: inout Val) -> CResult<CVal> {
-        var cvalue = CVal()
-        switch value {
-        case .ready:
-            cvalue.tag = ClientStatus_Ready
-        case .error(let err):
-            cvalue.tag = ClientStatus_Error
-            cvalue.error = err.cError.copiedPtr()
-        case .unavailable(let str):
-            cvalue.tag = ClientStatus_Unavailable
-            cvalue.unavailable = str.copiedPtr()
-        }
-        return .success(cvalue)
     }
 }
 
@@ -116,6 +152,10 @@ extension ClientConnection {
         self.send = connection_send
         self.receive = connection_receive
     }
+}
+
+extension ClientTransport: CoreTransportConvertible {
+    public func toCore() -> ClientTransport { self }
 }
 
 extension Transport {

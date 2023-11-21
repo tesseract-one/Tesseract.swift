@@ -17,6 +17,7 @@
 		9244C7BF29246CBF0055E6B6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9244C7BE29246CBF0055E6B6 /* ContentView.swift */; };
 		9244C7C129246CC10055E6B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9244C7C029246CC10055E6B6 /* Assets.xcassets */; };
 		9244C7C429246CC10055E6B6 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9244C7C329246CC10055E6B6 /* Preview Assets.xcassets */; };
+		92611F192B0CED79003AFE3F /* TesseractClient in Frameworks */ = {isa = PBXBuildFile; productRef = 92611F182B0CED79003AFE3F /* TesseractClient */; };
 		929FF53A29246E0D00F79FD7 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 929FF53929246E0D00F79FD7 /* UniformTypeIdentifiers.framework */; };
 		929FF53D29246E0D00F79FD7 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 929FF53C29246E0D00F79FD7 /* Media.xcassets */; };
 		929FF53F29246E0D00F79FD7 /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 929FF53E29246E0D00F79FD7 /* ActionViewController.swift */; };
@@ -24,7 +25,6 @@
 		929FF54629246E0D00F79FD7 /* Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 929FF53729246E0D00F79FD7 /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		929FF54F29246F0C00F79FD7 /* AppCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 929FF54D29246F0C00F79FD7 /* AppCore.swift */; };
 		92B2FB59292D4BCD00260349 /* AlertProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92B2FB58292D4BCD00260349 /* AlertProvider.swift */; };
-		92D79B1E2AD82D2700D22BDC /* TesseractTransportsClient in Frameworks */ = {isa = PBXBuildFile; productRef = 92D79B1D2AD82D2700D22BDC /* TesseractTransportsClient */; };
 		BAED6AE8292C3AA000A9BA2D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED6AE7292C3AA000A9BA2D /* WalletData.swift */; };
 		BAED6AEA292C3AA600A9BA2D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAED6AE7292C3AA000A9BA2D /* WalletData.swift */; };
 /* End PBXBuildFile section */
@@ -86,7 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92D79B1E2AD82D2700D22BDC /* TesseractTransportsClient in Frameworks */,
+				92611F192B0CED79003AFE3F /* TesseractClient in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,13 +134,13 @@
 		9244C7A729246C100055E6B6 /* DApp */ = {
 			isa = PBXGroup;
 			children = (
+				92B2FB58292D4BCD00260349 /* AlertProvider.swift */,
 				929FF54D29246F0C00F79FD7 /* AppCore.swift */,
 				929FF54E29246F0C00F79FD7 /* Info.plist */,
 				9244C7A829246C100055E6B6 /* DAppApp.swift */,
 				9244C7AA29246C100055E6B6 /* ContentView.swift */,
 				9244C7AC29246C120055E6B6 /* Assets.xcassets */,
 				9244C7AE29246C120055E6B6 /* Preview Content */,
-				92B2FB58292D4BCD00260349 /* AlertProvider.swift */,
 			);
 			path = DApp;
 			sourceTree = "<group>";
@@ -207,11 +207,10 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9244C7A429246C100055E6B6 /* RustDApp */ = {
+		9244C7A429246C100055E6B6 /* DApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9244C7B329246C120055E6B6 /* Build configuration list for PBXNativeTarget "RustDApp" */;
+			buildConfigurationList = 9244C7B329246C120055E6B6 /* Build configuration list for PBXNativeTarget "DApp" */;
 			buildPhases = (
-				929FF558292470A600F79FD7 /* Build Rust */,
 				9244C7A129246C100055E6B6 /* Sources */,
 				9244C7A229246C100055E6B6 /* Frameworks */,
 				9244C7A329246C100055E6B6 /* Resources */,
@@ -220,9 +219,9 @@
 			);
 			dependencies = (
 			);
-			name = RustDApp;
+			name = DApp;
 			packageProductDependencies = (
-				92D79B1D2AD82D2700D22BDC /* TesseractTransportsClient */,
+				92611F182B0CED79003AFE3F /* TesseractClient */,
 			);
 			productName = ExampleDapp;
 			productReference = 9244C7A529246C100055E6B6 /* DApp.app */;
@@ -301,7 +300,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9244C7A429246C100055E6B6 /* RustDApp */,
+				9244C7A429246C100055E6B6 /* DApp */,
 				9244C7B929246CBF0055E6B6 /* Wallet */,
 				929FF53629246E0D00F79FD7 /* Extension */,
 			);
@@ -337,28 +336,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		929FF558292470A600F79FD7 /* Build Rust */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build Rust";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "exec bash ${SRCROOT}/Rust/xcode_build_step.sh CApp app\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9244C7A129246C100055E6B6 /* Sources */ = {
@@ -716,7 +693,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9244C7B329246C120055E6B6 /* Build configuration list for PBXNativeTarget "RustDApp" */ = {
+		9244C7B329246C120055E6B6 /* Build configuration list for PBXNativeTarget "DApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9244C7B429246C120055E6B6 /* Debug */,
@@ -750,9 +727,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = TesseractService;
 		};
-		92D79B1D2AD82D2700D22BDC /* TesseractTransportsClient */ = {
+		92611F182B0CED79003AFE3F /* TesseractClient */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = TesseractTransportsClient;
+			productName = TesseractClient;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
