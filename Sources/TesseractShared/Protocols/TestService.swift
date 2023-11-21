@@ -12,7 +12,7 @@ import TesseractTransportsShared
 #endif
 
 public protocol TestServiceResult {
-    func signTransaction(req: String) async -> Result<String, TesseractError>
+    func signTransactionRes(req: String) async -> Result<String, TesseractError>
 }
 
 public protocol TestService: TestServiceResult {
@@ -20,7 +20,7 @@ public protocol TestService: TestServiceResult {
 }
 
 public extension TestService {
-    func signTransaction(req: String) async -> Result<String, TesseractError> {
+    func signTransactionRes(req: String) async -> Result<String, TesseractError> {
         await Result { try await signTransaction(req: req) }
     }
 }

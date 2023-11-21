@@ -24,7 +24,7 @@ public final class SubstrateService: Service, TesseractShared.SubstrateService {
         }.result.castError(TesseractError.self).get()
     }
     
-    public func signTransation(
+    public func signTransaction(
         type: TesseractShared.SubstrateAccountType, path: String,
         extrinsic: Data, metadata: Data, types: Data
     ) async throws -> Data {

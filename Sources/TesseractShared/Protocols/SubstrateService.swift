@@ -28,11 +28,11 @@ public struct SubstrateGetAccountResponse {
 }
 
 public protocol SubstrateServiceResult {
-    func getAccount(
+    func getAccountRes(
         type: SubstrateAccountType
     ) async -> Result<SubstrateGetAccountResponse, TesseractError>
     
-    func signTransation(
+    func signTransactionRes(
         type: SubstrateAccountType, path: String,
         extrinsic: Data, metadata: Data, types: Data
     ) async -> Result<Data, TesseractError>
@@ -43,28 +43,28 @@ public protocol SubstrateService: SubstrateServiceResult {
         type: SubstrateAccountType
     ) async throws -> SubstrateGetAccountResponse
     
-    func signTransation(
+    func signTransaction(
         type: SubstrateAccountType, path: String,
         extrinsic: Data, metadata: Data, types: Data
     ) async throws -> Data
 }
 
 public extension SubstrateService {
-    func getAccount(
+    func getAccountRes(
         type: SubstrateAccountType
     ) async -> Result<SubstrateGetAccountResponse, TesseractError> {
         await Result { try await getAccount(type: type) }
     }
     
-    func signTransation(
+    func signTransactionRes(
         type: SubstrateAccountType, path: String,
         extrinsic: Data, metadata: Data, types: Data
     ) async -> Result<Data, TesseractError> {
         await Result {
-            try await signTransation(type: type, path: path,
-                                     extrinsic: extrinsic,
-                                     metadata: metadata,
-                                     types: types)
+            try await signTransaction(type: type, path: path,
+                                      extrinsic: extrinsic,
+                                      metadata: metadata,
+                                      types: types)
         }
     }
 }
