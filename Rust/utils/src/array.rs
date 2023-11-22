@@ -80,6 +80,18 @@ impl<'a, V> AsCRef<CArrayRef<'a, V>> for CArray<V> {
     }
 }
 
+impl<'a, V> AsCRef<CArrayRef<'a, V>> for Vec<V> {
+    fn as_cref(&self) -> CArrayRef<'a, V> {
+        CArrayRef { ptr: self.as_ptr().into(), len: self.len(), _lifecycle: std::marker::PhantomData }
+    }
+}
+
+impl<'a, V> AsCRef<CArrayRef<'a, V>> for &'a[V] {
+    fn as_cref(&self) -> CArrayRef<'a, V> {
+        CArrayRef { ptr: self.as_ptr().into(), len: self.len(), _lifecycle: std::marker::PhantomData }
+    }
+}
+
 impl<Value> TryAsRef<[Value]> for CArray<Value> {
     type Error = CError;
 

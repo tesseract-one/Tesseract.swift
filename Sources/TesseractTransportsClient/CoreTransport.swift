@@ -118,10 +118,9 @@ private func transport_connect(
 }
 
 private func connection_send(self: UnsafePointer<ClientConnection>!,
-                             data: UnsafePointer<UInt8>!,
-                             len: UInt) -> CFutureNothing
+                             data: CDataRef) -> CFutureNothing
 {
-    let data = Data(bytes: UnsafeRawPointer(data), count: Int(len))
+    let data = data.copied()
     return CFutureNothing {
         await self.unowned(Connection.self).castError().asyncFlatMap {
             await $0.send(request: data)

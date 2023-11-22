@@ -12,10 +12,6 @@ import CTesseract
 #endif
 @_exported import TesseractShared
 
-public protocol Service: AnyObject {
-    init(tesseract: UnsafePointer<ClientTesseract>)
-}
-
 // Class is not thread safe.
 // Use mutex if you need multithreaded setup (but why?)
 // Services and transports are thread safe

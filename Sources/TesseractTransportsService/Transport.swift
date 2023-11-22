@@ -12,10 +12,6 @@ import TesseractShared
 import TesseractTransportsShared
 #endif
 
-public protocol TransportProcessor: AnyObject {
-    func process(data: Data) async -> Result<Data, TesseractError>
-}
-
 public protocol BoundTransport: AnyObject {}
 
 public protocol Transport: CoreTransportConvertible, AnyObject {

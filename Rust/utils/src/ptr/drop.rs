@@ -42,6 +42,17 @@ impl CAnyDropPtr {
             })
     }
 
+    pub fn take<T: Any>(mut self) -> Result<T> {
+        if self.ptr.is_null() {
+            return Err(CError::null::<Self>());
+        }
+        let val = unsafe { self.ptr.take_typed::<Box<dyn Any>>() };
+        std::mem::forget(self);
+        val.downcast::<T>()
+            .map_err(|_| CError::cast::<Self, T>())
+            .map(|boxed| *boxed)
+    }
+
     pub fn ptr(&self) -> &SyncPtr<Void> {
         &self.ptr
     }

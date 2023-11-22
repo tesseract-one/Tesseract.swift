@@ -22,7 +22,7 @@ public protocol TestServiceResult: TesseractShared.TestServiceResult, Service
 
 public protocol TestService: TestServiceResult, TesseractShared.TestService {}
 
-public extension TestService {
+public extension TestServiceResult {
     func toCore() -> Core {
         var value = Core(value: self)
         value.sign_transaction = test_service_sign

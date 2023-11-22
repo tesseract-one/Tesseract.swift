@@ -13,29 +13,31 @@ import CTesseractShared
 @_exported import TesseractTransportsShared
 #endif
 
-public final class CoreTransportProcessor: TransportProcessor {
-    public private(set) var processor: ServiceTransportProcessor
+public protocol CoreTransportConvertible {
+    func toCore() -> ServiceTransport
+}
+
+open class CoreTransport: CoreTransportConvertible {
+    public private(set) var core: ServiceTransport!
     
-    public init(processor: ServiceTransportProcessor) {
-        self.processor = processor
+    public init(
+        initializer: (UnsafeMutablePointer<ServiceTransport>,
+                      UnsafeMutablePointer<CTesseractShared.CError>) -> Bool
+    ) throws {
+        self.core = try CResult<ServiceTransport>
+            .wrap(ccall: initializer)
+            .castError(TesseractError.self)
+            .get()
     }
     
     deinit {
-        tesseract_service_transport_processor_free(&self.processor)
+        if core != nil { try! core.free().get() }
     }
     
-    public func process(data: Data) async -> Result<Data, TesseractError> {
-        let future = data.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) in
-            tesseract_service_transport_processor_process(self.processor,
-                                                          ptr.baseAddress,
-                                                          UInt(ptr.count))
-        }
-        return await future.result.castError()
+    public func toCore() -> ServiceTransport {
+        defer { core = nil }
+        return core
     }
-}
-
-public protocol CoreTransportConvertible {
-    func toCore() -> ServiceTransport
 }
 
 extension ServiceTransport: CSwiftAnyDropPtr {}
@@ -45,10 +47,6 @@ extension ServiceTransport {
         self = ServiceTransport(value: transport)
         self.bind = transport_bind
     }
-}
-
-extension ServiceTransport: CoreTransportConvertible {
-    public func toCore() -> ServiceTransport { self }
 }
 
 extension Transport {
@@ -68,6 +66,6 @@ private func transport_bind(this: ServiceTransport,
 {
     var this = this
     return try! this.owned(Transport.self).get()
-        .bind(processor: CoreTransportProcessor(processor: processor))
+        .bind(processor: TransportProcessor(processor: processor))
         .toCore()
 }

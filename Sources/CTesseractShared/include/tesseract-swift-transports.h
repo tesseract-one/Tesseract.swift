@@ -65,17 +65,15 @@ typedef struct CFuture_ClientStatus {
 
 typedef struct ClientConnection {
   CAnyDropPtr ptr;
-  CFuture_Nothing (*send)(const struct ClientConnection *connection,
-                          const uint8_t *data,
-                          uintptr_t len);
-  CFuture_CData (*receive)(const struct ClientConnection *connection);
+  CFutureNothing (*send)(const struct ClientConnection *this, CDataRef data);
+  CFutureData (*receive)(const struct ClientConnection *this);
 } ClientConnection;
 
 typedef struct ClientTransport {
   CAnyDropPtr ptr;
-  CString (*id)(const struct ClientTransport *transport);
-  struct CFuture_ClientStatus (*status)(const struct ClientTransport *transport, CStringRef protocol);
-  struct ClientConnection (*connect)(const struct ClientTransport *transport, CStringRef protocol);
+  CString (*id)(const struct ClientTransport *this);
+  struct CFuture_ClientStatus (*status)(const struct ClientTransport *this, CStringRef protocol);
+  struct ClientConnection (*connect)(const struct ClientTransport *this, CStringRef protocol);
 } ClientTransport;
 
 typedef struct CFuture_ClientStatus CFutureClientStatus;
@@ -84,7 +82,7 @@ typedef CAnyDropPtr ServiceBoundTransport;
 
 typedef struct ServiceTransport {
   CAnyDropPtr ptr;
-  ServiceBoundTransport (*bind)(struct ServiceTransport transport,
+  ServiceBoundTransport (*bind)(struct ServiceTransport this,
                                 struct ServiceTransportProcessor processor);
 } ServiceTransport;
 
@@ -94,9 +92,8 @@ extern "C" {
 
 CString tesseract_error_get_description(const CError *err);
 
-CFuture_CData tesseract_service_transport_processor_process(struct ServiceTransportProcessor processor,
-                                                            const uint8_t *data,
-                                                            uintptr_t len);
+CFutureData tesseract_service_transport_processor_process(struct ServiceTransportProcessor processor,
+                                                          CDataRef data);
 
 void tesseract_service_transport_processor_free(struct ServiceTransportProcessor *processor);
 

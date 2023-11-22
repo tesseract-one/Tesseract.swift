@@ -9,13 +9,9 @@ import Foundation
 import CTesseract
 import TesseractShared
 
-public final class SubstrateService: Service, TesseractShared.SubstrateService {
-    public private(set) var service: CTesseract.SubstrateService
-    
-    public init(tesseract: UnsafePointer<ClientTesseract>) {
-        service = tesseract_client_get_substrate_service(tesseract)
-    }
-    
+public final class SubstrateService: ServiceBase<CTesseract.SubstrateService>,
+                                     TesseractShared.SubstrateService
+{
     public func getAccount(
         type: TesseractShared.SubstrateAccountType
     ) async throws -> TesseractShared.SubstrateGetAccountResponse {
@@ -37,5 +33,11 @@ public final class SubstrateService: Service, TesseractShared.SubstrateService {
                 }
             }
         }.result.castError(TesseractError.self).get()
+    }
+}
+
+extension CTesseract.SubstrateService: CoreService {
+    public static func get(from tesseract: UnsafePointer<ClientTesseract>) -> Self {
+        tesseract_client_get_substrate_service(tesseract)
     }
 }

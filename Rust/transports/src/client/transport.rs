@@ -19,13 +19,13 @@ use tesseract::Protocol;
 #[repr(C)]
 pub struct ClientTransport {
     ptr: CAnyDropPtr,
-    id: unsafe extern "C" fn(transport: &ClientTransport) -> ManuallyDrop<CString>,
+    id: unsafe extern "C" fn(this: &ClientTransport) -> ManuallyDrop<CString>,
     status: unsafe extern "C" fn(
-        transport: &ClientTransport,
+        this: &ClientTransport,
         protocol: CStringRef,
     ) -> ManuallyDrop<CFuture<ClientStatus>>,
     connect: unsafe extern "C" fn(
-        transport: &ClientTransport,
+        this: &ClientTransport,
         protocol: CStringRef,
     ) -> ManuallyDrop<ClientConnection>,
 }

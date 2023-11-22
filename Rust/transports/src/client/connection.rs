@@ -1,10 +1,10 @@
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 use crate::error::TesseractSwiftError;
-use tesseract_swift_utils::data::CData;
-use tesseract_swift_utils::future::CFuture;
+use tesseract_swift_utils::data::CDataRef;
+use tesseract_swift_utils::future_impls::{CFutureNothing, CFutureData};
 use tesseract_swift_utils::ptr::CAnyDropPtr;
-use tesseract_swift_utils::Nothing;
+use tesseract_swift_utils::traits::AsCRef;
 
 use async_trait::async_trait;
 use errorcon::convertible::ErrorContext;
@@ -16,18 +16,17 @@ use tesseract::Result;
 pub struct ClientConnection {
     ptr: CAnyDropPtr,
     send: unsafe extern "C" fn(
-        connection: &ClientConnection,
-        data: *const u8,
-        len: usize,
-    ) -> ManuallyDrop<CFuture<Nothing>>,
-    receive: unsafe extern "C" fn(connection: &ClientConnection) -> ManuallyDrop<CFuture<CData>>,
+        this: &ClientConnection,
+        data: CDataRef
+    ) -> ManuallyDrop<CFutureNothing>,
+    receive: unsafe extern "C" fn(this: &ClientConnection) -> ManuallyDrop<CFutureData>,
 }
 
 #[async_trait]
 impl Connection for ClientConnection {
     async fn send(self: Arc<Self>, request: Vec<u8>) -> Result<()> {
         let future = unsafe { 
-            ManuallyDrop::into_inner((self.as_ref().send)(self.as_ref(), request.as_ptr(), request.len()))
+            ManuallyDrop::into_inner((self.as_ref().send)(self.as_ref(), request.as_cref()))
         };
         
         TesseractSwiftError::context_async(async || {
