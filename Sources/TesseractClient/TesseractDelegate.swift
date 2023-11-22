@@ -30,7 +30,6 @@ extension CKeyValue_CString__ClientStatus: CKeyValue, CPtr {
     public typealias CKey = CString
     public typealias CVal = ClientStatus
     public typealias SVal = KeyValue<String, Status>
-    public typealias Val = SVal
     
     public func copied() -> KeyValue<String, Status> {
         KeyValue(key: key.copied(), value: val.copied())
@@ -48,7 +47,6 @@ extension CKeyValue_CString__ClientStatus: CKeyValue, CPtr {
 
 extension ClientTransportsStatusRef: CPtrDictionaryPtrRef {
     public typealias SElement = KeyValue<String, Status>
-    public typealias RefVal = [KeyValue<String, Status>]
     public typealias CElement = CKeyValue_CString__ClientStatus
 }
 

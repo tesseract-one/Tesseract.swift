@@ -13,24 +13,21 @@ public protocol CType {
     init()
 }
 
-// Structure with pointers inside
+// Ref structure with pointers inside
 public protocol CPtrRef {
-    associatedtype RefVal
+    associatedtype SVal
     
-    func copied() -> RefVal
+    func copied() -> SVal
 }
 
 // Structure with pointers inside
-public protocol CPtr {
-    associatedtype Val
-    
-    func copied() -> Val
-    mutating func owned() -> Val
+public protocol CPtr: CPtrRef {
+    mutating func owned() -> SVal
     mutating func free()
 }
 
 // Swift value which can be simply converted from C (static struct)
-// Don't use it for pointers. For pointers CPtr and CPtrMove should be used.
+// Don't use it for pointers. For pointers CPtr should be used.
 public protocol CValue {
     associatedtype CVal: CType
     

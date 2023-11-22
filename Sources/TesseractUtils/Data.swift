@@ -12,21 +12,21 @@ extension CDataRef: CType {}
 extension CData: CType {}
 
 extension CDataRef: CPtrRef {
-    public typealias Val = Data
+    public typealias SVal = Data
     
-    public func copied() -> Data {
+    public func copied() -> SVal {
         Data(bytes: self.ptr, count: Int(self.len))
     }
 }
 
 extension CData: CPtr {
-    public typealias Val = Data
+    public typealias SVal = Data
     
-    public func copied() -> Data {
+    public func copied() -> SVal {
         Data(bytes: self.ptr, count: Int(self.len))
     }
     
-    public mutating func owned() -> Data {
+    public mutating func owned() -> SVal {
         defer { self.free() }
         return self.copied()
     }
@@ -37,12 +37,22 @@ extension CData: CPtr {
     }
 }
 
-extension CData {
-    public init(buffer: UnsafeBufferPointer<UInt8>) {
+public extension CDataRef {
+    init(buffer: UnsafeBufferPointer<UInt8>) {
         self.init(ptr: buffer.baseAddress, len: UInt(buffer.count))
     }
     
-    public init(buffer: UnsafeMutableBufferPointer<UInt8>) {
+    init(buffer: UnsafeMutableBufferPointer<UInt8>) {
+        self.init(ptr: buffer.baseAddress, len: UInt(buffer.count))
+    }
+}
+
+public extension CData {
+    init(buffer: UnsafeBufferPointer<UInt8>) {
+        self.init(ptr: buffer.baseAddress, len: UInt(buffer.count))
+    }
+    
+    init(buffer: UnsafeMutableBufferPointer<UInt8>) {
         self.init(ptr: buffer.baseAddress, len: UInt(buffer.count))
     }
 }
@@ -96,4 +106,3 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
         CData(buffer: self)
     }
 }
-

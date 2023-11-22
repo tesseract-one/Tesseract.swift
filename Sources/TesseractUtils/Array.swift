@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol CArrayPtrRef: CType, CPtrRef where RefVal == [SElement] {
+public protocol CArrayPtrRef: CType, CPtrRef where SVal == [SElement] {
     associatedtype CElement
     associatedtype SElement
     
@@ -17,44 +17,37 @@ public protocol CArrayPtrRef: CType, CPtrRef where RefVal == [SElement] {
     var len: UInt { get }
 }
 
-public protocol CArrayPtr: CType, CPtr where Val == [SElement] {
-    associatedtype CElement
-    associatedtype SElement
-    
-    init(ptr: UnsafePointer<CElement>!, len: UInt)
-    
-    var ptr: UnsafePointer<CElement>! { get set }
-    var len: UInt { get }
-}
+public protocol CArrayPtr: CArrayPtrRef, CPtr {}
 
-extension CArrayPtrRef {
-    public var bufferPtr: UnsafeBufferPointer<CElement> {
+public extension CArrayPtrRef {
+    init(buffer: UnsafeBufferPointer<CElement>) {
+        self.init(ptr: buffer.baseAddress, len: UInt(buffer.count))
+    }
+    
+    init(buffer: UnsafeMutableBufferPointer<CElement>) {
+        self.init(ptr: buffer.baseAddress, len: UInt(buffer.count))
+    }
+    
+    var bufferPtr: UnsafeBufferPointer<CElement> {
         UnsafeBufferPointer(start: ptr, count: Int(len))
     }
 }
 
-extension CArrayPtr {
-    public init(buffer: UnsafeBufferPointer<CElement>) {
-        self.init(ptr: buffer.baseAddress, len: UInt(buffer.count))
-    }
-    
-    public init(buffer: UnsafeMutableBufferPointer<CElement>) {
-        self.init(ptr: buffer.baseAddress, len: UInt(buffer.count))
-    }
-    
-    public var bufferPtr: UnsafeBufferPointer<CElement> {
-        UnsafeBufferPointer(start: ptr, count: Int(len))
+public extension CArrayPtr {
+    mutating func mutBufferPtr() -> UnsafeMutableBufferPointer<CElement> {
+        UnsafeMutableBufferPointer(start: UnsafeMutablePointer(mutating: ptr),
+                                   count: Int(len))
     }
 }
 
 extension UnsafeBufferPointer {
-    public func arrayPtr<A: CArrayPtr>() -> A where A.CElement == Element {
+    public func arrayPtr<A: CArrayPtrRef>() -> A where A.CElement == Element {
         A(buffer: self)
     }
 }
 
 extension UnsafeMutableBufferPointer where Element == UInt8 {
-    public func arrayPtr<A: CArrayPtr>() -> A where A.CElement == Element {
+    public func arrayPtr<A: CArrayPtrRef>() -> A where A.CElement == Element {
         A(buffer: self)
     }
 }
@@ -62,15 +55,13 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
 public protocol CCopyArrayPtrRef: CArrayPtrRef where CElement == SElement {}
 
 extension CCopyArrayPtrRef {
-    public func copied() -> RefVal { Array(bufferPtr) }
+    public func copied() -> SVal { Array(bufferPtr) }
 }
 
-public protocol CCopyArrayPtr: CArrayPtr where CElement == SElement {}
+public protocol CCopyArrayPtr: CCopyArrayPtrRef, CArrayPtr {}
 
 extension CCopyArrayPtr {
-    public func copied() -> Val { Array(bufferPtr) }
-
-    public mutating func owned() -> Val {
+    public mutating func owned() -> SVal {
         defer { self.free() }
         return self.copied()
     }
@@ -81,21 +72,15 @@ public protocol CCopyConvertArrayPtrRef: CArrayPtrRef {
 }
 
 extension CCopyConvertArrayPtrRef {
-    public func copied() -> RefVal {
+    public func copied() -> SVal {
         bufferPtr.map { Self.convert(element: $0) }
     }
 }
 
-public protocol CCopyConvertArrayPtr: CArrayPtr {
-    static func convert(element: CElement) -> SElement
-}
+public protocol CCopyConvertArrayPtr: CCopyConvertArrayPtrRef, CArrayPtr {}
 
 extension CCopyConvertArrayPtr {
-    public func copied() -> Val {
-        bufferPtr.map { Self.convert(element: $0) }
-    }
-
-    public mutating func owned() -> Val {
+    public mutating func owned() -> SVal {
         defer { self.free() }
         return self.copied()
     }
@@ -110,38 +95,23 @@ extension CValueArrayPtrRef {
     }
 }
 
-public protocol CValueArrayPtr: CCopyConvertArrayPtr
-    where CElement: CValue, SElement == CElement.CVal {}
-
-extension CValueArrayPtr {
-    public static func convert(element: CElement) -> SElement {
-        element.asCValue
-    }
-}
+public protocol CValueArrayPtr: CValueArrayPtrRef, CArrayPtr {}
 
 public protocol CPtrArrayPtrRef: CArrayPtrRef
-    where CElement: CPtr, SElement == CElement.Val {}
+    where CElement: CPtr, SElement == CElement.SVal {}
 
 extension CPtrArrayPtrRef {
-    public func copied() -> RefVal {
+    public func copied() -> SVal {
         bufferPtr.map { $0.copied() }
     }
 }
 
-public protocol CPtrArrayPtr: CArrayPtr
-    where CElement: CPtr, SElement == CElement.Val {}
+public protocol CPtrArrayPtr: CPtrArrayPtrRef, CArrayPtr {}
 
 extension CPtrArrayPtr {
-    public func copied() -> Val {
-        bufferPtr.map { $0.copied() }
-    }
-
-    public mutating func owned() -> Val {
+    public mutating func owned() -> SVal {
         defer { self.free() }
-        let memory = UnsafeMutableBufferPointer(
-            start: UnsafeMutablePointer(mutating: ptr),
-            count: Int(len)
-        )
+        let memory = mutBufferPtr()
         var result = Array<SElement>()
         result.reserveCapacity(memory.count)
         for (indx, var elem) in memory.enumerated() {

@@ -72,7 +72,7 @@ extension Status: AsCPtrCopy {
 
 extension CFutureClientStatus: CFuturePtr {
     public typealias CVal = ClientStatus
-    public typealias Val = Status
+    public typealias SVal = Status
     
     mutating public func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
         _withOnCompleteContext(cb) { ctx, value, error in

@@ -125,7 +125,7 @@ extension SubstrateAccountType: CValue {
 
 extension CFuture_SubstrateGetAccountResponse: CFuturePtr {
     public typealias CVal = CTesseract.SubstrateGetAccountResponse
-    public typealias Val = SubstrateGetAccountResponse
+    public typealias SVal = SubstrateGetAccountResponse
     
     public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
         _withOnCompleteContext(cb) { ctx, value, error in

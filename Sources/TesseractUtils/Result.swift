@@ -11,7 +11,7 @@ import CTesseractShared
 public typealias CResult<T> = Result<T, CError>
 
 // Result is unfinished
-public protocol CResultPtr: CType, CPtr where Val == CResult<SResVal> {
+public protocol CResultPtr: CType, CPtr where SVal == CResult<SResVal> {
     associatedtype CResTag: Equatable
     associatedtype CResVal: CType
     associatedtype SResVal
@@ -38,7 +38,7 @@ public extension Result {
 public extension Result {
     static func wrap<S: CType, F: CType & CPtr>(
         ccall: @escaping (UnsafeMutablePointer<S>, UnsafeMutablePointer<F>) -> Bool
-    ) -> Result<S, F.Val> where F.Val: Error {
+    ) -> Result<S, F.SVal> where F.SVal: Error {
         var val = S()
         var error = F()
         if !ccall(&val, &error) { return .failure(error.owned()) }
@@ -66,7 +66,7 @@ public extension Result {
     static func wrap<S: CType, F: CType & CPtr>(
         ccall: @escaping (UnsafeMutablePointer<S>,
                           UnsafeMutablePointer<F>) -> COptionResponseResult
-    ) -> Result<S?, F.Val> where F.Val: Error {
+    ) -> Result<S?, F.SVal> where F.SVal: Error {
         var val = S()
         var error = F()
         switch ccall(&val, &error) {
@@ -91,7 +91,7 @@ public extension Result {
 public extension Result {
     static func wrap<F: CType & CPtr> (
         ccall: @escaping (UnsafeMutablePointer<F>) -> Bool
-    ) -> Result<Void, F.Val> where F.Val: Error {
+    ) -> Result<Void, F.SVal> where F.SVal: Error {
         var error = F()
         if !ccall(&error) { return .failure(error.owned()) }
         return .success(())

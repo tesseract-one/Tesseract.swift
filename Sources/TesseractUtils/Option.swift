@@ -12,21 +12,15 @@ extension Optional: CType {
 }
 
 extension Optional: CPtrRef where Wrapped: CPtrRef {
-    public typealias RefVal = Optional<Wrapped.RefVal>
+    public typealias SVal = Optional<Wrapped.SVal>
 
-    public func copied() -> RefVal {
+    public func copied() -> SVal {
         map { $0.copied() }
     }
 }
 
 extension Optional: CPtr where Wrapped: CPtr {
-    public typealias Val = Optional<Wrapped.Val>
-    
-    public func copied() -> Val {
-        map { $0.copied() }
-    }
-    
-    public mutating func owned() -> Val {
+    public mutating func owned() -> SVal {
         switch self {
         case .none: return nil
         case .some(var val):
@@ -35,7 +29,7 @@ extension Optional: CPtr where Wrapped: CPtr {
             return owned
         }
     }
-    
+
     public mutating func free() {
         if var val = self {
             val.free()
@@ -129,7 +123,7 @@ extension COption where SOpVal: CValue, COpVal == SOpVal.CVal {
     }
 }
 
-extension COption where COpVal: CPtr, SOpVal == COpVal.Val {
+extension COption where COpVal: CPtr, SOpVal == COpVal.SVal {
     public func copied() -> SOpVal? {
         option.map { $0.copied() }
     }

@@ -67,15 +67,7 @@ public extension CDictionaryPtrRef {
     }
 }
 
-public protocol CDictionaryPtr: CArrayPtr
-    where CElement: CKeyValue, SElement == CElement.SVal
-{
-    func copiedDictionary<D: FromKeyValueArray>() -> D
-        where D.TKey == SElement.Key, D.TValue == SElement.Value
-
-    func copiedDictionary<D: FromKeyValueArray>(_ type: D.Type) -> D
-        where D.TKey == SElement.Key, D.TValue == SElement.Value
-
+public protocol CDictionaryPtr: CDictionaryPtrRef, CArrayPtr {
     mutating func ownedDictionary<D: FromKeyValueArray>() -> D
         where D.TKey == SElement.Key, D.TValue == SElement.Value
 
@@ -84,18 +76,6 @@ public protocol CDictionaryPtr: CArrayPtr
 }
 
 public extension CDictionaryPtr {
-    func copiedDictionary<D: FromKeyValueArray>() -> D
-        where D.TKey == SElement.Key, D.TValue == SElement.Value
-    {
-        self.copiedDictionary(D.self)
-    }
-
-    func copiedDictionary<D: FromKeyValueArray>(_ type: D.Type) -> D
-        where D.TKey == SElement.Key, D.TValue == SElement.Value
-    {
-        type.init(kv: self.copied())
-    }
-
     mutating func ownedDictionary<D: FromKeyValueArray>() -> D
         where D.TKey == SElement.Key, D.TValue == SElement.Value
     {

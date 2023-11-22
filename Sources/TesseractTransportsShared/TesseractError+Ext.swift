@@ -14,7 +14,7 @@ import TesseractUtils
 public typealias TResult<V> = Result<V, TesseractError>
 
 public extension CFuturePtr {
-    init<E: TesseractErrorConvertible>(_ cb: @escaping @Sendable () async -> Result<Val, E>) {
+    init<E: TesseractErrorConvertible>(_ cb: @escaping @Sendable () async -> Result<SVal, E>) {
         self.init { await cb().mapError { $0.tesseract.cError } }
     }
 }

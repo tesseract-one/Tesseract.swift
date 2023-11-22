@@ -10,7 +10,7 @@ import CTesseractShared
 
 extension CFutureNothing: CFuturePtr {    
     public typealias CVal = Nothing
-    public typealias Val = Void
+    public typealias SVal = Void
     
     public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
         _withOnCompleteContext(cb) { ctx, value, error in
@@ -39,7 +39,7 @@ extension CFutureNothing: CFuturePtr {
 
 extension CFutureAnyRustPtr: CFuturePtr {
     public typealias CVal = CAnyRustPtr
-    public typealias Val = CAnyRustPtr
+    public typealias SVal = CAnyRustPtr
     
     public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
         _withOnCompleteContext(cb) { ctx, value, error in
@@ -68,7 +68,7 @@ extension CFutureAnyRustPtr: CFuturePtr {
 
 extension CFutureData: CFuturePtr {
     public typealias CVal = CData
-    public typealias Val = Data
+    public typealias SVal = Data
     
     public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
         _withOnCompleteContext(cb) { ctx, value, error in
@@ -89,7 +89,7 @@ extension CFutureData: CFuturePtr {
 
 extension CFutureString: CFuturePtr {
     public typealias CVal = CString
-    public typealias Val = String
+    public typealias SVal = String
     
     public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
         _withOnCompleteContext(cb) { ctx, value, error in
@@ -110,7 +110,7 @@ extension CFutureString: CFuturePtr {
 
 extension CFutureBool: CFuturePtr {
     public typealias CVal = Bool
-    public typealias Val = Bool
+    public typealias SVal = Bool
     
     public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
         _withOnCompleteContext(cb) { ctx, value, error in
