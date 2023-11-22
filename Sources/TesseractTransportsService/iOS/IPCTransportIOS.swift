@@ -19,6 +19,10 @@ public class IPCTransportIOS {
         self.context = context
     }
     
+    public convenience init(_ vc: UIViewController) {
+        self.init(context: vc.extensionContext!)
+    }
+    
     func rawRequest() async -> Result<(data: Data, uti: String), Error> {
         let item = context.inputItems
             .compactMap{$0 as? NSExtensionItem}
@@ -67,45 +71,6 @@ public class IPCTransportIOS {
     
     func sendError(error: NSError) {
         context.cancelRequest(withError: error)
-    }
-}
-
-public class BoundIPCTransportIOS: BoundTransport {
-    public let transport: IPCTransportIOS
-    public let processor: TransportProcessor
-    
-    public init(transport: IPCTransportIOS, processor: TransportProcessor) {
-        self.transport = transport
-        self.processor = processor
-        self.process()
-    }
-    
-    private func process() {
-        Task {
-            let result = await self.transport.rawRequest()
-                .castError()
-                .asyncFlatMap { (data, uti) in
-                    await self.processor.process(data: data).asyncFlatMap {
-                        await self.transport.sendResponse(data: $0, uti: uti).castError()
-                    }
-            }
-            switch result {
-            case .failure(let err): self.transport.sendError(error: err as NSError)
-            default: break
-            }
-        }
-    }
-}
-
-extension IPCTransportIOS: Transport {
-    public func bind(processor: TransportProcessor) -> BoundTransport {
-        BoundIPCTransportIOS(transport: self, processor: processor)
-    }
-}
-
-extension IPCTransportIOS {
-    public convenience init(_ vc: UIViewController) {
-        self.init(context: vc.extensionContext!)
     }
 }
 
@@ -159,5 +124,41 @@ public extension IPCTransportIOS {
                              NSUnderlyingErrorKey: err]
             }
         }
+    }
+}
+
+extension IPCTransportIOS {
+    class Bound: BoundTransport {
+        public let transport: IPCTransportIOS
+        public let processor: TransportProcessor
+        
+        public init(transport: IPCTransportIOS, processor: TransportProcessor) {
+            self.transport = transport
+            self.processor = processor
+            self.process()
+        }
+        
+        private func process() {
+            Task {
+                let result = await self.transport.rawRequest()
+                    .castError()
+                    .asyncFlatMap { (data, uti) in
+                        await self.processor.process(data: data).map { ($0, uti) }
+                    }
+                    .asyncFlatMap { (data, uti) in
+                        await self.transport.sendResponse(data: data, uti: uti).castError()
+                    }
+                switch result {
+                case .failure(let err): self.transport.sendError(error: err as NSError)
+                default: break
+                }
+            }
+        }
+    }
+}
+
+extension IPCTransportIOS: Transport {
+    public func bind(processor: TransportProcessor) -> BoundTransport {
+        Bound(transport: self, processor: processor)
     }
 }

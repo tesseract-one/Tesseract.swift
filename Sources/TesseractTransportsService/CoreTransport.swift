@@ -17,7 +17,7 @@ public protocol CoreTransportConvertible {
     func toCore() -> ServiceTransport
 }
 
-open class CoreTransport: CoreTransportConvertible {
+open class CoreTransportBase: CoreTransportConvertible {
     public private(set) var core: ServiceTransport!
     
     public init(

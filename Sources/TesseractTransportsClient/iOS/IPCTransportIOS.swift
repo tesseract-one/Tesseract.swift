@@ -13,7 +13,7 @@ import TesseractTransportsShared
 #endif
 
 public protocol ViewControllerPresenter {
-    func present(vc: UIViewController) async -> Result<(), IPCTransportIOSConnection.Error>
+    func present(vc: UIViewController) async -> Result<(), IPCTransportIOS.Error>
 }
 
 public struct RootViewControllerPresenter: ViewControllerPresenter {
@@ -29,7 +29,7 @@ public struct RootViewControllerPresenter: ViewControllerPresenter {
     public init() {}
     
     @MainActor
-    public func present(vc: UIViewController) async -> Result<(), IPCTransportIOSConnection.Error> {
+    public func present(vc: UIViewController) async -> Result<(), IPCTransportIOS.Error> {
         return await withUnsafeContinuation { cont in
             guard let rootView = self.rootViewController else {
                 cont.resume(
@@ -56,7 +56,7 @@ public class IPCTransportIOS: Transport {
     public func status(proto: String) async -> Status {
         guard let url = Self.url(proto: proto) else {
             return .error(
-                IPCTransportIOSConnection.Error.wrongProtocolId(proto).tesseract
+                Error.wrongProtocolId(proto).tesseract
             )
         }
         if await UIApplication.shared.canOpenURL(url) {
@@ -67,7 +67,7 @@ public class IPCTransportIOS: Transport {
     }
     
     public func connect(proto: String) -> Connection {
-        IPCTransportIOSConnection(proto: proto, presenter: presenter)
+        TransportConnection(proto: proto, presenter: presenter)
     }
     
     public static func url(proto: String) -> URL? {
@@ -75,126 +75,129 @@ public class IPCTransportIOS: Transport {
     }
 }
 
-public class IPCTransportIOSConnection: Connection {
-    private var requests: Array<(UIActivityViewController,
-                                 UnsafeContinuation<Result<(), Error>, Never>)>
-    private var continuations: Array<UnsafeContinuation<Result<Data, Error>, Never>>
-    
-    public let proto: String
-    public let presenter: ViewControllerPresenter
-    
-    public init(proto: String, presenter: ViewControllerPresenter) {
-        self.requests = []
-        self.continuations = []
-        self.proto = proto
-        self.presenter = presenter
-    }
-    
-    public var uti: String { "one.tesseract.\(proto)" }
-    
-    @MainActor
-    public func send(request: Data) async -> Result<(), TesseractError> {
-        let vc = UIActivityViewController(
-            activityItems: [NSItemProvider(item: request as NSData,
-                                           typeIdentifier: uti)],
-            applicationActivities: nil
-        )
+extension IPCTransportIOS {
+    class TransportConnection: Connection {
+        private var requests: Array<(UIActivityViewController,
+                                     UnsafeContinuation<Result<(), Error>, Never>)>
+        private var continuations: Array<UnsafeContinuation<Result<Data, Error>, Never>>
         
-        vc.excludedActivityTypes = UIActivity.ActivityType.all
+        public let proto: String
+        public let presenter: ViewControllerPresenter
         
-        vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
-            Task {
-                if let error = error {
-                    await self.response(cancelled: !completed,
-                                        result: .failure(.nested(error as NSError)))
-                } else {
-                    await self.response(cancelled: !completed,
-                                        result: .success(returnedItems ?? []))
-                }
-            }
+        public init(proto: String, presenter: ViewControllerPresenter) {
+            self.requests = []
+            self.continuations = []
+            self.proto = proto
+            self.presenter = presenter
         }
         
-        return await show(vc: vc).castError()
-    }
-    
-    @MainActor
-    public func receive() async -> Result<Data, TesseractError> {
-        return await withUnsafeContinuation { cont in
-            self.continuations.append(cont)
-        }.castError()
-    }
-    
-    @MainActor
-    private func show(vc: UIActivityViewController) async -> Result<(), Error> {
-        return await withUnsafeContinuation { cont in
-            self.requests.append((vc, cont))
-            if self.requests.count == 1 {
-                Task { try! await self.present().get() }
-            }
-        }
-    }
-    
-    @MainActor
-    private func present() async -> Result<(), Error> {
-        guard let (vc, cont) = requests.first else {
-            return .failure(.wrongInternalState("nothing to present"))
-        }
-        cont.resume(returning: await self.presenter.present(vc: vc))
-        return .success(())
-    }
-    
-    @MainActor
-    private func response(cancelled: Bool, result: Result<[Any], Error>) async {
-        guard let receiver = continuations.first else {
-            print("Error: empty receivers")
-            return
-        }
-        continuations.removeFirst()
-        guard requests.first != nil else {
-            receiver.resume(returning: .failure(.wrongInternalState("empty requests")))
-            return
-        }
-        requests.removeFirst()
+        public var uti: String { "one.tesseract.\(proto)" }
         
-        switch result {
-        case .failure(let error):
-            receiver.resume(returning: .failure(error))
-        case .success(let items):
-            if cancelled {
-                receiver.resume(returning: .failure(.cancelled))
-            } else {
-                let attachments = items.compactMap {$0 as? NSExtensionItem}.compactMap{$0.attachments}.flatMap{$0}
-                guard let item = attachments.first else {
-                    receiver.resume(
-                        returning: .failure(.emptyResponse)
-                    )
-                    return
-                }
-                do {
-                    let result = try await item.loadItem(forTypeIdentifier: uti)
-                    if let data = result as? Data {
-                        receiver.resume(returning: .success(data))
+        @MainActor
+        public func send(request: Data) async -> Result<(), TesseractError> {
+            let vc = UIActivityViewController(
+                activityItems: [NSItemProvider(item: request as NSData,
+                                               typeIdentifier: uti)],
+                applicationActivities: nil
+            )
+            
+            vc.excludedActivityTypes = UIActivity.ActivityType.all
+            
+            vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
+                Task {
+                    if let error = error {
+                        await self.response(cancelled: !completed,
+                                            result: .failure(.nested(error as NSError)))
                     } else {
-                        receiver.resume(
-                            returning: .failure(
-                                .unsupportedDataType("\(type(of: result))")
-                            )
-                        )
+                        await self.response(cancelled: !completed,
+                                            result: .success(returnedItems ?? []))
                     }
-                } catch {
-                    receiver.resume(returning: .failure(.nested(error as NSError)))
+                }
+            }
+            
+            return await show(vc: vc).castError()
+        }
+        
+        @MainActor
+        public func receive() async -> Result<Data, TesseractError> {
+            return await withUnsafeContinuation { cont in
+                self.continuations.append(cont)
+            }.castError()
+        }
+        
+        @MainActor
+        private func show(vc: UIActivityViewController) async -> Result<(), Error> {
+            return await withUnsafeContinuation { cont in
+                self.requests.append((vc, cont))
+                if self.requests.count == 1 {
+                    Task { try! await self.present().get() }
                 }
             }
         }
         
-        if !requests.isEmpty {
-            try! await self.present().get()
+        @MainActor
+        private func present() async -> Result<(), Error> {
+            guard let (vc, cont) = requests.first else {
+                return .failure(.wrongInternalState("nothing to present"))
+            }
+            cont.resume(returning: await self.presenter.present(vc: vc))
+            return .success(())
+        }
+        
+        @MainActor
+        private func response(cancelled: Bool, result: Result<[Any], Error>) async {
+            guard let receiver = continuations.first else {
+                print("Error: empty receivers")
+                return
+            }
+            continuations.removeFirst()
+            guard requests.first != nil else {
+                receiver.resume(returning: .failure(.wrongInternalState("empty requests")))
+                return
+            }
+            requests.removeFirst()
+            
+            switch result {
+            case .failure(let error):
+                receiver.resume(returning: .failure(error))
+            case .success(let items):
+                if cancelled {
+                    receiver.resume(returning: .failure(.cancelled))
+                } else {
+                    let attachments = items.compactMap {$0 as? NSExtensionItem}.compactMap{$0.attachments}.flatMap{$0}
+                    guard let item = attachments.first else {
+                        receiver.resume(
+                            returning: .failure(.emptyResponse)
+                        )
+                        return
+                    }
+                    do {
+                        let result = try await item.loadItem(forTypeIdentifier: uti)
+                        if let data = result as? Data {
+                            receiver.resume(returning: .success(data))
+                        } else {
+                            receiver.resume(
+                                returning: .failure(
+                                    .unsupportedDataType("\(type(of: result))")
+                                )
+                            )
+                        }
+                    } catch {
+                        receiver.resume(returning: .failure(.nested(error as NSError)))
+                    }
+                }
+            }
+            
+            if !requests.isEmpty {
+                try! await self.present().get()
+            }
         }
     }
 }
 
 
-public extension IPCTransportIOSConnection {
+
+public extension IPCTransportIOS {
     enum Error: Swift.Error, TesseractErrorConvertible, CustomNSError {
         case cancelled
         case wrongInternalState(String)
