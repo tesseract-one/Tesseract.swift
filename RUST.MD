@@ -262,7 +262,7 @@ exclude = [
 
 Now you can export C functions, initialize Tesseract and wait accept request.
 
-## Initialize App and Tesseract in Rust
+## Initialize Extension and Tesseract in Rust
 
 Create Extension initialization function in Rust. Initialize Tesseract in it
 ```rust
@@ -277,27 +277,27 @@ use tesseract_swift_transports::service::ServiceTransport;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 
-// Your application context. Put all needed data here.
+// Your Extension application context. Put all needed data here.
 // Rust only structure
-struct AppContext {
+struct ExtensionContext {
     _tesseract: Tesseract
 }
 
-// Type-erased App Context pointer for Swift.
+// Type-erased ExtensionContext pointer for Swift.
 #[repr(C)]
-pub struct AppContextPtr(SyncPtr<Void>);
+pub struct ExtensionContextPtr(SyncPtr<Void>);
 
 // Helper methods for pointer
-impl AppContextPtr {
-    fn new(ctx: AppContext) -> Self {
+impl ExtensionContextPtr {
+    fn new(ctx: ExtensionContext) -> Self {
         Self(SyncPtr::new(ctx).as_void())
     }
 
-    unsafe fn unowned(&self) -> &AppContext {
+    unsafe fn unowned(&self) -> &ExtensionContext {
         self.0.as_typed_ref().unwrap()
     }
 
-    unsafe fn owned(&mut self) -> AppContext {
+    unsafe fn owned(&mut self) -> ExtensionContext {
         self.0.take_typed()
     }
 }
@@ -306,18 +306,18 @@ impl AppContextPtr {
 #[no_mangle]
 pub unsafe extern "C" fn wallet_extension_init(
     signature: CStringRef, ui: UI, transport: ServiceTransport,
-    value: &mut ManuallyDrop<AppContextPtr>, error: &mut ManuallyDrop<CError>
+    value: &mut ManuallyDrop<ExtensionContextPtr>, error: &mut ManuallyDrop<CError>
 ) -> bool {
     TesseractSwiftError::context(|| {
         let service = TestService::new(ui, signature.try_as_ref()?.into());
 
         let tesseract = Tesseract::new().transport(transport).service(service);
 
-        let context = AppContext {
+        let context = ExtensionContext {
             _tesseract: tesseract,
         };
 
-        Ok(AppContextPtr::new(context))
+        Ok(ExtensionContextPtr::new(context))
     }).response(value, error)
 }
 ```
@@ -329,8 +329,8 @@ import CWallet
 
 let transport = IPCTransportIOS(self).toCore()
 let signature = "test"
-        
-let rustApp = try! TResult<AppContextPtr>.wrap { value, error in
+
+let rustApp = try! TResult<ExtensionContextPtr>.wrap { value, error in
     wallet_extension_init(signature,
                           NativeUI(delegate: self).toCore(),
                           transport, value, error)
