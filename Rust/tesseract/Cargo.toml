@@ -1,26 +1,28 @@
 [package]
 name = "tesseract-swift"
-version = "0.1.0"
-authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
-license = "Apache-2.0"
+authors.workspace = true
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+documentation.workspace = true
 description = "Tesseract Swift wrapper implementation"
 keywords = [ "Tesseract", "Swift", "C" ]
-edition = "2021"
 
 [dependencies]
 tesseract-swift-utils = { path = "../utils" }
 tesseract-swift-transports = { path = "../transports" }
-tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
-tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes", optional = true }
-tesseract-protocol-substrate = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes", optional = true }
-async-trait = "0.1"
-errorcon = "0.1"
-log = "0.4"
-log-panics = { version = "2", features = ["with-backtrace"]}
+tesseract.workspace = true
+tesseract-protocol-test = { workspace = true, optional = true }
+tesseract-protocol-substrate = { workspace = true, optional = true }
+async-trait.workspace = true
+errorcon.workspace = true
+log.workspace = true
+log-panics = { version = "2", features = ["with-backtrace"] }
 stderrlog = "0.5"
 
 [build-dependencies]
-cbindgen = "0.26"
+cbindgen.workspace = true
 
 [features]
 client = ["tesseract-swift-transports/client", "tesseract/client"]

@@ -1,18 +1,20 @@
 [package]
 name = "tesseract-swift-utils"
-version = "0.1.0"
-authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
-license = "Apache-2.0"
+authors.workspace = true
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+documentation.workspace = true
 description = "Tesseract interop helpers for Swift."
 keywords = [ "Tesseract", "Swift", "C" ]
-edition = "2021"
 
 [dependencies]
-log = "0.4"
+log.workspace = true
 num-bigint = { version = "0.4", optional = true }
 
 [build-dependencies]
-cbindgen = "0.26"
+cbindgen.workspace = true
 
 [features]
 bigint = ["dep:num-bigint"]

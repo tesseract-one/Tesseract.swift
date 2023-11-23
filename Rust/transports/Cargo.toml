@@ -1,18 +1,20 @@
 [package]
 name = "tesseract-swift-transports"
-version = "0.1.0"
-authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
-license = "Apache-2.0"
+authors.workspace = true
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+documentation.workspace = true
 description = "Tesseract transports for Swift"
 keywords = [ "Tesseract", "Swift", "Transport", "C" ]
-edition = "2021"
 
 [dependencies]
 tesseract-swift-utils = { path = "../utils" }
-tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
-async-trait = "0.1"
-errorcon = "0.1"
-log = "0.4"
+tesseract.workspace = true
+async-trait.workspace = true
+errorcon.workspace = true
+log.workspace = true
 thiserror = "1.0"
 
 [features]
@@ -20,4 +22,4 @@ client = ["tesseract/client"]
 service = ["tesseract/service"]
 
 [build-dependencies]
-cbindgen = "0.26"
+cbindgen.workspace = true

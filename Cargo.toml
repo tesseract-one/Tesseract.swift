@@ -7,6 +7,23 @@ members = [
     "Rust/utils"
 ]
 
+[workspace.package]
+authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
+edition = "2021"
+version = "0.1.0"
+license = "Apache-2.0"
+repository = "https://github.com/tesseract-one/Tesseract.swift"
+documentation = "https://github.com/tesseract-one/Tesseract.swift"
+
+[workspace.dependencies]
+async-trait = "0.1"
+cbindgen = "0.26"
+errorcon = "0.1"
+log = "0.4"
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
+tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
+tesseract-protocol-substrate = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
+
 [profile.release]
 strip = true
 lto = true
