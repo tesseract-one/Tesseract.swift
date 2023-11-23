@@ -66,25 +66,25 @@ pub struct ClientTesseract(SyncPtr<Void>);
 
 impl Drop for ClientTesseract {
     fn drop(&mut self) {
-        let _ = unsafe { self.0.take_typed::<Tesseract<ClientTesseractDelegate>>() };
+        let _ = unsafe { self.0.take_typed::<Tesseract>() };
     }
 }
 
 impl ClientTesseract {
-    pub fn new(tesseract: Tesseract<ClientTesseractDelegate>) -> Self {
+    pub fn new(tesseract: Tesseract) -> Self {
         Self(SyncPtr::new(tesseract).as_void())
     }
 
     pub fn service<P: Protocol + Copy + 'static>(&self, r#for: P) -> Arc<impl Service<Protocol = P>> {
         let tesseract = unsafe {
-            self.0.as_typed_ref::<Tesseract<ClientTesseractDelegate>>()
+            self.0.as_typed_ref::<Tesseract>()
         };
         tesseract.unwrap().service(r#for)
     }
 
     pub fn transport<T: Transport + 'static + Sync + Send>(&mut self, transport: T) -> Self {
         let tesseract = unsafe { 
-            self.0.take_typed::<Tesseract<ClientTesseractDelegate>>()
+            self.0.take_typed::<Tesseract>()
         };
         Self::new(tesseract.transport(transport))
     }
