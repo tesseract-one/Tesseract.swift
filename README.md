@@ -30,7 +30,7 @@ Here is how a typical Tesseract workflow looks like:
 
 ```swift
 //initialize Tesseract with default config
-let tesseract = Tesseract.default
+let tesseract = Tesseract.default()
 
 //indicate what blockchain are we gonna use
 let substrateService = tesseract.service(SubstrateService.self)
@@ -39,7 +39,7 @@ let substrateService = tesseract.service(SubstrateService.self)
 //wallet and the wallet presents the user
 //with its screen, asking if the user
 //wants to share their public key to a dApp
-let account = try await substrateService.getAccount(.sr25519)
+let account = try await substrateService.getAccount(type: .sr25519)
 ```
 
 </td>
@@ -72,13 +72,14 @@ Because using Tesseract in Tesseract in a dApp and in a wallet is very different
 If you'd like to see examples of Tesseract integration, please, check:
 
 * [dev-wallet.swift](https://github.com/tesseract-one/dev-wallet.swift) - for wallets
-* polkachat.swift - for dApps, TBD
+* [polkachat.swift](https://github.com/tesseract-one/polkachat.swift) - for dApps
 
 ## More
 
 Just in case, you'd like to use Tesseract on iOS via Rust APIs. It's also possible. Consider checking one of the following:
 
 * [Using Tesseract on iOS in Rust](./RUST.MD)
+* [Polka Chat in Rust](https://github.com/tesseract-one/polkachat.rs)
 * [Developer Wallet in Rust](https://github.com/tesseract-one/dev-wallet)
 
 ## Roadmap

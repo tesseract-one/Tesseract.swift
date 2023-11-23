@@ -9,7 +9,7 @@ import Foundation
 import TesseractClient
 
 final class TesseractTransportDelegate: TesseractDelegate {
-    private let alerts: AlertProvider
+    private weak var alerts: AlertProvider!
     
     init(alerts: AlertProvider) {
         self.alerts = alerts

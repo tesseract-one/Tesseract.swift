@@ -143,7 +143,7 @@ Transport should be created and provided to the `Tesseract` instance. See exampl
 
 Full documentation on Transports development can be found here: [Transports How To](./TRANSPORTS.MD)
 
-### Initialization
+## Initialization
 
 Here is a typical Tesseract initialization snippet (the example is taken from [Example](./Examples/Swift/Extension/ActionViewController.swift)):
 
