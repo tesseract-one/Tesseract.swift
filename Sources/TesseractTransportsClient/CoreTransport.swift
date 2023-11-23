@@ -28,9 +28,9 @@ private func transport_id(self: UnsafePointer<ClientTransport>!) -> CString {
 
 private func transport_status(
     self: UnsafePointer<ClientTransport>!,
-    proto: CStringRef!
+    proto: TesseractProtocol
 ) -> CFutureClientStatus {
-    let proto = proto.copied()
+    let proto = proto.owned()
     return CFutureClientStatus {
         await self.unowned((any Transport).self).asyncFlatMap {
             .success(await $0.status(proto: proto))
@@ -40,10 +40,10 @@ private func transport_status(
 
 private func transport_connect(
     self: UnsafePointer<ClientTransport>!,
-    proto: CStringRef!
+    proto: TesseractProtocol
 ) -> ClientConnection {
     try! self.unowned((any Transport).self)
-        .get().connect(proto: proto.copied()).toCore()
+        .get().connect(proto: proto.owned()).toCore()
 }
 
 private func connection_send(self: UnsafePointer<ClientConnection>!,

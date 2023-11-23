@@ -16,12 +16,6 @@ pub type CStringRef = *const c_char;
 #[derive(Debug)]
 pub struct CString(*const c_char);
 
-impl AsCRef<CStringRef> for CString {
-    fn as_cref(&self) -> CStringRef {
-        self.0
-    }
-}
-
 unsafe impl Sync for CString {}
 unsafe impl Send for CString {}
 
@@ -34,6 +28,12 @@ impl Drop for CString {
 impl Clone for CString {
     fn clone(&self) -> Self {
         self.try_as_ref().unwrap().into()
+    }
+}
+
+impl PartialEq for CString {
+    fn eq(&self, other: &Self) -> bool {
+        unsafe { FCStr::from_ptr(self.0).eq(FCStr::from_ptr(other.0)) }
     }
 }
 
@@ -57,6 +57,12 @@ impl TryAsRef<str> for CString {
 
     fn try_as_ref(&self) -> Result<&str> {
         self.0.try_as_ref()
+    }
+}
+
+impl AsCRef<CStringRef> for CString {
+    fn as_cref(&self) -> CStringRef {
+        self.0
     }
 }
 

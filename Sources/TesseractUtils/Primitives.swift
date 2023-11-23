@@ -24,7 +24,7 @@ extension Int64: CType, CValue {}
 extension UInt64: CType, CValue {}
 extension Bool: CType, CValue {}
 
-extension UnsafePointer: CPtrRef where Pointee: CPtr {
+extension UnsafePointer: CPtrRef where Pointee: CPtrRef {
     public typealias SVal = Pointee.SVal
     
     public func copied() -> Pointee.SVal {

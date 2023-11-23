@@ -7,6 +7,7 @@ extern crate tesseract;
 extern crate tesseract_swift_utils;
 
 pub mod error;
+pub mod protocol;
 
 #[cfg(feature = "client")]
 pub mod client;

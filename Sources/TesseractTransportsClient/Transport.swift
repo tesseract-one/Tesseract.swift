@@ -33,6 +33,6 @@ public protocol Connection: AnyObject, CoreConvertible<ClientConnection> {
 
 public protocol Transport: AnyObject, CoreConvertible<ClientTransport> {
     var id: String { get }
-    func status(proto: String) async -> Status
-    func connect(proto: String) -> any Connection
+    func status(proto: BlockchainProtocol) async -> Status
+    func connect(proto: BlockchainProtocol) -> any Connection
 }

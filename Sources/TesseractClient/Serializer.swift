@@ -7,8 +7,9 @@
 
 import Foundation
 import CTesseract
+import TesseractShared
 
-public enum Serializer: Equatable, Hashable {
+public enum Serializer: Equatable, Hashable, CoreConvertible {
     case json
     case cbor
 }
@@ -28,4 +29,8 @@ public extension Serializer {
         case .cbor: return Serializer_Cbor
         }
     }
+}
+
+extension CTesseract.Serializer: CType {
+    public init() { self = Serializer_Json }
 }

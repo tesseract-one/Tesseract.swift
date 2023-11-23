@@ -17,7 +17,7 @@ include = ["tesseract-swift-utils", "tesseract-swift-transports"]
 [export]
 exclude = [
     "CFuture_CData", "CFutureData", "CFuture_Nothing", "CFutureNothing",
-    "CFuture_CString", "CFutureString", "SyncPtr_Void",
+    "CFuture_CString", "CFutureString", "SyncPtr_Void", "TesseractProtocol",
     "CAnyDropPtr", "CString", "CStringRef", "CData", "CError", "CErrorCodes",
     "ServiceTransport", "ServiceBoundTransport", "ServiceTransportProcessor",
     "ClientTransport", "ClientConnection", "ClientStatus", "CFutureClientStatus",

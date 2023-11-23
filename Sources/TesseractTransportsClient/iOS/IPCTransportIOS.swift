@@ -53,10 +53,10 @@ public class IPCTransportIOS: Transport {
         self.presenter = presenter
     }
     
-    public func status(proto: String) async -> Status {
-        guard let url = Self.url(proto: proto) else {
+    public func status(proto: BlockchainProtocol) async -> Status {
+        guard let url = Self.url(proto: proto.id) else {
             return .error(
-                Error.wrongProtocolId(proto).tesseract
+                Error.wrongProtocolId(proto.id).tesseract
             )
         }
         if await UIApplication.shared.canOpenURL(url) {
@@ -66,8 +66,8 @@ public class IPCTransportIOS: Transport {
         }
     }
     
-    public func connect(proto: String) -> any Connection {
-        TransportConnection(proto: proto, presenter: presenter)
+    public func connect(proto: BlockchainProtocol) -> any Connection {
+        TransportConnection(proto: proto.id, presenter: presenter)
     }
     
     public static func url(proto: String) -> URL? {

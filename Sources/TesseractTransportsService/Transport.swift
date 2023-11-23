@@ -13,8 +13,8 @@ import TesseractShared
 import TesseractTransportsShared
 #endif
 
-public protocol BoundTransport: CoreConvertible<ServiceBoundTransport>, AnyObject {}
+public protocol BoundTransport: AnyObject, CoreConvertible<ServiceBoundTransport> {}
 
-public protocol Transport: CoreConvertible<ServiceTransport>, AnyObject {
+public protocol Transport: AnyObject, CoreConvertible<ServiceTransport> {
     func bind(processor: TransportProcessor) -> any BoundTransport
 }

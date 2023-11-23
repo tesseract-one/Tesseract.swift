@@ -29,12 +29,12 @@ open class AutoFree<Ptr: CType & CFree> {
         return try fn(&_ptr!)
     }
     
-    public func use<R>(_ fn: (UnsafePointer<Ptr>) throws -> R) rethrows -> R {
+    public func ptr<R>(_ fn: (UnsafePointer<Ptr>) throws -> R) rethrows -> R {
         guard _ptr != nil else { fatalError("Null pointer: \(Ptr.self)") }
         return try fn(&_ptr!)
     }
     
-    public func use<R>(_ fn: (UnsafeMutablePointer<Ptr>) throws -> R) rethrows -> R {
+    public func mutPtr<R>(_ fn: (UnsafeMutablePointer<Ptr>) throws -> R) rethrows -> R {
         guard _ptr != nil else { fatalError("Null pointer: \(Ptr.self)") }
         return try fn(&_ptr!)
     }

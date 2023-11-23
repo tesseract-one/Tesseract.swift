@@ -5,6 +5,7 @@ pub mod client;
 pub mod service;
 
 use std::mem::ManuallyDrop;
+use tesseract_swift_transports::protocol::TesseractProtocol;
 use tesseract_swift_utils::string::CStringRef;
 use tesseract_swift_utils::{ptr::CAnyDropPtr, future_impls::CFutureString};
 
@@ -15,4 +16,9 @@ pub struct TestService {
         this: &TestService,
         req: CStringRef,
     ) -> ManuallyDrop<CFutureString>,
+}
+
+#[no_mangle]
+pub extern "C" fn tesseract_protocol_test_new() -> ManuallyDrop<TesseractProtocol> {
+    ManuallyDrop::new(TesseractProtocol::new(tesseract_protocol_test::Test::Protocol))
 }

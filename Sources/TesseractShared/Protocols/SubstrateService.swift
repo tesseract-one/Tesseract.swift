@@ -11,6 +11,10 @@ import CTesseract
 import TesseractTransportsShared
 #endif
 
+public extension BlockchainProtocol {
+    static let substrate = BlockchainProtocol(ptr: tesseract_protocol_substrate_new())
+}
+
 public enum SubstrateAccountType {
     case sr25519
     case ed25519
@@ -27,7 +31,7 @@ public struct SubstrateGetAccountResponse {
     }
 }
 
-public protocol SubstrateServiceResult {
+public protocol SubstrateServiceResult: Service {
     func getAccountRes(
         type: SubstrateAccountType
     ) async -> Result<SubstrateGetAccountResponse, TesseractError>
@@ -47,6 +51,10 @@ public protocol SubstrateService: SubstrateServiceResult {
         type: SubstrateAccountType, path: String,
         extrinsic: Data, metadata: Data, types: Data
     ) async throws -> Data
+}
+
+public extension SubstrateServiceResult {
+    var proto: BlockchainProtocol { .substrate }
 }
 
 public extension SubstrateService {

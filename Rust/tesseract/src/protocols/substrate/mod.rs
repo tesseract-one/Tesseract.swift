@@ -1,4 +1,5 @@
 use tesseract_protocol_substrate::{AccountType, GetAccountResponse};
+use tesseract_swift_transports::protocol::TesseractProtocol;
 use tesseract_swift_utils::{
     data::{CData, CDataRef}, string::{CString, CStringRef}, 
     error::CError, ptr::CAnyDropPtr, future::CFuture, future_impls::CFutureData
@@ -81,4 +82,9 @@ pub unsafe extern "C" fn tesseract_substrate_get_account_response_free(
     res: &mut ManuallyDrop<SubstrateGetAccountResponse>
 ) {
     ManuallyDrop::drop(res);
+}
+
+#[no_mangle]
+pub extern "C" fn tesseract_protocol_substrate_new() -> ManuallyDrop<TesseractProtocol> {
+    ManuallyDrop::new(TesseractProtocol::new(tesseract_protocol_substrate::Substrate::Protocol))
 }

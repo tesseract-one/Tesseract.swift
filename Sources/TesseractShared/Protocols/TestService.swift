@@ -11,12 +11,20 @@ import CTesseract
 import TesseractTransportsShared
 #endif
 
-public protocol TestServiceResult {
+public extension BlockchainProtocol {
+    static let test = BlockchainProtocol(ptr: tesseract_protocol_test_new())
+}
+
+public protocol TestServiceResult: Service {
     func signTransactionRes(req: String) async -> Result<String, TesseractError>
 }
 
 public protocol TestService: TestServiceResult {
     func signTransaction(req: String) async throws -> String
+}
+
+public extension TestServiceResult {
+    var proto: BlockchainProtocol { .test }
 }
 
 public extension TestService {

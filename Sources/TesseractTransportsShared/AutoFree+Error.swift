@@ -7,6 +7,9 @@
 
 import Foundation
 import CTesseractShared
+#if !COCOAPODS
+import TesseractUtils
+#endif
 
 public extension AutoFree {
     convenience init(

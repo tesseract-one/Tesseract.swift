@@ -28,6 +28,10 @@ enum CTesseractErrorCode
 typedef uint32_t CTesseractErrorCode;
 #endif // __cplusplus
 
+typedef struct TesseractProtocol {
+  CString _0;
+} TesseractProtocol;
+
 typedef struct ServiceTransportProcessor {
   SyncPtr_Void _0;
 } ServiceTransportProcessor;
@@ -72,8 +76,10 @@ typedef struct ClientConnection {
 typedef struct ClientTransport {
   CAnyDropPtr ptr;
   CString (*id)(const struct ClientTransport *this);
-  struct CFuture_ClientStatus (*status)(const struct ClientTransport *this, CStringRef protocol);
-  struct ClientConnection (*connect)(const struct ClientTransport *this, CStringRef protocol);
+  struct CFuture_ClientStatus (*status)(const struct ClientTransport *this,
+                                        struct TesseractProtocol protocol);
+  struct ClientConnection (*connect)(const struct ClientTransport *this,
+                                     struct TesseractProtocol protocol);
 } ClientTransport;
 
 typedef struct CFuture_ClientStatus CFutureClientStatus;
@@ -91,6 +97,13 @@ extern "C" {
 #endif // __cplusplus
 
 CString tesseract_error_get_description(const CError *err);
+
+bool tesseract_protocol_is_equal(const struct TesseractProtocol *lhs,
+                                 const struct TesseractProtocol *rhs);
+
+CString tesseract_protocol_get_id(const struct TesseractProtocol *protocol);
+
+void tesseract_protocol_free(struct TesseractProtocol *protocol);
 
 CFutureData tesseract_service_transport_processor_process(struct ServiceTransportProcessor processor,
                                                           CDataRef data);
