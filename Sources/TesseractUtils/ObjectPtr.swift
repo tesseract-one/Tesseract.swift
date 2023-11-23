@@ -8,7 +8,7 @@
 import Foundation
 import CTesseractShared
 
-public protocol CSwiftDropPtr: CType {
+public protocol CObjectPtr: CType, CFree {
     associatedtype SObject: AnyObject
     
     var ptr: CAnyDropPtr { get set }
@@ -17,11 +17,9 @@ public protocol CSwiftDropPtr: CType {
     
     func unowned() -> CResult<SObject>
     mutating func owned() -> CResult<SObject>
-    
-    mutating func free() -> CResult<Void>
 }
 
-extension CSwiftDropPtr {
+extension CObjectPtr {
     public init(value object: SObject) {
         self = Self()
         self.ptr = .wrapped(object)
@@ -35,12 +33,12 @@ extension CSwiftDropPtr {
         self.ptr.owned(SObject.self)
     }
     
-    public mutating func free() -> CResult<Void> {
+    public mutating func free() {
         self.ptr.free()
     }
 }
 
-public protocol CSwiftAnyDropPtr: CType {
+public protocol CAnyObjectPtr: CType, CFree {
     var ptr: CAnyDropPtr { get set }
     
     init(value object: AnyObject)
@@ -50,11 +48,9 @@ public protocol CSwiftAnyDropPtr: CType {
     
     mutating func owned() -> CResult<AnyObject>
     mutating func owned<T>(_ type: T.Type) -> CResult<T>
-    
-    mutating func free() -> CResult<Void>
 }
 
-extension CSwiftAnyDropPtr {
+extension CAnyObjectPtr {
     public init(value object: AnyObject) {
         self = Self()
         self.ptr = .wrapped(object)
@@ -79,18 +75,18 @@ extension CSwiftAnyDropPtr {
         self.ptr.owned(type)
     }
     
-    public mutating func free() -> CResult<Void> {
+    public mutating func free() {
         self.ptr.free()
     }
 }
 
-extension UnsafePointer where Pointee: CSwiftDropPtr {
+extension UnsafePointer where Pointee: CObjectPtr {
     public func unowned() -> CResult<Pointee.SObject> {
         self.pointee.unowned()
     }
 }
 
-extension UnsafeMutablePointer where Pointee: CSwiftDropPtr {
+extension UnsafeMutablePointer where Pointee: CObjectPtr {
     public func unowned() -> CResult<Pointee.SObject> {
         self.pointee.unowned()
     }
@@ -100,7 +96,7 @@ extension UnsafeMutablePointer where Pointee: CSwiftDropPtr {
     }
 }
 
-extension UnsafePointer where Pointee: CSwiftAnyDropPtr {
+extension UnsafePointer where Pointee: CAnyObjectPtr {
     public func unowned() -> CResult<AnyObject> {
         self.pointee.unowned()
     }
@@ -110,7 +106,7 @@ extension UnsafePointer where Pointee: CSwiftAnyDropPtr {
     }
 }
 
-extension UnsafeMutablePointer where Pointee: CSwiftAnyDropPtr {
+extension UnsafeMutablePointer where Pointee: CAnyObjectPtr {
     public func unowned() -> CResult<AnyObject>  {
         self.pointee.unowned()
     }

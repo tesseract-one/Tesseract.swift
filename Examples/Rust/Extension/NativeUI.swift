@@ -13,7 +13,7 @@ protocol NativeUIDelegate: AnyObject {
     func approveTx(tx: String) async -> Result<Bool, TesseractError>
 }
 
-extension CWallet.UI: CSwiftDropPtr {
+extension CWallet.UI: CObjectPtr {
     public typealias SObject = NativeUI
 }
 
@@ -24,7 +24,7 @@ extension CWallet.UI {
     }
 }
 
-public class NativeUI {
+public class NativeUI: CoreConvertible {
     weak var delegate: NativeUIDelegate!
     
     init(delegate: NativeUIDelegate) {
@@ -35,7 +35,7 @@ public class NativeUI {
         await self.delegate.approveTx(tx: tx)
     }
     
-    func toCore() -> CWallet.UI {
+    public func toCore() -> CWallet.UI {
         CWallet.UI(ui: self)
     }
 }

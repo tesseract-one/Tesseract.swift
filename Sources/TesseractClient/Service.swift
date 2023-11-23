@@ -13,7 +13,7 @@ public protocol Service: AnyObject {
     init(tesseract: UnsafePointer<ClientTesseract>)
 }
 
-public protocol CoreService: CSwiftAnyDropPtr {
+public protocol CoreService: CAnyObjectPtr {
     static func get(from tesseract: UnsafePointer<ClientTesseract>) -> Self
 }
 
@@ -25,6 +25,6 @@ open class ServiceBase<S: CoreService>: Service {
     }
     
     deinit {
-        try! service.free().get()
+        service.free()
     }
 }

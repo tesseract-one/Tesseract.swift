@@ -15,9 +15,9 @@ public final class SubstrateService: ServiceBase<CTesseract.SubstrateService>,
     public func getAccount(
         type: TesseractShared.SubstrateAccountType
     ) async throws -> TesseractShared.SubstrateGetAccountResponse {
-        try await withUnsafePointer(to: &service) {
-            $0.pointee.get_account($0, type.asCValue)
-        }.result.castError(TesseractError.self).get()
+        try await service.get_account(&service, type.asCValue)
+            .result
+            .castError(TesseractError.self).get()
     }
     
     public func signTransaction(
@@ -27,9 +27,8 @@ public final class SubstrateService: ServiceBase<CTesseract.SubstrateService>,
         try await extrinsic.withPtrRef { ext in
             metadata.withPtrRef { meta in
                 types.withPtrRef { types in
-                    withUnsafePointer(to: &service) {
-                        $0.pointee.sign_transaction($0, type.asCValue, path, ext, meta, types)
-                    }
+                    service.sign_transaction(&service, type.asCValue,
+                                             path, ext, meta, types)
                 }
             }
         }.result.castError(TesseractError.self).get()

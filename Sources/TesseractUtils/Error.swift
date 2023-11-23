@@ -76,6 +76,11 @@ extension CError: CustomStringConvertible {
     }
 }
 
+extension CError: CErrorInitializable, CErrorConvertible {
+    public init(cError: CError) { self = cError }
+    public var cError: CError { self }
+}
+
 extension CError: AsCPtrCopy {
     public typealias CopyPtr = CTesseractShared.CError
     
@@ -180,11 +185,10 @@ extension NSError: AsCPtrRef {
     ) rethrows -> T {
         try domain.withPtrRef { domain in
             try self.localizedDescription.withPtrRef { description in
-                try withUnsafePointer(
-                    to: CTesseractShared.SwiftError(code: self.code,
-                                                    domain: domain.pointee,
-                                                    description: description.pointee)
-                ) { try fn($0) }
+                var swift = CTesseractShared.SwiftError(code: self.code,
+                                                        domain: domain.pointee,
+                                                        description: description.pointee)
+                return try fn(&swift)
             }
         }
     }

@@ -13,9 +13,9 @@ public final class TestService: ServiceBase<CTesseract.TestService>,
                                 TesseractShared.TestService
 {
     public func signTransaction(req: String) async throws -> String {
-        try await withUnsafePointer(to: &service) {
-            $0.pointee.sign_transaction($0, req)
-        }.result.castError(TesseractError.self).get()
+        try await service.sign_transaction(&service, req)
+            .result
+            .castError(TesseractError.self).get()
     }
 }
 

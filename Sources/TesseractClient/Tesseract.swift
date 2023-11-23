@@ -18,16 +18,16 @@ import CTesseract
 public final class Tesseract: TesseractBase {
     public private(set) var tesseract: ClientTesseract!
     
-    public init(delegate: TesseractDelegate, serializer: Serializer = .default) throws {
+    public init(delegate: any TesseractDelegate, serializer: Serializer = .default) throws {
         try super.init()
         tesseract = tesseract_client_new(delegate.toCore(), serializer.toCore())
     }
     
     public func service<S: Service>(_ service: S.Type) -> S {
-        withUnsafePointer(to: &tesseract) { service.init(tesseract: $0) }
+        service.init(tesseract: &tesseract)
     }
     
-    public func transport<T: CoreTransportConvertible>(_ transport: T) -> Self {
+    public func transport<T: CoreConvertible<ClientTransport>>(_ transport: T) -> Self {
         tesseract = tesseract_client_add_transport(&tesseract, transport.toCore())
         return self
     }
@@ -38,7 +38,7 @@ public final class Tesseract: TesseractBase {
     }
     
     public static func `default`(
-        delegate: TesseractDelegate = SingleTransportDelegate(),
+        delegate: any TesseractDelegate = SingleTransportDelegate(),
         serializer: Serializer = .default
     ) throws -> Self {
         #if os(iOS)

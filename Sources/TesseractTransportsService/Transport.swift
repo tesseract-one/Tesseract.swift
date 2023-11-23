@@ -6,14 +6,15 @@
 //
 
 import Foundation
+import CTesseractShared
 #if COCOAPODS
 import TesseractShared
 #else
 import TesseractTransportsShared
 #endif
 
-public protocol BoundTransport: AnyObject {}
+public protocol BoundTransport: CoreConvertible<ServiceBoundTransport>, AnyObject {}
 
-public protocol Transport: CoreTransportConvertible, AnyObject {
-    func bind(processor: TransportProcessor) -> BoundTransport
+public protocol Transport: CoreConvertible<ServiceTransport>, AnyObject {
+    func bind(processor: TransportProcessor) -> any BoundTransport
 }

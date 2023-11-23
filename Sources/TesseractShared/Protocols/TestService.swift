@@ -25,4 +25,4 @@ public extension TestService {
     }
 }
 
-extension CTesseract.TestService: CSwiftAnyDropPtr {}
+extension CTesseract.TestService: CAnyObjectPtr {}

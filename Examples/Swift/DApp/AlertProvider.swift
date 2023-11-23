@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import TesseractUtils
-import CApp
 
 final class AlertProvider: ObservableObject {
     public struct Alert: Identifiable {

@@ -69,7 +69,7 @@ public extension SubstrateService {
     }
 }
 
-extension CTesseract.SubstrateService: CSwiftAnyDropPtr {}
+extension CTesseract.SubstrateService: CAnyObjectPtr {}
 
 extension CTesseract.SubstrateAccountType: CType {
     public init() { self.init(0) }

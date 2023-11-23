@@ -19,6 +19,15 @@ extension Optional: CPtrRef where Wrapped: CPtrRef {
     }
 }
 
+extension Optional: CFree where Wrapped: CFree {
+    public mutating func free() {
+        if var val = self {
+            val.free()
+            self = nil
+        }
+    }
+}
+
 extension Optional: CPtr where Wrapped: CPtr {
     public mutating func owned() -> SVal {
         switch self {
@@ -27,13 +36,6 @@ extension Optional: CPtr where Wrapped: CPtr {
             let owned = val.owned()
             self = val
             return owned
-        }
-    }
-
-    public mutating func free() {
-        if var val = self {
-            val.free()
-            self = nil
         }
     }
 }

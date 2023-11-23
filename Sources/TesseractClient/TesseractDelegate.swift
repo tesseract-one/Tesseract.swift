@@ -12,7 +12,7 @@ import TesseractShared
 @_exported import TesseractTransportsClient
 #endif
 
-public protocol TesseractDelegate: AnyObject {
+public protocol TesseractDelegate: AnyObject, CoreConvertible<ClientTesseractDelegate> {
     func select(transports: Dictionary<String, Status>) async -> String?
 }
 
@@ -24,7 +24,7 @@ public extension TesseractDelegate {
     }
 }
 
-extension ClientTesseractDelegate: CSwiftAnyDropPtr {}
+extension ClientTesseractDelegate: CAnyObjectPtr {}
 
 extension CKeyValue_CString__ClientStatus: CKeyValue, CPtr {
     public typealias CKey = CString
@@ -56,7 +56,7 @@ private func delegate_select_transport(
 ) -> CFutureString {
     let trans: Dictionary<String, Status> = transports.copiedDictionary()
     return CFutureString {
-        await this.unowned(TesseractDelegate.self).castError().asyncFlatMap {
+        await this.unowned((any TesseractDelegate).self).castError().asyncFlatMap {
             guard let result = await $0.select(transports: trans) else {
                 return .failure(TesseractError.cancelled)
             }

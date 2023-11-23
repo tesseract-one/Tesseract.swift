@@ -13,6 +13,11 @@ public protocol CType {
     init()
 }
 
+// Type returned from C that should be deleted
+public protocol CFree {
+    mutating func free()
+}
+
 // Ref structure with pointers inside
 public protocol CPtrRef {
     associatedtype SVal
@@ -21,9 +26,8 @@ public protocol CPtrRef {
 }
 
 // Structure with pointers inside
-public protocol CPtr: CPtrRef {
+public protocol CPtr: CPtrRef, CFree {
     mutating func owned() -> SVal
-    mutating func free()
 }
 
 // Swift value which can be simply converted from C (static struct)

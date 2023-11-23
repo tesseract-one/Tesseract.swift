@@ -40,7 +40,7 @@ extension CFutureNothing: CFuturePtr {
 extension CFutureAnyRustPtr: CFuturePtr {
     public typealias CVal = CAnyRustPtr
     public typealias SVal = CAnyRustPtr
-    
+
     public mutating func _onComplete(cb: @escaping (CResult<CVal>) -> Void) -> CResult<CVal>? {
         _withOnCompleteContext(cb) { ctx, value, error in
             self.set_on_complete(&self, ctx, value, error) { ctx, val, err in
@@ -48,7 +48,7 @@ extension CFutureAnyRustPtr: CFuturePtr {
             }
         }
     }
-    
+
     public mutating func _setupSetOnCompleteFunc() {
         self.set_on_complete = { this, ctx, value, error, cb in
             Self._setOnCompleteFunc(this, ctx, value, error) { this, val, err in
@@ -56,11 +56,11 @@ extension CFutureAnyRustPtr: CFuturePtr {
             }
         }
     }
-    
+
     public static func convert(cvalue: inout CAnyRustPtr) -> CResult<CAnyRustPtr> {
         .success(cvalue)
     }
-    
+
     public static func convert(value: inout CAnyRustPtr) -> CResult<CAnyRustPtr> {
         .success(value)
     }

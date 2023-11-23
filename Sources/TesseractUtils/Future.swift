@@ -8,7 +8,7 @@
 import Foundation
 import CTesseractShared
 
-public protocol CFuturePtr: CType {
+public protocol CFuturePtr: CType, CFree {
     associatedtype CVal: CType
     associatedtype SVal
     
@@ -16,9 +16,6 @@ public protocol CFuturePtr: CType {
     
     // Consumes future. Will call free automatically
     func onComplete(cb: @escaping (CResult<SVal>) -> Void) -> CResult<SVal>?
-    
-    // Frees unconsumed future. Call it only if you don't want to use the future
-    mutating func free() -> CResult<Void>
     
     // Helpers for value converting
     static func convert(cvalue: inout CVal) -> CResult<SVal>
@@ -91,7 +88,7 @@ extension CFuturePtr {
     }
     
     // Call it only if you don't want to wait for the Future.
-    public mutating func free() -> CResult<Void> {
+    public mutating func free() {
         self.ptr.free()
     }
 }
@@ -258,7 +255,7 @@ extension CFuturePtr {
         if result != nil { // We have value already. Context is non needed
             var this = self
             let _ = CFutureContext<Self>.take(pointer)
-            try! this.free().get()
+            this.free()
         }
         return result
     }
@@ -269,7 +266,7 @@ extension CFuturePtr {
         _ error: UnsafeMutablePointer<CTesseractShared.CError>?
     ) {
         var ctx = CFutureContext<Self>.take(ctx)
-        defer { try! ctx.future.free().get() }
+        defer { ctx.future.free() }
         if let error = error {
             ctx.callback(.failure(error.pointee.owned()))
         } else {

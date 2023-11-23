@@ -8,7 +8,17 @@
 import Foundation
 import CTesseractShared
 
-extension CAnyDropPtr: CType {}
+extension CAnyRustPtr: CType, CFree {
+    public mutating func free() {
+        tesseract_utils_any_rust_ptr_free(&self)
+    }
+}
+
+extension CAnyDropPtr: CType, CFree {
+    public mutating func free() {
+        (self.drop)(&self)
+    }
+}
 
 extension CAnyDropPtr {
     public init(value: AnyObject) {
@@ -55,22 +65,8 @@ extension CAnyDropPtr {
             return .success(typed)
         }
     }
-    
-    public mutating func free() -> CResult<Void> {
-        guard !self.isNull else { return .failure(.null(Self.self)) }
-        (self.drop)(&self)
-        return .success(())
-    }
 }
 
 private func any_ptr_swift_drop(ptr: UnsafeMutablePointer<CAnyDropPtr>!) {
     let _ = ptr.pointee.ptr.owned()!
-}
-
-extension CAnyRustPtr: CType {}
-
-extension CAnyRustPtr {
-    public mutating func free() {
-        tesseract_utils_any_rust_ptr_free(&self);
-    }
 }

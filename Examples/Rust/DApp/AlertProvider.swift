@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import TesseractTransportsShared
 import TesseractUtils
 import CApp
 
-public class AlertProvider: ObservableObject {
-    public struct Alert: Identifiable {
+public class AlertProvider: ObservableObject, CoreConvertible {
+    struct Alert: Identifiable {
         let message: String
         public var id: String { message }
     }
@@ -22,7 +23,7 @@ public class AlertProvider: ObservableObject {
         self.alert = Alert(message: alert)
     }
     
-    func toCore() -> CApp.AlertProvider {
+    public func toCore() -> CApp.AlertProvider {
         var provider = CApp.AlertProvider(value: self)
         provider.show_alert = alert_provider_show_alert
         return provider
@@ -36,6 +37,6 @@ private func alert_provider_show_alert(this: UnsafePointer<CApp.AlertProvider>!,
     }
 }
 
-extension CApp.AlertProvider: CSwiftDropPtr {
+extension CApp.AlertProvider: CObjectPtr {
     public typealias SObject = AlertProvider
 }

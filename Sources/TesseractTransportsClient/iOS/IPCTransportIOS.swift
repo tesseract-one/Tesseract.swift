@@ -66,7 +66,7 @@ public class IPCTransportIOS: Transport {
         }
     }
     
-    public func connect(proto: String) -> Connection {
+    public func connect(proto: String) -> any Connection {
         TransportConnection(proto: proto, presenter: presenter)
     }
     

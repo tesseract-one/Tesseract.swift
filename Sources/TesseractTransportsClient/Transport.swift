@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CTesseractShared
 #if COCOAPODS
 import TesseractShared
 #else
@@ -16,10 +17,8 @@ public enum Status {
     case ready
     case unavailable(String)
     case error(TesseractError)
-}
-
-public extension Status {
-    var isReady: Bool {
+    
+    public var isReady: Bool {
         switch self {
         case .ready: return true
         default: return false
@@ -27,13 +26,13 @@ public extension Status {
     }
 }
 
-public protocol Connection: AnyObject {
+public protocol Connection: AnyObject, CoreConvertible<ClientConnection> {
     func send(request: Data) async -> Result<(), TesseractError>
     func receive() async -> Result<Data, TesseractError>
 }
 
-public protocol Transport: AnyObject, CoreTransportConvertible {
+public protocol Transport: AnyObject, CoreConvertible<ClientTransport> {
     var id: String { get }
     func status(proto: String) async -> Status
-    func connect(proto: String) -> Connection
+    func connect(proto: String) -> any Connection
 }

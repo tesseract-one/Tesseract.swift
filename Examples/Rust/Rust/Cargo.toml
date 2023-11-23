@@ -7,6 +7,21 @@ members = [
     "wallet"
 ]
 
+[workspace.dependencies]
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
+tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
+#tesseract = { path = "../../../../Tesseract.rs/tesseract", features = ["client"] }
+#tesseract-protocol-test = { path = "../../../../Tesseract.rs/protocols/test", features = ["client"] }
+
+tesseract-swift-utils = { path = "../../../Rust/utils" }
+tesseract-swift-transports = { path = "../../../Rust/transports" }
+async-trait = "0.1"
+errorcon = "0.1"
+log = "0.4"
+log-panics = { version = "2", features = ["with-backtrace"]}
+stderrlog = "0.5"
+cbindgen = "0.26"
+
 [profile.release]
 strip = true
 lto = true

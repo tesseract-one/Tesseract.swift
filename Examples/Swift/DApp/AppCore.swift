@@ -15,7 +15,7 @@ final class TesseractTransportDelegate: TesseractDelegate {
         self.alerts = alerts
     }
     
-    func select(transports: Dictionary<String, TesseractTransportsClient.Status>) async -> String? {
+    func select(transports: Dictionary<String, Status>) async -> String? {
         assert(transports.count == 1, "How the heck do we have more than one transport here?")
         let transport = transports.first!
         switch transport.value {

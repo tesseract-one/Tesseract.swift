@@ -47,7 +47,8 @@ extension String: AsCPtrRef {
         _ fn: (UnsafePointer<CString>) throws -> T
     ) rethrows -> T {
         try withCString {
-            try withUnsafePointer(to: CString(_0: $0)) { try fn($0) }
+            var str = CString(_0: $0)
+            return try fn(&str)
         }
     }
 }

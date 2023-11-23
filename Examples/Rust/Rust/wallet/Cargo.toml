@@ -8,20 +8,18 @@ keywords = [ "Tesseract", "Cardano", "C" ]
 edition = "2021"
 
 [dependencies]
-tesseract-swift-utils = { path = "../../../../Rust/utils" }
-tesseract-swift-transports = { path = "../../../../Rust/transports", features = ["service"]}
-#tesseract = { path = "../../../../../Tesseract.rs/tesseract", features = ["service"] }
-#tesseract-protocol-test = { path = "../../../../../Tesseract.rs/protocols/test", features = ["service"] }
-tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
-tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
-async-trait = "0.1"
-errorcon = "0.1"
-log = "0.4"
-log-panics = { version = "2", features = ["with-backtrace"]}
-stderrlog = "0.5"
+tesseract-swift-utils.workspace = true
+tesseract-swift-transports = { workspace = true, features = ["service"]}
+tesseract = { workspace = true, features = ["service"] }
+tesseract-protocol-test = { workspace = true, features = ["service"] }
+async-trait.workspace = true
+errorcon.workspace = true
+log.workspace = true
+log-panics.workspace = true
+stderrlog.workspace = true
 
 [build-dependencies]
-cbindgen = "0.26"
+cbindgen.workspace = true
 
 [lib]
 name = "wallet"

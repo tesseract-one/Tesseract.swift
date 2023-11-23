@@ -158,7 +158,7 @@ extension IPCTransportIOS {
 }
 
 extension IPCTransportIOS: Transport {
-    public func bind(processor: TransportProcessor) -> BoundTransport {
+    public func bind(processor: TransportProcessor) -> any BoundTransport {
         Bound(transport: self, processor: processor)
     }
 }
