@@ -29,7 +29,7 @@ typedef uint32_t CTesseractErrorCode;
 #endif // __cplusplus
 
 typedef struct TesseractProtocol {
-  CString _0;
+  SyncPtr_Void _0;
 } TesseractProtocol;
 
 typedef struct ServiceTransportProcessor {

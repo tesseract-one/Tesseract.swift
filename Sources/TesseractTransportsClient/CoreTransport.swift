@@ -42,8 +42,9 @@ private func transport_connect(
     self: UnsafePointer<ClientTransport>!,
     proto: TesseractProtocol
 ) -> ClientConnection {
-    try! self.unowned((any Transport).self)
-        .get().connect(proto: proto.owned()).toCore()
+    let proto = proto.owned()
+    return try! self.unowned((any Transport).self).get()
+        .connect(proto: proto).toCore()
 }
 
 private func connection_send(self: UnsafePointer<ClientConnection>!,
