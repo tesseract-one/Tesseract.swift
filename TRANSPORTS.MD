@@ -22,10 +22,10 @@ public protocol Transport: AnyObject, CoreConvertible<ClientTransport> {
     var id: String { get }
 
     // Check if protocol supported through transport. 
-    func status(proto: String) async -> Status
+    func status(proto: BlockchainProtocol) async -> Status
 
     // Create new connection to the Wallet for provided protocol
-    func connect(proto: String) -> any Connection
+    func connect(proto: BlockchainProtocol) -> any Connection
 }
 
 // Wallet connection
@@ -73,7 +73,7 @@ func process(data: Data) async -> Result<Data, TesseractError>
 
 Worklow:
 1. In `bind` method transport should start listening for requests and store all needed context in its' `BoundTransport`.
-2. When data arrives, it should pass it to the `process` method of the `TransportProcessor` instance, wait for response, and send it to the client.
+2. When data arrives, it should pass it to the `process` method of the `TransportProcessor` instance, wait for response, and send it back to the client.
 3. When `BoundTransport` is deallocated, transport stops listening and drop `TransportProcessor` and context resources.
 
 For example of implementation you can check [IPCTransportIOS](./Sources/TesseractTransportsService/iOS/IPCTransportIOS.swift).
@@ -86,4 +86,68 @@ If you interested in implementing transports in Rust, check documentation in the
 
 ### Client Transport
 
-On the client side 
+To export client `Transport` to the Swift client SDK you have to export constructor method from Rust.
+
+```rust
+#[no_mangle]
+pub unsafe extern "C" fn tesseract_client_my_transport_new(
+    /* constructor parameters */
+    value: &mut ManuallyDrop<ClientTransport>, error: &mut ManuallyDrop<CError>
+) -> bool {
+    TesseractSwiftError::context(|| {
+        let transport = MyTransport::new(/* constructor parameters */); // Initialize your transport
+        Ok(ClientTransport::new(transport)) // Convert it to the interop transport object
+    }).response(value, error)
+}
+```
+
+On the Swift side SDK provides `CoreTransport` helper. It will provide memory management and needed protocols.
+Simply override it like this:
+```swift
+import TesseractTransportsClient
+import CMyTransport // your header target
+
+public final class MyTransport: CoreTransport {
+    public init(/* constructor parameters */) throws {
+        try super.init(TesseractError.self) { value, error in
+            tesseract_client_my_transport_new(/* constructor parameters */, value, error)
+        }
+    }
+}
+```
+
+`MyTransport` transport can be created and added to the client `Tesseract` instance.
+
+### Service Transport
+
+To export service `Transport` to the Swift client SDK you have to export constructor method from Rust.
+
+```rust
+#[no_mangle]
+pub unsafe extern "C" fn tesseract_service_my_transport_new(
+    /* constructor parameters */
+    value: &mut ManuallyDrop<ServiceTransport>, error: &mut ManuallyDrop<CError>
+) -> bool {
+    TesseractSwiftError::context(|| {
+        let transport = MyTransport::new(/* constructor parameters */); // Initialize your transport
+        Ok(ServiceTransport::new(transport)) // Convert it to the interop transport object
+    }).response(value, error)
+}
+```
+
+On the Swift side SDK provides `CoreTransport` helper. It will provide memory management and needed protocols.
+Simply override it like this:
+```swift
+import TesseractTransportsService
+import CMyTransport // your header target
+
+public final class MyTransport: CoreTransport {
+    public init(/* constructor parameters */) throws {
+        try super.init(TesseractError.self) { value, error in
+            tesseract_service_my_transport_new(/* constructor parameters */, value, error)
+        }
+    }
+}
+```
+
+`MyTransport` transport can be created and added to the service `Tesseract` instance.
