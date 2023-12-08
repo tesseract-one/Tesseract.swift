@@ -20,9 +20,9 @@ async-trait = "0.1"
 cbindgen = "0.26"
 errorcon = "0.1"
 log = "0.4"
-tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
-tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
-tesseract-protocol-substrate = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "dapp-fixes" }
+tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "master" }
+tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "master" }
+tesseract-protocol-substrate = { git = "https://github.com/tesseract-one/Tesseract.rs.git", branch = "master" }
 
 [profile.release]
 strip = true
