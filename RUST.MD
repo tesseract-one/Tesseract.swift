@@ -38,16 +38,15 @@ Copy Xcode build script from `Examples/Rust/xcode_build_step.sh` into your proje
 * Add the dependencies:
 ```toml
 [dependencies]
-tesseract-swift-utils = { git = "https://github.com/tesseract-one/Tesseract.swift", branch = "master" }
-tesseract-swift-transports = { git = "https://github.com/tesseract-one/Tesseract.swift", branch = "master", features = ["client"] }
-tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["client"] }
-tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["client"] }
+tesseract-swift = { version = "0.5", features = ["client"] }
+tesseract-one = { version = "0.5", features = ["client"] }
+tesseract-protocol-test = { version = "0.5", features = ["client"] }
 
 [build-dependencies]
 cbindgen = "0.26"
 ```
 * specify the type of library
-```
+```toml
 [lib]
 crate-type = ["staticlib"]
 ```
@@ -89,7 +88,7 @@ prefix_with_name = true
 
 [parse]
 parse_deps = true
-include = ["tesseract-swift-utils", "tesseract-swift-client"]
+include = ["tesseract-swift", "tesseract-swift-utils", "tesseract-swift-transport"]
 
 [export]
 exclude = [
@@ -104,20 +103,20 @@ Now you can export C functions, initialize Tesseract and start calling the Walle
 
 Create application initialization function in Rust. Initialize Tesseract in it
 ```rust
-use tesseract;
+use tesseract_one;
 use tesseract_protocol_test;
-use tesseract_swift_utils::Void;
-use tesseract_swift_utils::ptr::SyncPtr;
-use tesseract_swift_utils::error::CError;
-use tesseract_swift_transports::error::TesseractSwiftError;
-use tesseract_swift_transports::client::*;
+
+use tesseract_swift::error::TesseractSwiftError;
+use tesseract_swift::client::transport::*;
+use tesseract_swift::utils::{error::CError, ptr::SyncPtr, Void};
+
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 
 // Your application context. Put all needed data here.
 // Rust only structure
 struct AppContext {
-    service: Arc<dyn tesseract::client::Service<Protocol = tesseract_protocol_test::Test>>,
+    service: Arc<dyn tesseract_one::client::Service<Protocol = tesseract_protocol_test::Test>>,
 }
 
 // Type-erased App Context pointer for Swift.
@@ -199,16 +198,15 @@ Copy Xcode build script from `Examples/Rust/xcode_build_step.sh` into your proje
 * Add the dependencies:
 ```toml
 [dependencies]
-tesseract-swift-utils = { git = "https://github.com/tesseract-one/Tesseract.swift", branch = "master" }
-tesseract-swift-transports = { git = "https://github.com/tesseract-one/Tesseract.swift", branch = "master", features = ["service"] }
-tesseract = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
-tesseract-protocol-test = { git = "https://github.com/tesseract-one/Tesseract.rs", branch = "master", features = ["service"] }
+tesseract-swift = { version = "0.5", features = ["service"] }
+tesseract-one = { version = "0.5", features = ["service"] }
+tesseract-protocol-test = { version = "0.5", features = ["service"] }
 
 [build-dependencies]
 cbindgen = "0.26"
 ```
 * specify the type of library
-```
+```toml
 [lib]
 crate-type = ["staticlib"]
 ```
@@ -250,7 +248,7 @@ prefix_with_name = true
 
 [parse]
 parse_deps = true
-include = ["tesseract-swift-utils", "tesseract-swift-service"]
+include = ["tesseract-swift", "tesseract-swift-utils", "tesseract-swift-transport"]
 
 [export]
 exclude = [
@@ -266,14 +264,12 @@ Now you can export C functions, initialize Tesseract and wait accept request.
 
 Create Extension initialization function in Rust. Initialize Tesseract in it
 ```rust
-use tesseract;
-use tesseract::service::Tesseract;
-use tesseract_swift_utils::Void;
-use tesseract_swift_utils::ptr::SyncPtr;
-use tesseract_swift_utils::error::CError;
-use tesseract_swift_transports::error::TesseractSwiftError;
+use tesseract_one::service::Tesseract;
 
-use tesseract_swift_transports::service::ServiceTransport;
+use tesseract_swift::error::TesseractSwiftError;
+use tesseract_swift::service::transport::ServiceTransport;
+use tesseract_swift::utils::{error::CError, ptr::SyncPtr, Void};
+
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 
