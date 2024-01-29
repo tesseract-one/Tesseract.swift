@@ -1,29 +1,19 @@
 #![feature(async_closure)]
 
-extern crate async_trait;
-extern crate tesseract;
-extern crate tesseract_protocol_test;
-extern crate tesseract_swift_transports;
-extern crate tesseract_swift_utils;
-extern crate errorcon;
-
 pub mod delegate;
 
 use delegate::{AlertProvider, TransportDelegate};
 use stderrlog::LogLevelNum;
-use tesseract::client::Tesseract;
+use tesseract_one::client::Tesseract;
 use errorcon::convertible::ErrorContext;
 
-pub use tesseract_swift_transports::client::*;
 use tesseract_protocol_test::TestService;
-use tesseract_swift_transports::error::TesseractSwiftError;
-use tesseract_swift_utils::future_impls::CFutureString;
-use tesseract_swift_utils::response::CMoveResponse;
-use tesseract_swift_utils::string::CStringRef;
-use tesseract_swift_utils::traits::TryAsRef;
-use tesseract_swift_utils::ptr::SyncPtr;
-use tesseract_swift_utils::error::CError;
-pub use tesseract_swift_utils::*;
+use tesseract_swift::error::TesseractSwiftError;
+use tesseract_swift::client::transport::ClientTransport;
+use tesseract_swift::utils::{
+    future_impls::CFutureString, response::CMoveResponse, string::CStringRef,
+    traits::TryAsRef, ptr::SyncPtr, error::CError, Void
+};
 
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
@@ -46,7 +36,7 @@ impl AppContextPtr {
 }
 
 struct AppContext {
-    service: Arc<dyn tesseract::client::Service<Protocol = tesseract_protocol_test::Test>>,
+    service: Arc<dyn tesseract_one::client::Service<Protocol = tesseract_protocol_test::Test>>,
 }
 
 #[no_mangle]

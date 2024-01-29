@@ -1,13 +1,16 @@
 [package]
 name = "tesseract-swift-utils"
-authors.workspace = true
+description = "Tesseract interop helpers for Swift. Check tesseract-swift crate for full SDK."
 version.workspace = true
-license.workspace = true
 edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 repository.workspace = true
 documentation.workspace = true
-description = "Tesseract interop helpers for Swift."
-keywords = [ "Tesseract", "Swift", "C" ]
+readme.workspace = true
+authors.workspace = true
+categories.workspace = true
+keywords.workspace = true
 
 [dependencies]
 log.workspace = true

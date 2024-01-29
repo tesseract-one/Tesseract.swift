@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use stderrlog::LogLevelNum;
-use tesseract_swift_transports::error::TesseractSwiftError;
+use tesseract_swift::error::TesseractSwiftError;
 
 static INITIALIZED: AtomicBool = AtomicBool::new(false);
 

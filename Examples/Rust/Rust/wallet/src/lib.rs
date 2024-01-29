@@ -1,27 +1,18 @@
 #![feature(async_closure)]
 
-extern crate async_trait;
-extern crate errorcon;
-extern crate tesseract;
-extern crate tesseract_protocol_test;
-extern crate tesseract_swift_transports;
-extern crate tesseract_swift_utils;
-
 use async_trait::async_trait;
 use errorcon::convertible::ErrorContext;
 use stderrlog::LogLevelNum;
-use tesseract_swift_transports::error::TesseractSwiftError;
+use tesseract_swift::error::TesseractSwiftError;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
-use tesseract::service::Tesseract;
-use tesseract_swift_transports::service::ServiceTransport;
-use tesseract_swift_utils::error::CError;
-use tesseract_swift_utils::future_impls::CFutureBool;
-use tesseract_swift_utils::ptr::{CAnyDropPtr, SyncPtr};
-use tesseract_swift_utils::response::CMoveResponse;
-use tesseract_swift_utils::string::{CString, CStringRef};
-use tesseract_swift_utils::traits::{TryAsRef, AsCRef};
-use tesseract_swift_utils::Void;
+use tesseract_one::service::Tesseract;
+use tesseract_swift::service::transport::ServiceTransport;
+use tesseract_swift::utils::{
+    error::CError, future_impls::CFutureBool, ptr::{CAnyDropPtr, SyncPtr},
+    response::CMoveResponse, string::{CString, CStringRef}, traits::{TryAsRef, AsCRef},
+    Void
+};
 
 mod init;
 
@@ -55,21 +46,21 @@ impl TestService {
     }
 }
 
-impl tesseract::service::Service for TestService {
+impl tesseract_one::service::Service for TestService {
     type Protocol = tesseract_protocol_test::Test;
 
     fn protocol(&self) -> &tesseract_protocol_test::Test {
         &tesseract_protocol_test::Test::Protocol
     }
 
-    fn to_executor(self) -> Box<dyn tesseract::service::Executor + Send + Sync> {
+    fn to_executor(self) -> Box<dyn tesseract_one::service::Executor + Send + Sync> {
         Box::new(tesseract_protocol_test::service::TestExecutor::from_service(self))
     }
 }
 
 #[async_trait]
 impl tesseract_protocol_test::TestService for TestService {
-    async fn sign_transaction(self: Arc<Self>, req: &str) -> tesseract::Result<String> {
+    async fn sign_transaction(self: Arc<Self>, req: &str) -> tesseract_one::Result<String> {
         let cstr: CString = req.into();
         let future = unsafe {
             ManuallyDrop::into_inner((self.ui.approve_tx)(&self.ui, cstr.as_cref()))
@@ -79,12 +70,12 @@ impl tesseract_protocol_test::TestService for TestService {
 
             if allow {
                 if req == "make_error" {
-                    Err(tesseract::Error::described(tesseract::ErrorKind::Weird, "intentional error for test").into())
+                    Err(tesseract_one::Error::described(tesseract_one::ErrorKind::Weird, "intentional error for test").into())
                 } else {
                     Ok(format!("{}{}", req, self.signature))
                 }
             } else {
-                Err(tesseract::Error::kinded(tesseract::ErrorKind::Cancelled).into())
+                Err(tesseract_one::Error::kinded(tesseract_one::ErrorKind::Cancelled).into())
             }
         }).await
     }

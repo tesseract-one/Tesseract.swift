@@ -1,0 +1,30 @@
+[package]
+name = "tesseract-swift-transport"
+description = "Crate with transport related Tesseract APIs for Swift"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+readme.workspace = true
+authors.workspace = true
+categories.workspace = true
+keywords.workspace = true
+
+[dependencies]
+thiserror = "1.0"
+
+async-trait.workspace = true
+errorcon.workspace = true
+log.workspace = true
+
+tesseract-one.workspace = true
+tesseract-swift-utils.workspace = true
+
+[features]
+client = ["tesseract-one/client"]
+service = ["tesseract-one/service"]
+
+[build-dependencies]
+cbindgen.workspace = true

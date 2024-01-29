@@ -3,15 +3,15 @@ name = "wallet"
 version = "0.0.1"
 authors = ["Tesseract Systems, Inc. <info@tesseract.one>"]
 license = "Apache-2.0"
-description = "Cardano bindings for C."
-keywords = [ "Tesseract", "Cardano", "C" ]
+description = "Tesseract SDK Service Example"
 edition = "2021"
 
 [dependencies]
-tesseract-swift-utils.workspace = true
-tesseract-swift-transports = { workspace = true, features = ["service"]}
-tesseract = { workspace = true, features = ["service"] }
+tesseract-swift = { workspace = true, features = ["service"] }
+
+tesseract-one = { workspace = true, features = ["service"] }
 tesseract-protocol-test = { workspace = true, features = ["service"] }
+
 async-trait.workspace = true
 errorcon.workspace = true
 log.workspace = true

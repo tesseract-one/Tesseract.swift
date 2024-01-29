@@ -1,0 +1,44 @@
+[package]
+name = "tesseract-swift-framework"
+description = "Tesseract framework to be embedded into prebuilt Swift artifacts. Don't use directly."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+readme.workspace = true
+authors.workspace = true
+categories.workspace = true
+keywords.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+errorcon.workspace = true
+log.workspace = true
+
+log-panics = { version = "2", features = ["with-backtrace"] }
+stderrlog = "0.5"
+
+tesseract-swift.workspace = true
+
+tesseract-one.workspace = true
+tesseract-protocol-test = { workspace = true, optional = true, features = ["client", "service"] }
+tesseract-protocol-substrate = { workspace = true, optional = true, features = ["client", "service"] }
+
+[build-dependencies]
+cbindgen.workspace = true
+
+[features]
+default = ["client", "service", "protocol-all"]
+
+client = ["tesseract-swift/client", "tesseract-one/client"]
+service = ["tesseract-swift/service", "tesseract-one/service"]
+
+protocol-test = ["dep:tesseract-protocol-test"]
+protocol-substrate = ["dep:tesseract-protocol-substrate"]
+protocol-all = ["protocol-test", "protocol-substrate"]
+
+[lib]
+crate-type = ["staticlib"]
+

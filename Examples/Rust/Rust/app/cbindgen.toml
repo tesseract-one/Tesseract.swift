@@ -12,7 +12,7 @@ prefix_with_name = true
 
 [parse]
 parse_deps = true
-include = ["tesseract-swift-utils", "tesseract-swift-client"]
+include = ["tesseract-swift", "tesseract-swift-utils", "tesseract-swift-transport"]
 
 [export]
 exclude = [

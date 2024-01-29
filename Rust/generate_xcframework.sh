@@ -1,7 +1,8 @@
 #!/bin/zsh
 set -e
 
-CRATE="tesseract-swift"
+CRATE="tesseract-swift-framework"
+XCFRAMEWORK_NAME="CTesseract"
 
 DIR="$(cd "$(dirname "$0")" && pwd -P)"
 SOURCES_DIR="${DIR}/.."
@@ -141,9 +142,6 @@ else
   RELEASE="--release"
   CONFIGURATION="release"
 fi
-
-# generate name for xcframework
-XCFRAMEWORK_NAME="C${${${(C)CRATE}//-}//Swift}"
 
 # output xcframework path
 XCFRAMEWORK_PATH="${OUTPUT_DIR}/${XCFRAMEWORK_NAME}.xcframework"

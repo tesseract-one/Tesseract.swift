@@ -1,4 +1,3 @@
-#![feature(return_position_impl_trait_in_trait)]
 #![feature(async_closure)]
 
 pub mod array;
@@ -16,8 +15,6 @@ pub mod string;
 pub mod traits;
 pub mod map;
 
-#[cfg(feature = "bigint")]
-extern crate num_bigint;
 #[cfg(feature = "bigint")]
 pub mod bigint;
 

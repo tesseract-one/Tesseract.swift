@@ -2,8 +2,8 @@ use std::{collections::HashMap, sync::Arc};
 
 use async_trait::async_trait;
 
-use tesseract::client::{transport::Status, Delegate};
-use tesseract_swift_utils::{ptr::CAnyDropPtr, string::CString, string::CStringRef, traits::AsCRef};
+use tesseract_one::client::{transport::Status, Delegate};
+use tesseract_swift::utils::{ptr::CAnyDropPtr, string::CString, string::CStringRef, traits::AsCRef};
 
 #[repr(C)]
 pub struct AlertProvider {

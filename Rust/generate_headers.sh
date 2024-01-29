@@ -2,7 +2,7 @@
 set -e
 
 MODULE_NAME="CTesseractShared"
-MAIN_CRATE="tesseract-swift-transports"
+MAIN_CRATE="tesseract-swift-transport"
 HEADERS_DIR="target/release/include"
 OUTPUT_DIR="Sources/$MODULE_NAME/include"
 
