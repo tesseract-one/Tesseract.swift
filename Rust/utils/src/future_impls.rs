@@ -22,8 +22,3 @@ pub type CFutureUInt64 = CFuture<u64>;
 pub type CFutureBool = CFuture<bool>;
 pub type CFutureInt128 = CFuture<CInt128>;
 pub type CFutureUInt128 = CFuture<CUInt128>;
-
-#[cfg(feature = "bigint")]
-use crate::bigint::CBigInt;
-#[cfg(feature = "bigint")]
-pub type CFutureBigInt = CFuture<CBigInt>;

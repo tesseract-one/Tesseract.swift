@@ -26,9 +26,6 @@ tesseract-one.workspace = true
 tesseract-protocol-test = { workspace = true, optional = true, features = ["client", "service"] }
 tesseract-protocol-substrate = { workspace = true, optional = true, features = ["client", "service"] }
 
-[build-dependencies]
-cbindgen.workspace = true
-
 [features]
 default = ["client", "service", "protocol-all"]
 
@@ -41,4 +38,3 @@ protocol-all = ["protocol-test", "protocol-substrate"]
 
 [lib]
 crate-type = ["staticlib"]
-

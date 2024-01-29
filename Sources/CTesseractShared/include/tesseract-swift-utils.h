@@ -9,11 +9,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#if defined(DEFINE_FEATURE_BIGINT)
 typedef enum CBigIntSign {
+#if defined(DEFINE_FEATURE_BIGINT)
   CBigIntSign_Minus,
+#endif
+#if defined(DEFINE_FEATURE_BIGINT)
   CBigIntSign_NoSign,
+#endif
+#if defined(DEFINE_FEATURE_BIGINT)
   CBigIntSign_Plus,
+#endif
 } CBigIntSign;
+#endif
 
 enum CErrorCode
 #ifdef __cplusplus
@@ -88,10 +96,12 @@ typedef struct CArray_u32 {
   uintptr_t len;
 } CArray_u32;
 
+#if defined(DEFINE_FEATURE_BIGINT)
 typedef struct CBigInt {
   enum CBigIntSign sign;
   struct CArray_u32 data;
 } CBigInt;
+#endif
 
 typedef struct CAnyDropPtr {
   SyncPtr_Void ptr;
@@ -187,21 +197,6 @@ typedef struct CFuture_CData {
 
 typedef struct CFuture_CData CFutureData;
 
-typedef void (*CFutureOnCompleteCallback_CBigInt)(SyncPtr_Void context,
-                                                  struct CBigInt *value,
-                                                  struct CError *error);
-
-typedef struct CFuture_CBigInt {
-  struct CAnyDropPtr ptr;
-  enum COptionResponseResult (*set_on_complete)(const struct CFuture_CBigInt *future,
-                                                SyncPtr_Void context,
-                                                struct CBigInt *value,
-                                                struct CError *error,
-                                                CFutureOnCompleteCallback_CBigInt cb);
-} CFuture_CBigInt;
-
-typedef struct CFuture_CBigInt CFutureBigInt;
-
 typedef void (*CFutureOnCompleteCallback_CAnyRustPtr)(SyncPtr_Void context,
                                                       struct CAnyRustPtr *value,
                                                       struct CError *error);
@@ -277,7 +272,9 @@ bool tesseract_utils_cstring_new(CStringRef cstr, struct CString *res, struct CE
 
 void tesseract_utils_cstring_free(struct CString cstr);
 
+#if defined(DEFINE_FEATURE_BIGINT)
 void tesseract_utils_big_int_free(struct CBigInt *big_int);
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

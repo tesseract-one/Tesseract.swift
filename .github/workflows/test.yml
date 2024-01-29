@@ -24,6 +24,8 @@ jobs:
           toolchain: ${{env.RUST_VERSION}}
           targets: ${{env.RUST_TARGETS}}
           profile: minimal
+      - name: Install cbindgen
+        run: cargo install --force cbindgen
       - name: Build Core rust binary
         run: Rust/generate_headers.sh && Rust/generate_xcframework.sh
       - name: Patch Package.swift for testing

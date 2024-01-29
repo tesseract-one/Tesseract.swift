@@ -4,8 +4,16 @@ on:
     types: [created]
 jobs:
   publish_pod:
+    name: Publish to Cocoa Pods
     uses: "./.github/workflows/publish_pod.yml"
     with:
-        version: ${{ github.event.release.tag_name }}
+      version: ${{ github.event.release.tag_name }}
     secrets:
-        trunk-token: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+      trunk-token: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+  publish_crate:
+    name: Publish to Crates
+    uses: "./.github/workflows/publish_crate.yml"
+    with:
+      version: ${{ github.event.release.tag_name }}
+    secrets:
+      registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}

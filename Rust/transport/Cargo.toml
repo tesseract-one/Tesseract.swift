@@ -25,6 +25,3 @@ tesseract-swift-utils.workspace = true
 [features]
 client = ["tesseract-one/client"]
 service = ["tesseract-one/service"]
-
-[build-dependencies]
-cbindgen.workspace = true

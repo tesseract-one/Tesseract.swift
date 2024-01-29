@@ -1,0 +1,36 @@
+name: Publish to Crates
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+    secrets:
+      registry-token:
+        required: true
+jobs:
+  publish:
+    runs-on: macOS-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.version }}
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_14.3.1.app
+      - name: Set release version
+        run: sed -i '' "s|version[[:blank:]]*=[[:blank:]]*\".*\"\(.*\)#AUTOVERSION|version = \"${VERSION}\"\1|g" Cargo.toml 
+        env: 
+          VERSION: ${{ inputs.version }}
+      - name: Publish Utils
+        run: cargo publish -p tesseract-swift-utils
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.registry-token }}
+      - name: Publish Transport
+        run: cargo publish -p tesseract-swift-transport
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.registry-token }}
+      - name: Publish SDK
+        run: cargo publish -p tesseract-swift
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.registry-token }}

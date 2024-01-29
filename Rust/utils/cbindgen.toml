@@ -9,6 +9,9 @@ cpp_compat = true
 [enum]
 prefix_with_name = true
 
+[defines]
+"feature = bigint" = "DEFINE_FEATURE_BIGINT"
+
 [export]
 include = [
   "CPtrRef", "CStringRef", "CFutureNothing",

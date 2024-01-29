@@ -1,21 +1,19 @@
 #!/bin/zsh
 set -e
 
+CRATES=("tesseract-swift-utils" "tesseract-swift-transport")
 MODULE_NAME="CTesseractShared"
-MAIN_CRATE="tesseract-swift-transport"
-HEADERS_DIR="target/release/include"
 OUTPUT_DIR="Sources/$MODULE_NAME/include"
 
-DIR="$(cd "$(dirname "$0")" && pwd -P)/.."
-cd "$DIR"
+DIR="$(cd "$(dirname "$0")" && pwd -P)"
 
-rm -rf "$HEADERS_DIR"
-
-cargo build -p "$MAIN_CRATE" --release --all-features
+cd "$DIR/.."
 
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-cp "$HEADERS_DIR/"*.h "$OUTPUT_DIR/"
+for crate in $CRATES; do
+  cbindgen -q --crate $crate -o "$OUTPUT_DIR/$crate.h"
+done
 
 exit 0

@@ -181,10 +181,10 @@ for btarget in ${BUILD_TARGETS[@]}; do
   
   lipo ${built_libs} -create -output "${OUT_LIB_PATH}"
 
+  cbindgen -q --crate $CRATE -o "${HEADERS_DIR}/${LIBRARY_NAME}.h"
+
   generate_modulemap "${HEADERS_DIR}" "${XCFRAMEWORK_NAME}" "${LIBRARY_NAME}"
-  
-  cp -f "${RUST_TARGET_DIR}/${CONFIGURATION}/include/${CRATE}.h" "${HEADERS_DIR}/${LIBRARY_NAME}.h"
-  
+
   add_library_to_xcframework "${XCFRAMEWORK_PATH}" \
     "${HEADERS_DIR}/" "${OUT_LIB_PATH}" \
     "${platform}" "${archs}" "${variant}"
