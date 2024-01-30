@@ -4,7 +4,7 @@ env:
   RUST_TARGETS: aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
   ZIP_FILE_NAME: Tesseract-Core.bin.zip
   CI_COMMIT_AUTHOR: Release Action
-  CI_COMMIT_MESSAGE: Package.swift binary update
+  CI_COMMIT_MESSAGE: Package.swift Rust binary update
 on:
   workflow_dispatch:
     inputs:
@@ -72,6 +72,7 @@ jobs:
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
           git config --global user.email "ypopovych@users.noreply.github.com"
           git add Package.swift
+          git add --all Sources/CTesseractShared/
           git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push origin
           git tag -a "${VERSION}" -m "${RELEASE}"
